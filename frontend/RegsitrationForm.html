@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Council Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/Registration.css">
+</head>
+<body>
+
+<div class="container" id="formContainer">
+    <h2>Student Council Registration</h2>
+
+    <form id="registrationForm">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" required>
+        </div>
+
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" required>
+        </div>
+
+        <div class="form-group">
+            <label>College</label>
+            <input type="text" required>
+        </div>
+
+        <div class="form-group">
+            <label>Level</label>
+            <select required>
+                <option value="" selected disabled>Select level</option>
+                <option>Level 1</option>
+                <option>Level 2</option>
+                <option>Level 3</option>
+                <option>Level 4</option>
+            </select>
+        </div>
+
+           <div class="form-group">
+            <label>Preferences</label>
+            <select required>
+                <option value="" selected disabled>Select preferences</option>
+                <option>Backend Development</option>
+                <option>Frontend Development</option>
+                <option>Marketing</option>
+                <option>CEO</option>
+                <option>Stock</option>
+                
+            </select>
+        </div>
+        <button type="submit">Submit Registration</button>
+    </form>
+
+    <div class="thank-you" id="thankYou">
+        <h3>Thank You 🎉</h3>
+        <p>Your registration has been received successfully.<br>
+        We will contact you soon.</p>
+    </div>
+
+    <footer>
+        © Student Council
+    </footer>
+</div>
+
+<script>
+    const form = document.getElementById('registrationForm');
+    const thankYou = document.getElementById('thankYou');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        form.style.display = 'none';
+        thankYou.style.display = 'block';
+    });
+</script>
+
+</body>
+</html>
