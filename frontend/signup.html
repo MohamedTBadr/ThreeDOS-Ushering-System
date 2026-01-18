@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Ushering System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --success: #10b981;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem 0;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+        }
+        .signup-card {
+            background: var(--card);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+        h1 { margin-bottom: 0.5rem; font-size: 1.8rem; }
+        p { color: #94a3b8; margin-bottom: 2rem; font-size: 0.9rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 600; }
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            color: white;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        button {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            margin-top: 1rem;
+        }
+        button:hover { background: #4f46e5; transform: translateY(-2px); }
+        button:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .links { margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: #94a3b8; }
+        .links a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .links a:hover { text-decoration: underline; }
+        .status-msg { font-size: 0.85rem; margin-top: 1rem; text-align: center; display: none; padding: 0.75rem; border-radius: 0.5rem; }
+        .error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .success { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="signup-card">
+        <h1>Create Account</h1>
+        <p>Register as a council member or administrator.</p>
+        <form id="signupForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" required placeholder="johndoe">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="email" required placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <select id="role" required>
+                    <option value="" disabled selected>Select your role</option>
+                    <option value="VP">VP (Vice President)</option>
+                    <option value="Head">Head</option>
+                    <option value="Instructor">Instructor / Interviewer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Council</label>
+                <select id="council" required>
+                    <option value="" disabled selected>Loading councils...</option>
+                </select>
+            </div>
+            <button type="submit" id="submitBtn">Sign Up</button>
+            <div id="statusMsg" class="status-msg"></div>
+        </form>
+        <div class="links">
+            Already have an account? <a href="login.html">Sign In</a>
+        </div>
+    </div>
+
+    <script>
+        // Fetch Councils on Load
+        async function fetchCouncils() {
+            try {
+                const res = await fetch('../backend/councils.php');
+                const result = await res.json();
+                const select = document.getElementById('council');
+                
+                if (result.status === 'success') {
+                    select.innerHTML = '<option value="" disabled selected>Select your council</option>';
+                    result.data.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = c.name;
+                        select.appendChild(opt);
+                    });
+                } else {
+                    select.innerHTML = '<option value="" disabled>Error loading councils</option>';
+                }
+            } catch (err) {
+                document.getElementById('council').innerHTML = '<option value="" disabled>Connection error</option>';
+            }
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const msg = document.getElementById('statusMsg');
+            
+            btn.disabled = true;
+            btn.innerText = 'Creating account...';
+            msg.style.display = 'none';
+
+            const payload = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value,
+                council_id: document.getElementById('council').value
+            };
+
+            try {
+                const res = await fetch('../backend/signup.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    msg.innerText = 'Account created! Redirecting to login...';
+                    msg.className = 'status-msg success';
+                    msg.style.display = 'block';
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                } else {
+                    msg.innerText = data.message;
+                    msg.className = 'status-msg error';
+                    msg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerText = 'Sign Up';
+                }
+            } catch (err) {
+                msg.innerText = 'Connection error. Try again.';
+                msg.className = 'status-msg error';
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.innerText = 'Sign Up';
+            }
+        });
+
+        // Initialize
+        fetchCouncils();
+    </script>
+</body>
+</html>
