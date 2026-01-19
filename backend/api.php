@@ -55,7 +55,7 @@ function authenticate($conn)
 // 1. POST - Public Registration
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $input = getJsonInput();
-    $required = ['name', 'email', 'phone', 'college', 'level', 'preferences','council_id'];
+    $required = ['name', 'email', 'phone', 'college', 'level', 'preferences','council'];
     foreach ($required as $f)
         if (empty($input[$f]))
             sendResponse('error', "Field $f is required", null, 400);

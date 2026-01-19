@@ -84,11 +84,10 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting...';
 
-        // Preference (ID + Name)
-        const preferencesSelect = document.getElementById('preferences');
-        const preferenceId = preferencesSelect.value;
-        const preferenceName =
-            preferencesSelect.options[preferencesSelect.selectedIndex].text;
+        // Preference ( Name)
+        const council = document.getElementById('preferences').value;
+      
+     
 
         // Build payload
         const formData = {
@@ -98,8 +97,8 @@
             college: document.getElementById('college').value,
             level: document.getElementById('level').value,
 
-            preferences: preferenceName,
-            council_id: preferenceId
+            council: council,
+            
         };
 
         try {
