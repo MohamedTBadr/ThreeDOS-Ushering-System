@@ -37,10 +37,9 @@ function authenticate($conn)
         sendResponse('error', 'Unauthorized. No token provided.', null, 401);
 
     $stmt = $conn->prepare("
-        SELECT u.*, c.name as council_name 
+        SELECT u.*,s.expires_at,s.token
         FROM sessions s 
         JOIN users u ON s.user_id = u.id 
-        JOIN councils c ON u.council_id = c.id
         WHERE s.token = ? AND s.expires_at > NOW()
     ");
     $stmt->bind_param("s", $token);
@@ -79,13 +78,13 @@ $user = authenticate($connection);
 
 // 2. GET - Fetch Applicants (Filtered by Council)
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    $council_id = $user['council_id'];
+    $council = $user['council'];
     $page = isset($_GET["page"]) ? (int) $_GET["page"] : 1;
     $limit = 50;
     $offset = ($page - 1) * $limit;
 
-    $queryStr = "SELECT * FROM registration WHERE (council_id = ? OR council_id IS NULL)";
-    $params = [$council_id];
+    $queryStr = "SELECT * FROM registration WHERE (council = ? OR council IS NULL)";
+    $params = [$council];
     $types = "i";
 
     if (isset($_GET["search"]) && !empty($_GET["search"])) {
@@ -116,11 +115,11 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
         sendResponse('error', 'ID required', null, 400);
 
     // Check if applicant belongs to user's council
-    $check = $connection->prepare("SELECT council_id FROM registration WHERE id = ?");
+    $check = $connection->prepare("SELECT council FROM registration WHERE id = ?");
     $check->bind_param("i", $input['id']);
     $check->execute();
     $res = $check->get_result()->fetch_assoc();
-    if ($res['council_id'] != $user['council_id'] && $res['council_id'] !== null) {
+    if ($res['council'] != $user['council'] && $res['council'] !== null) {
         sendResponse('error', 'Unauthorized to edit this applicant', null, 403);
     }
 
@@ -140,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
         }
     } else {
         // VP/Head: Full access
-        $allowed = ['name', 'email', 'phone', 'college', 'level', 'preferences', 'rating', 'notes', 'council_id'];
+        $allowed = ['name', 'email', 'phone', 'college', 'level', 'preferences', 'rating', 'notes', 'council'];
         foreach ($allowed as $f) {
             if (isset($input[$f])) {
                 $fields[] = "$f = ?";
@@ -171,8 +170,8 @@ if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
         sendResponse('error', 'Permission denied', null, 403);
 
     $input = getJsonInput();
-    $stmt = $connection->prepare("DELETE FROM registration WHERE id = ? AND (council_id = ? OR council_id IS NULL)");
-    $stmt->bind_param("ii", $input['id'], $user['council_id']);
+    $stmt = $connection->prepare("DELETE FROM registration WHERE id = ? AND (council = ? OR council IS NULL)");
+    $stmt->bind_param("ii", $input['id'], $user['council']);
     $stmt->execute();
 
     sendResponse('success', 'Deleted successfully');
