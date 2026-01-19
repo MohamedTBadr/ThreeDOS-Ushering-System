@@ -51,11 +51,11 @@
             <label>Preferences</label>
             <select name="preferences" id="preferences" required>
                 <option value="" selected disabled>Select preferences</option>
-                <option>Backend Development</option>
-                <option>Frontend Development</option>
-                <option>Marketing</option>
-                <option>CEO</option>
-                <option>Stock</option>
+                <option value="1">Backend Development</option>
+                <option value="2">Frontend Development</option>
+                <option value="3">Marketing</option>
+                <option value="4">CEO</option>
+                <option value="5">Stock</option>
             </select>
         </div>
         <button type="submit">Submit Registration</button>
@@ -79,21 +79,29 @@
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
-        
+
         // Disable submit button
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting...';
-        
-        // Get form data
+
+        // Preference (ID + Name)
+        const preferencesSelect = document.getElementById('preferences');
+        const preferenceId = preferencesSelect.value;
+        const preferenceName =
+            preferencesSelect.options[preferencesSelect.selectedIndex].text;
+
+        // Build payload
         const formData = {
             name: document.getElementById('name').value,
             email: document.getElementById('email').value,
             phone: document.getElementById('phone').value,
             college: document.getElementById('college').value,
             level: document.getElementById('level').value,
-            preferences: document.getElementById('preferences').value
+
+            preferences: preferenceName,
+            council_id: preferenceId
         };
-        
+
         try {
             const response = await fetch('../backend/api.php', {
                 method: 'POST',
@@ -102,9 +110,9 @@
                 },
                 body: JSON.stringify(formData)
             });
-            
+
             const result = await response.json();
-            
+
             if (result.status === 'success') {
                 form.style.display = 'none';
                 thankYou.style.display = 'block';
@@ -121,6 +129,7 @@
         }
     });
 </script>
+
 
 </body>
 </html>

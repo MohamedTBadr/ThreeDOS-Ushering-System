@@ -101,7 +101,12 @@
             <div class="form-group">
                 <label>Council</label>
                 <select id="council" required>
-                    <option value="" disabled selected>Loading councils...</option>
+                    <option value="" disabled selected>Select your council</option>
+                    <option value="Backend Development">Backend Development</option>
+                    <option value="Frontend Development">Frontend Development</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="CEO">CEO</option>
+                    <option value="Stock">Stock</option>
                 </select>
             </div>
             <button type="submit" id="submitBtn">Sign Up</button>
@@ -114,27 +119,27 @@
 
     <script>
         // Fetch Councils on Load
-        async function fetchCouncils() {
-            try {
-                const res = await fetch('../backend/councils.php');
-                const result = await res.json();
-                const select = document.getElementById('council');
+        // async function fetchCouncils() {
+        //     try {
+        //         const res = await fetch('../backend/councils.php');
+        //         const result = await res.json();
+        //         const select = document.getElementById('council');
                 
-                if (result.status === 'success') {
-                    select.innerHTML = '<option value="" disabled selected>Select your council</option>';
-                    result.data.forEach(c => {
-                        const opt = document.createElement('option');
-                        opt.value = c.id;
-                        opt.textContent = c.name;
-                        select.appendChild(opt);
-                    });
-                } else {
-                    select.innerHTML = '<option value="" disabled>Error loading councils</option>';
-                }
-            } catch (err) {
-                document.getElementById('council').innerHTML = '<option value="" disabled>Connection error</option>';
-            }
-        }
+        //         if (result.status === 'success') {
+        //             select.innerHTML = '<option value="" disabled selected>Select your council</option>';
+        //             result.data.forEach(c => {
+        //                 const opt = document.createElement('option');
+        //                 opt.value = c.id;
+        //                 opt.textContent = c.name;
+        //                 select.appendChild(opt);
+        //             });
+        //         } else {
+        //             select.innerHTML = '<option value="" disabled>Error loading councils</option>';
+        //         }
+        //     } catch (err) {
+        //         document.getElementById('council').innerHTML = '<option value="" disabled>Connection error</option>';
+        //     }
+        // }
 
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -150,7 +155,7 @@
                 email: document.getElementById('email').value,
                 password: document.getElementById('password').value,
                 role: document.getElementById('role').value,
-                council_id: document.getElementById('council').value
+                council: document.getElementById('council').value
             };
 
             try {
@@ -182,8 +187,8 @@
             }
         });
 
-        // Initialize
-        fetchCouncils();
+        // // Initialize
+        // fetchCouncils();
     </script>
 </body>
 </html>

@@ -56,15 +56,17 @@ function authenticate($conn)
 // 1. POST - Public Registration
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $input = getJsonInput();
-    $required = ['name', 'email', 'phone', 'college', 'level', 'preferences'];
+    $required = ['name', 'email', 'phone', 'college', 'level', 'preferences','council_id'];
     foreach ($required as $f)
         if (empty($input[$f]))
             sendResponse('error', "Field $f is required", null, 400);
 
     // We might need to assign a council based on preferences or a default one
     // For now, let's assume it maps to ID 1 or is set manually later
-    $stmt = $connection->prepare("INSERT INTO registration (name, email, phone, college, level, preferences) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssss", $input['name'], $input['email'], $input['phone'], $input['college'], $input['level'], $input['preferences']);
+    $stmt = $connection->prepare("INSERT INTO registration (name, email, phone, college, level, council)
+     VALUES (?, ?, ?, ?, ?, ?,?)");
+    $stmt->bind_param("ssssss", $input['name'], $input['email'], $input['phone'], 
+    $input['college'], $input['level'], $input['council']);
 
     if ($stmt->execute())
         sendResponse('success', 'Registration submitted!', ['id' => $stmt->insert_id], 201);
