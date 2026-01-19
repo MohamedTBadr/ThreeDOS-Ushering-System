@@ -39,11 +39,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $input['email'];
     $password = $input['password'];
 
-    // Get user with council info
+    // Get user 
     $stmt = $connection->prepare("
-        SELECT u.*, c.name as council_name 
+        SELECT *
         FROM users u 
-        JOIN councils c ON u.council_id = c.id 
         WHERE u.email = ?
     ");
     $stmt->bind_param("s", $email);
@@ -95,10 +94,9 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     // Verify token
     $stmt = $connection->prepare("
-        SELECT u.*, c.name as council_name, s.expires_at
+        SELECT u.*, s.expires_at
         FROM sessions s
         JOIN users u ON s.user_id = u.id
-        JOIN councils c ON u.council_id = c.id
         WHERE s.token = ? AND s.expires_at > NOW()
     ");
     $stmt->bind_param("s", $token);

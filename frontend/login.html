@@ -6,60 +6,120 @@
     <title>Login | Ushering System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f1f5f9;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
-        }
-        .login-card {
-            background: var(--card);
-            padding: 2.5rem;
-            border-radius: 1.5rem;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            border: 1px solid #334155;
-        }
-        h1 { margin-bottom: 0.5rem; font-size: 1.8rem; }
-        p { color: #94a3b8; margin-bottom: 2rem; font-size: 0.9rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; }
-        input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 0.75rem;
-            color: white;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-        input:focus { outline: none; border-color: var(--primary); }
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-        }
-        button:hover { background: #4f46e5; transform: translateY(-2px); }
-        .error { color: #ef4444; font-size: 0.8rem; margin-top: 1rem; text-align: center; display: none; }
+:root {
+    /* THREEDOS Brand System */
+    --primary: #7F4797;
+    --primary-dark: #6A3A82;
+    --primary-light: #9A6BB2;
+
+    --bg: #19191C;
+    --card: #252429;
+
+    --text: #F4F4F4;
+    --text-muted: #9F9F9F;
+
+    --border: #565657;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background: radial-gradient(
+        circle at top right,
+        #252429,
+        #19191C
+    );
+}
+
+.login-card {
+    background: var(--card);
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border);
+}
+
+h1 {
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #19191C;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    color: var(--text);
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input::placeholder {
+    color: #6F6F73;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(127, 71, 151, 0.35);
+}
+
+button {
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-dark)
+    );
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(127, 71, 151, 0.45);
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 1rem;
+    text-align: center;
+    display: none;
+}
+
     </style>
 </head>
 <body>

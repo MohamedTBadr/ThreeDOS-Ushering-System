@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Applicant Management System - Statistics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* =========================
+   GLOBAL RESET
+========================= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg,#19191C 0%,#252429 100%); color: #F4F4F4; min-height: 100vh; overflow-x: hidden; }
+
+/* =========================
+   DASHBOARD LAYOUT
+========================= */
+.dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar { background: linear-gradient(180deg,#252429 0%,#19191C 100%); border-right:1px solid #565657; padding:2rem 1.5rem; display:flex; flex-direction:column; gap:2rem; position:sticky; top:0; height:100vh; overflow-y:auto; }
+.logo h2 { font-size:1.5rem; font-weight:700; background: linear-gradient(135deg,#9A6BB2,#7F4797); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.nav-menu { display:flex; flex-direction:column; gap:0.5rem; }
+.nav-item { display:flex; align-items:center; gap:0.75rem; padding:0.875rem 1rem; border-radius:0.75rem; color:#B0B0B0; text-decoration:none; transition:all 0.3s ease; font-weight:500; }
+.nav-item:hover { background: rgba(127,71,151,0.15); color:#9A6BB2; transform: translateX(4px); }
+.nav-item.active { background: rgba(127,71,151,0.25); color:#9A6BB2; border-left:3px solid #7F4797; }
+.nav-item .icon { font-size:1.25rem; }
+
+/* =========================
+   MAIN CONTENT
+========================= */
+.main-content { padding:2rem; max-width:1600px; margin:0 auto; }
+
+/* =========================
+   HEADER
+========================= */
+.header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:2rem; }
+.header h1 { font-size:2rem; font-weight:700; color:#F4F4F4; }
+.filters { display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
+.filters select, .filters input { padding:0.5rem 1rem; border-radius:0.75rem; border:none; background:#1e1e2f; color:#F4F4F4; }
+
+/* =========================
+   STATS CARDS
+========================= */
+.stats-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:1.5rem; margin-bottom:2rem; }
+.stat-card { background: linear-gradient(135deg,#252429,#19191C); border:1px solid #565657; border-radius:1rem; padding:1.5rem; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: all 0.3s ease; }
+.stat-card:hover { transform: translateY(-4px); box-shadow:0 14px 32px rgba(0,0,0,0.35); border-color:#7F4797; }
+.stat-card h2 { font-size:2rem; margin-bottom:0.5rem; color:#F4F4F4; }
+.stat-card p { color:#B0B0B0; font-weight:500; }
+
+/* =========================
+   TABLE
+========================= */
+table { width:100%; border-collapse:collapse; background:#252429; border:1px solid #565657; border-radius:0.75rem; overflow:hidden; margin-bottom:2rem; }
+thead { background:#343338; }
+thead th { padding:0.75rem 1rem; text-align:left; color:#F4F4F4; }
+tbody td { padding:0.75rem 1rem; border-top:1px solid #565657; color:#F4F4F4; }
+tbody tr:hover { background: rgba(127,71,151,0.1); }
+
+/* =========================
+   CHARTS
+========================= */
+.chart-container { display:flex; flex-wrap:wrap; gap:2rem; margin-bottom:2rem; }
+.chart-box { background: linear-gradient(135deg,#252429,#19191C); border:1px solid #565657; border-radius:1rem; padding:1rem; flex:1; min-width:300px; }
+
+/* =========================
+   BUTTONS
+========================= */
+button { padding:0.5rem 1rem; border-radius:0.75rem; font-weight:600; cursor:pointer; border:none; transition: all 0.3s ease; }
+.btn-refresh, .btn-export { background: rgba(127,71,151,0.15); border:1px solid #7F4797; color:#9A6BB2; }
+.btn-refresh:hover, .btn-export:hover { background:#7F4797; color:#fff; box-shadow:0 6px 18px rgba(127,71,151,0.4); transform: translateY(-2px); }
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width:1024px) { .dashboard-container { grid-template-columns:1fr; } }
+@media (max-width:640px) { .header { flex-direction:column; gap:1rem; } }
+</style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo"><h2>🎓 Ushering</h2></div>
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item"><span class="icon">👥</span> <span>Applicants</span></a>
+            <a href="statistics.html" class="nav-item active"><span class="icon">📊</span> <span>Statistics</span></a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <h1>Statistics Overview</h1>
+            <div>
+                <button class="btn-refresh" onclick="loadStatistics()">🔄 Refresh</button>
+                <button class="btn-export" onclick="exportCSV()">📥 Export CSV</button>
+            </div>
+        </header>
+
+        <!-- Filters -->
+        <div class="filters">
+            <input type="text" id="search" placeholder="Search name or email">
+            <select id="level-filter"><option value="">All Levels</option></select>
+            <select id="rating-filter"><option value="">All Ratings</option>
+                <option value="Pending">Pending</option>
+                <option value="Acceptance">Accepted</option>
+                <option value="B">Backup</option>
+                <option value="Rejection">Rejected</option>
+            </select>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="stats-grid" id="stats-grid"></div>
+
+        <!-- Charts -->
+        <div class="chart-container">
+            <div class="chart-box"><canvas id="ratingChart"></canvas></div>
+            <div class="chart-box"><canvas id="levelChart"></canvas></div>
+        </div>
+
+        <!-- Detailed Table -->
+        <table id="stats-table">
+            <thead>
+                <tr>
+                    <th>Level</th>
+                    <th>Total Applicants</th>
+                    <th>Pending</th>
+                    <th>Accepted</th>
+                    <th>Backup (B)</th>
+                    <th>Rejected</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </main>
+</div>
+
+<script>
+const API_URL = '../backend/api.php';
+const TOKEN = localStorage.getItem('usher_token');
+if(!TOKEN) window.location.href='login.html';
+
+let ratingChart, levelChart;
+
+// Load statistics
+async function loadStatistics() {
+    const grid = document.getElementById('stats-grid');
+    const tableBody = document.querySelector('#stats-table tbody');
+    const levelFilter = document.getElementById('level-filter');
+    grid.innerHTML = '<div>Loading statistics...</div>';
+    tableBody.innerHTML = '';
+    levelFilter.innerHTML = '<option value="">All Levels</option>';
+
+    try {
+        const response = await fetch(`${API_URL}?quickstats=1`, { headers:{'X-Token':TOKEN} });
+        const result = await response.json();
+        if(result.status!=='success') { alert(result.message); return; }
+
+        const stats = result.data;
+        const applicantsResponse = await fetch(`${API_URL}?page=1&limit=1000`, { headers:{'X-Token':TOKEN} });
+        const applicantsResult = await applicantsResponse.json();
+        if(applicantsResult.status!=='success') { alert(applicantsResult.message); return; }
+
+        const applicants = applicantsResult.data.applicants;
+
+        // Quick stats cards
+        grid.innerHTML = `
+            <div class="stat-card"><h2>${stats.total}</h2><p>Total Applicants</p></div>
+            <div class="stat-card"><h2>${stats.accepted}</h2><p>Accepted</p></div>
+            <div class="stat-card"><h2>${stats.backup}</h2><p>Backup (B)</p></div>
+            <div class="stat-card"><h2>${stats.rejected}</h2><p>Rejected</p></div>
+            <div class="stat-card"><h2>${stats.pending}</h2><p>Pending</p></div>
+        `;
+
+        // Populate filters dynamically for levels
+        const levels = [...new Set(applicants.map(a=>a.level))].sort();
+        levels.forEach(l=>{
+            const opt = document.createElement('option'); opt.value=l; opt.text=l;
+            levelFilter.appendChild(opt);
+        });
+
+        // Aggregate by level
+        const levelMap = {};
+        const ratingMap = {Pending:0, Acceptance:0, B:0, Rejection:0};
+        applicants.forEach(a=>{
+            const r = a.rating||'Pending';
+            ratingMap[r]++; 
+            if(!levelMap[a.level]) levelMap[a.level]={total:0, Pending:0, Acceptance:0, B:0, Rejection:0};
+            levelMap[a.level].total++;
+            levelMap[a.level][r]++;
+        });
+
+        // Populate table
+        for(const level in levelMap){
+            const l = levelMap[level];
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${level}</td><td>${l.total}</td><td>${l.Pending||0}</td><td>${l.Acceptance||0}</td><td>${l.B||0}</td><td>${l.Rejection||0}</td>`;
+            tableBody.appendChild(row);
+        }
+
+        // Rating Chart
+        if(ratingChart) ratingChart.destroy();
+        const ctxR = document.getElementById('ratingChart').getContext('2d');
+        ratingChart = new Chart(ctxR, {
+            type:'pie',
+            data:{
+                labels: Object.keys(ratingMap),
+                datasets:[{ data:Object.values(ratingMap), backgroundColor:['#F0AD4E','#5CB85C','#5BC0DE','#D9534F'] }]
+            },
+            options:{ responsive:true, plugins:{legend:{position:'bottom'}} }
+        });
+
+        // Level Chart
+        if(levelChart) levelChart.destroy();
+        const ctxL = document.getElementById('levelChart').getContext('2d');
+        levelChart = new Chart(ctxL, {
+            type:'bar',
+            data:{
+                labels:Object.keys(levelMap),
+                datasets:[
+                    { label:'Pending', data:Object.values(levelMap).map(l=>l.Pending), backgroundColor:'#F0AD4E' },
+                    { label:'Accepted', data:Object.values(levelMap).map(l=>l.Acceptance), backgroundColor:'#5CB85C' },
+                    { label:'Backup', data:Object.values(levelMap).map(l=>l.B), backgroundColor:'#5BC0DE' },
+                    { label:'Rejected', data:Object.values(levelMap).map(l=>l.Rejection), backgroundColor:'#D9534F' },
+                ]
+            },
+            options:{ responsive:true, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}} }
+        });
+
+    } catch(err){ console.error(err); alert('Failed to load statistics'); }
+}
+
+// Export table to CSV
+function exportCSV(){
+    const rows = Array.from(document.querySelectorAll('#stats-table tr'));
+    const csv = rows.map(r=>Array.from(r.querySelectorAll('th,td')).map(cell=>cell.innerText).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download='statistics.csv';
+    a.click(); URL.revokeObjectURL(url);
+}
+
+// Filters
+document.getElementById('level-filter').addEventListener('change', loadStatistics);
+document.getElementById('rating-filter').addEventListener('change', loadStatistics);
+document.getElementById('search').addEventListener('input', e=>{
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout=setTimeout(loadStatistics,500);
+});
+
+// Load on page load
+document.addEventListener('DOMContentLoaded', loadStatistics);
+</script>
+</body>
+</html>

@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $input = getJsonInput();
 
     // Validate required fields
-    $requiredFields = ['username', 'email', 'password', 'role', 'council_id'];
+    $requiredFields = ['username', 'email', 'password', 'role', 'council'];
     foreach ($requiredFields as $field) {
         if (!isset($input[$field]) || empty($input[$field])) {
             sendResponse('error', "Field '$field' is required", null, 400);
@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $input['email'];
     $password = password_hash($input['password'], PASSWORD_BCRYPT);
     $role = $input['role'];
-    $council_id = (int) $input['council_id'];
+    $council_ = (int) $input['council'];
 
     // Validate role
     $allowedRoles = ['VP', 'Head', 'Instructor'];
@@ -61,19 +61,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         sendResponse('error', 'Username or Email already registered', null, 409);
     }
 
-    // Check if council exists
-    $councilStmt = $connection->prepare("SELECT id FROM councils WHERE id = ?");
-    $councilStmt->bind_param("i", $council_id);
-    $councilStmt->execute();
-    $councilResult = $councilStmt->get_result();
-
-    if ($councilResult->num_rows === 0) {
-        sendResponse('error', 'Invalid council ID', null, 400);
-    }
 
     // Insert new user
-    $stmt = $connection->prepare("INSERT INTO users (username, email, password, role, council_id) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssi", $username, $email, $password, $role, $council_id);
+    $stmt = $connection->prepare("INSERT INTO users (username, email, password, role, council) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssi", $username, $email, $password, $role, $council);
 
     if ($stmt->execute()) {
         $newId = $stmt->insert_id;
