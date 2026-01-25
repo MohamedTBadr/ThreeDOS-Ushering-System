@@ -88,7 +88,14 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['quickstats'])) {
     $queryStr = "FROM registration WHERE 1=1";
     $params = [];
     $types = "";
-
+$council = $user['council'];
+    $role = $user['role'];
+        //filter by council
+    if(!empty($council)){
+            $queryStr .= " AND council = ?";
+        $params[] = "$council";
+        $types .= "s";
+    }
     // Optional filters
     if (!empty($_GET["level"])) {
         $queryStr .= " AND level LIKE ?";
@@ -144,7 +151,12 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $queryStr = "FROM registration WHERE 1=1"; // base query without SELECT *
     $params = [];
     $types = "";
-    
+    //filter by council
+    if(!empty($council)){
+            $queryStr .= " AND council = ?";
+        $params[] = "$council";
+        $types .= "s";
+    }
     //filter by id
     if (!empty($_GET["id"])) {
         $id = $_GET["id"];
@@ -237,7 +249,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
         sendResponse('error', 'ID required', null, 400);
 
     // Check if applicant exists and belongs to user's council
-    $check = $connection->prepare("SELECT council FROM registration WHERE id = ?");
+    $check = $connection->prepare("SELECT council, rating FROM registration WHERE id = ?");
     $check->bind_param("i", $input['id']);
     $check->execute();
     $res = $check->get_result()->fetch_assoc();
@@ -254,26 +266,37 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     $params = [];
     $types = "";
 
+    // Role-based field selection
     if ($user['role'] === 'Instructor') {
-        // Least Privilege: Only allow rating and notes
-        $allowed = ['rating', 'notes'];
-        foreach ($allowed as $f) {
-            if (isset($input[$f])) {
-                $fields[] = "$f = ?";
-                $params[] = $input[$f];
-                $types .= "s";
+        $allowed = ['rating', 'notes', 'interview_time'];
+    } elseif ($user['role'] === 'Head' || $user['role'] === "VP") {
+        $allowed = ['name', 'email', 'phone', 'college', 'level', 'rating', 'notes', 'council', 'interview_time'];
+    }
+
+    $ratingChanged = false; // Flag to detect if rating changes
+
+    foreach ($allowed as $f) {
+        if (isset($input[$f])) {
+            // Check if rating changed
+            if ($f === 'rating' && $input[$f] !== $res['rating']) {
+                $ratingChanged = true;
             }
-        }
-    } elseif($user['role'] === 'Head' || $user['role'] === "VP") {
-        // Full access
-        $allowed = ['name', 'email', 'phone', 'college', 'level', 'rating', 'notes', 'council'];
-        foreach ($allowed as $f) {
-            if (isset($input[$f])) {
-                $fields[] = "$f = ?";
+
+            $fields[] = "$f = ?";
+            if ($f === 'interview_time' && empty($input[$f])) {
+                $params[] = null;
+            } else {
                 $params[] = $input[$f];
-                $types .= "s";
             }
+            $types .= "s";
         }
+    }
+
+    // Only update 'interviewed_by' if rating changed
+    if ($ratingChanged) {
+        $fields[] = "interviewed_by = ?";
+        $params[] = $user['username']; // logged-in user's name
+        $types .= "s";
     }
 
     if (empty($fields))
@@ -298,14 +321,14 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
 }
 
 // 4. DELETE - VP/Head only
-if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
-    if ($user['role'] === 'Instructor')
-        sendResponse('error', 'Permission denied', null, 403);
+//if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
+  //  if ($user['role'] === 'Instructor')
+    //    sendResponse('error', 'Permission denied', null, 403);
 
-    $input = getJsonInput();
-    $stmt = $connection->prepare("DELETE FROM registration WHERE id = ? AND (council = ? OR council IS NULL)");
-    $stmt->bind_param("ii", $input['id'], $user['council']);
-    $stmt->execute();
+    //$input = getJsonInput();
+    //$stmt = $connection->prepare("DELETE FROM registration WHERE id = ? AND (council = ? OR council IS NULL)");
+    //$stmt->bind_param("ii", $input['id'], $user['council']);
+   // $stmt->execute();
 
-    sendResponse('success', 'Deleted successfully');
-}
+  //sendResponse('success', 'Deleted successfully');
+//}

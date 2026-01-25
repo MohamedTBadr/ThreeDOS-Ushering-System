@@ -13,7 +13,7 @@ let currentFilters = { search: '', level: '', rating: '' };
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('.logo h2').innerText = `Good Morning`;
+    document.querySelector('.logo h2').innerText = `ThreeDOS'26`;
     loadApplicants();
         updateStatistics();
     setupEventListeners();
@@ -92,10 +92,10 @@ function displayApplicants(applicants) {
             <td>${escapeHtml(app.level)}</td>
             <td>${escapeHtml(app.council || '')}</td>
             <td><span class="rating-badge rating-${getRatingClass(app.rating)}">${app.rating || 'Pending'}</span></td>
-            
+            <td>${escapeHtml(app.interviewed_by || 'NA')}</td>
+
             <td>
                 <button class="btn-primary" onclick="redirectEdit(${app.id})">✏️ Edit</button>
-                ${userRole !== 'Instructor' ? `<button class="btn-secondary" onclick="deleteApplicant(${app.id})">🗑️ Delete</button>` : ''}
             </td>
         </tr>
     `).join('');

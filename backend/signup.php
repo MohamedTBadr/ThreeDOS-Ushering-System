@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $input = getJsonInput();
 
     // Validate required fields
-    $requiredFields = ['username', 'email', 'password', 'role', 'council'];
+    $requiredFields = ['username', 'email', 'password', 'role'];
     foreach ($requiredFields as $field) {
         if (!isset($input[$field]) || empty($input[$field])) {
             sendResponse('error', "Field '$field' is required", null, 400);
@@ -43,12 +43,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $input['email'];
     $password = password_hash($input['password'], PASSWORD_BCRYPT);
     $role = $input['role'];
-    $council_ = (int) $input['council'];
+    $council = $input['council'] ?? null; // default null if not sent
 
     // Validate role
-    $allowedRoles = ['VP', 'Head', 'Instructor'];
+    $allowedRoles = ['VP', 'Head', 'Instructor', 'OR', 'President'];
     if (!in_array($role, $allowedRoles)) {
         sendResponse('error', 'Invalid role', null, 400);
+    }
+
+    // Validate council based on role
+    $rolesWithoutCouncil = ['VP', 'President', 'OR'];
+    $rolesWithCouncil = ['Head', 'Instructor'];
+
+    if (in_array($role, $rolesWithoutCouncil)) {
+        $council = null; // force null for roles that shouldn't have council
+    } elseif (in_array($role, $rolesWithCouncil)) {
+        if (empty($council)) {
+            sendResponse('error', "Council is required for role $role", null, 400);
+        }
     }
 
     // Check if username or email already exists
@@ -61,10 +73,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         sendResponse('error', 'Username or Email already registered', null, 409);
     }
 
-
     // Insert new user
     $stmt = $connection->prepare("INSERT INTO users (username, email, password, role, council) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssi", $username, $email, $password, $role, $council);
+    $stmt->bind_param("sssss", $username, $email, $password, $role, $council);
 
     if ($stmt->execute()) {
         $newId = $stmt->insert_id;

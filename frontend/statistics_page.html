@@ -1,10 +1,10 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Applicant Management System - Statistics</title>
+<title>ThreeDOS Applicant Management System - Statistics</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="./img/ThreeDOS.jpg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 /* =========================
@@ -84,10 +84,22 @@ button { padding:0.5rem 1rem; border-radius:0.75rem; font-weight:600; cursor:poi
 <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="logo"><h2>🎓 Ushering</h2></div>
+        <div class="logo">
+            <h2>ThreeDOS'26</h2>
+        </div>
         <nav class="nav-menu">
-            <a href="dashboard.html" class="nav-item"><span class="icon">👥</span> <span>Applicants</span></a>
-            <a href="statistics.html" class="nav-item active"><span class="icon">📊</span> <span>Statistics</span></a>
+            <a href="dashboard.html" class="nav-item" data-view="applicants">
+                <span class="icon">👥</span>
+                <span>Applicants</span>
+            </a>
+            <a href="statistics_page.html" class="nav-item active" data-view="statistics">
+                <span class="icon">📊</span>
+                <span>Statistics</span>
+            </a>
+            <a href="RegistrationForm.html" class="nav-item">
+                <span class="icon">➕</span>
+                <span>New Registration</span>
+            </a>
         </nav>
     </aside>
 
@@ -101,17 +113,7 @@ button { padding:0.5rem 1rem; border-radius:0.75rem; font-weight:600; cursor:poi
             </div>
         </header>
 
-        <!-- Filters -->
-        <div class="filters">
-            <input type="text" id="search" placeholder="Search name or email">
-            <select id="level-filter"><option value="">All Levels</option></select>
-            <select id="rating-filter"><option value="">All Ratings</option>
-                <option value="Pending">Pending</option>
-                <option value="Acceptance">Accepted</option>
-                <option value="B">Backup</option>
-                <option value="Rejection">Rejected</option>
-            </select>
-        </div>
+
 
         <!-- Quick Stats Cards -->
         <div class="stats-grid" id="stats-grid"></div>
@@ -120,6 +122,7 @@ button { padding:0.5rem 1rem; border-radius:0.75rem; font-weight:600; cursor:poi
         <div class="chart-container">
             <div class="chart-box"><canvas id="ratingChart"></canvas></div>
             <div class="chart-box"><canvas id="levelChart"></canvas></div>
+            <div class="chart-box"><canvas id="councilChart"></canvas></div>
         </div>
 
         <!-- Detailed Table -->
@@ -127,6 +130,7 @@ button { padding:0.5rem 1rem; border-radius:0.75rem; font-weight:600; cursor:poi
             <thead>
                 <tr>
                     <th>Level</th>
+                    <th>Council</th>
                     <th>Total Applicants</th>
                     <th>Pending</th>
                     <th>Accepted</th>
@@ -144,77 +148,88 @@ const API_URL = '../backend/api.php';
 const TOKEN = localStorage.getItem('usher_token');
 if(!TOKEN) window.location.href='login.html';
 
-let ratingChart, levelChart;
+let ratingChart, levelChart, councilChart;
 
-// Load statistics
-async function loadStatistics() {
+async function loadStatistics(){
     const grid = document.getElementById('stats-grid');
     const tableBody = document.querySelector('#stats-table tbody');
-    const levelFilter = document.getElementById('level-filter');
+
+    const ratingFilter = document.getElementById('rating-filter');
+
     grid.innerHTML = '<div>Loading statistics...</div>';
     tableBody.innerHTML = '';
-    levelFilter.innerHTML = '<option value="">All Levels</option>';
-
-    try {
+ 
+    try{
         const response = await fetch(`${API_URL}?quickstats=1`, { headers:{'X-Token':TOKEN} });
         const result = await response.json();
-        if(result.status!=='success') { alert(result.message); return; }
+        if(result.status!=='success'){ alert(result.message); return; }
 
         const stats = result.data;
         const applicantsResponse = await fetch(`${API_URL}?page=1&limit=1000`, { headers:{'X-Token':TOKEN} });
         const applicantsResult = await applicantsResponse.json();
-        if(applicantsResult.status!=='success') { alert(applicantsResult.message); return; }
+        if(applicantsResult.status!=='success'){ alert(applicantsResult.message); return; }
 
-        const applicants = applicantsResult.data.applicants;
+        let applicants = applicantsResult.data.applicants;
+
+ 
 
         // Quick stats cards
+        const ratingMap = {Pending:0, Acceptance:0, B:0, Rejection:0};
+        applicants.forEach(a=>{ ratingMap[a.rating||'Pending']++; });
         grid.innerHTML = `
-            <div class="stat-card"><h2>${stats.total}</h2><p>Total Applicants</p></div>
-            <div class="stat-card"><h2>${stats.accepted}</h2><p>Accepted</p></div>
-            <div class="stat-card"><h2>${stats.backup}</h2><p>Backup (B)</p></div>
-            <div class="stat-card"><h2>${stats.rejected}</h2><p>Rejected</p></div>
-            <div class="stat-card"><h2>${stats.pending}</h2><p>Pending</p></div>
+            <div class="stat-card"><h2>${applicants.length}</h2><p>Total Applicants</p></div>
+            <div class="stat-card"><h2>${ratingMap.Acceptance}</h2><p>Accepted</p></div>
+            <div class="stat-card"><h2>${ratingMap.B}</h2><p>Backup (B)</p></div>
+            <div class="stat-card"><h2>${ratingMap.Rejection}</h2><p>Rejected</p></div>
+            <div class="stat-card"><h2>${ratingMap.Pending}</h2><p>Pending</p></div>
         `;
 
-        // Populate filters dynamically for levels
-        const levels = [...new Set(applicants.map(a=>a.level))].sort();
-        levels.forEach(l=>{
-            const opt = document.createElement('option'); opt.value=l; opt.text=l;
-            levelFilter.appendChild(opt);
-        });
 
-        // Aggregate by level
+
+        // Aggregate data for table & charts
+        const tableMap = {};
         const levelMap = {};
-        const ratingMap = {Pending:0, Acceptance:0, B:0, Rejection:0};
+        const councilMap = {};
         applicants.forEach(a=>{
+            const lvl = a.level;
+            const c = a.council;
             const r = a.rating||'Pending';
-            ratingMap[r]++; 
-            if(!levelMap[a.level]) levelMap[a.level]={total:0, Pending:0, Acceptance:0, B:0, Rejection:0};
-            levelMap[a.level].total++;
-            levelMap[a.level][r]++;
+
+            // Table aggregation (level + council)
+            const key = `${lvl}_${c}`;
+            if(!tableMap[key]) tableMap[key]={total:0, Pending:0, Acceptance:0, B:0, Rejection:0, level:lvl, council:c};
+            tableMap[key].total++; tableMap[key][r]++;
+
+            // Level chart
+            if(!levelMap[lvl]) levelMap[lvl]={Pending:0, Acceptance:0, B:0, Rejection:0};
+            levelMap[lvl][r]++;
+
+            // Council chart
+            if(!councilMap[c]) councilMap[c]={Pending:0, Acceptance:0, B:0, Rejection:0};
+            councilMap[c][r]++;
         });
 
         // Populate table
-        for(const level in levelMap){
-            const l = levelMap[level];
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${level}</td><td>${l.total}</td><td>${l.Pending||0}</td><td>${l.Acceptance||0}</td><td>${l.B||0}</td><td>${l.Rejection||0}</td>`;
-            tableBody.appendChild(row);
-        }
+        tableBody.innerHTML = '';
+        Object.values(tableMap).forEach(row=>{
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${row.level}</td><td>${row.council}</td><td>${row.total}</td><td>${row.Pending}</td><td>${row.Acceptance}</td><td>${row.B}</td><td>${row.Rejection}</td>`;
+            tableBody.appendChild(tr);
+        });
 
-        // Rating Chart
+        // Rating chart
         if(ratingChart) ratingChart.destroy();
         const ctxR = document.getElementById('ratingChart').getContext('2d');
         ratingChart = new Chart(ctxR, {
             type:'pie',
             data:{
-                labels: Object.keys(ratingMap),
-                datasets:[{ data:Object.values(ratingMap), backgroundColor:['#F0AD4E','#5CB85C','#5BC0DE','#D9534F'] }]
+                labels:Object.keys(ratingMap),
+                datasets:[{data:Object.values(ratingMap), backgroundColor:['#F0AD4E','#5CB85C','#5BC0DE','#D9534F']}]
             },
             options:{ responsive:true, plugins:{legend:{position:'bottom'}} }
         });
 
-        // Level Chart
+        // Level chart
         if(levelChart) levelChart.destroy();
         const ctxL = document.getElementById('levelChart').getContext('2d');
         levelChart = new Chart(ctxL, {
@@ -226,6 +241,23 @@ async function loadStatistics() {
                     { label:'Accepted', data:Object.values(levelMap).map(l=>l.Acceptance), backgroundColor:'#5CB85C' },
                     { label:'Backup', data:Object.values(levelMap).map(l=>l.B), backgroundColor:'#5BC0DE' },
                     { label:'Rejected', data:Object.values(levelMap).map(l=>l.Rejection), backgroundColor:'#D9534F' },
+                ]
+            },
+            options:{ responsive:true, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}} }
+        });
+
+        // Council chart
+        if(councilChart) councilChart.destroy();
+        const ctxC = document.getElementById('councilChart').getContext('2d');
+        councilChart = new Chart(ctxC, {
+            type:'bar',
+            data:{
+                labels:Object.keys(councilMap),
+                datasets:[
+                    { label:'Pending', data:Object.values(councilMap).map(c=>c.Pending), backgroundColor:'#F0AD4E' },
+                    { label:'Accepted', data:Object.values(councilMap).map(c=>c.Acceptance), backgroundColor:'#5CB85C' },
+                    { label:'Backup', data:Object.values(councilMap).map(c=>c.B), backgroundColor:'#5BC0DE' },
+                    { label:'Rejected', data:Object.values(councilMap).map(c=>c.Rejection), backgroundColor:'#D9534F' },
                 ]
             },
             options:{ responsive:true, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}} }
@@ -245,13 +277,7 @@ function exportCSV(){
     a.click(); URL.revokeObjectURL(url);
 }
 
-// Filters
-document.getElementById('level-filter').addEventListener('change', loadStatistics);
-document.getElementById('rating-filter').addEventListener('change', loadStatistics);
-document.getElementById('search').addEventListener('input', e=>{
-    clearTimeout(window.searchTimeout);
-    window.searchTimeout=setTimeout(loadStatistics,500);
-});
+
 
 // Load on page load
 document.addEventListener('DOMContentLoaded', loadStatistics);
