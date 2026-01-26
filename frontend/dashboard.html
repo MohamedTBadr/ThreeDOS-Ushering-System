@@ -1,1 +1,89 @@
-<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>ThreeDOS Applicant Management System - Dashboard</title> <link rel="icon" type="image/png" href="./img/ThreeDOS.jpg"> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"> <link rel="stylesheet" href="css/dashboard.css"> </head> <body> <div class="dashboard-container"> <!-- Sidebar --> <aside class="sidebar"> <div class="logo"> <h2>🎓ThreeDOS Ushering</h2> </div> <nav class="nav-menu"> <a href="#" class="nav-item active" data-view="applicants"> <span class="icon">👥</span> <span>Applicants</span> </a> <a href="statistics_page.html" class="nav-item" data-view="statistics"> <span class="icon">📊</span> <span>Statistics</span> </a> <a href="RegistrationForm.html" class="nav-item"> <span class="icon">➕</span> <span>New Registration</span> </a> </nav> <div class="stats-summary"> <h3>Quick Stats</h3> <div class="stat-item"> <span class="stat-label">Total</span> <span class="stat-value" id="stat-total">0</span> </div> <div class="stat-item acceptance"> <span class="stat-label">Accepted</span> <span class="stat-value" id="stat-accepted">0</span> </div> <div class="stat-item backup"> <span class="stat-label">Backup (B)</span> <span class="stat-value" id="stat-backup">0</span> </div> <div class="stat-item rejection"> <span class="stat-label">Rejected</span> <span class="stat-value" id="stat-rejected">0</span> </div> <div class="stat-item pending"> <span class="stat-label">Pending</span> <span class="stat-value" id="stat-pending">0</span> </div> </div> </aside> <!-- Main Content --> <main class="main-content"> <!-- Header --> <header class="header"> <h1>ThreeDOS Applicant Management</h1> <div class="header-actions"> <button class="btn-refresh" onclick="loadApplicants()"> <span>🔄</span> Refresh </button> </div> </header> <!-- Filters --> <div class="filters-section"> <div class="search-box"> <span class="search-icon">🔍</span> <input type="text" id="search" placeholder="Search by name, email, college..."> </div> <select id="level-filter" class="filter-select"> <option value="">All Levels</option> <option value="Level 1">Level 1</option> <option value="Level 2">Level 2</option> <option value="Level 3">Level 3</option> <option value="Level 4">Level 4</option> </select> <select id="rating-filter" class="filter-select"> <option value="">All Ratings</option> <option value="Pending">Pending</option> <option value="Acceptance">Acceptance</option> <option value="B">B (Backup)</option> <option value="Rejection">Rejection</option> </select> <button class="btn-clear-filters" onclick="clearFilters()">Clear Filters</button> </div> <!-- Applicants Table --> <div class="applicants-table-container"> <table class="applicants-table" id="applicants-table"> <thead> <tr> <th>Name</th> <th>Email</th> <th>Phone</th> <th>College</th> <th>Level</th> <th>Preference</th> <th>Rating</th> <th>Interviewer</th> <th>Actions</th> </tr> </thead> <tbody id="applicants-tbody"> <!-- Rows inserted by JS --> </tbody> </table> </div> <!-- Pagination --> <div class="pagination"> <button class="btn-page" id="btn-prev" onclick="previousPage()"> ← Previous </button> <span class="page-info" id="page-info">Page 1 of 1</span> <button class="btn-page" id="btn-next" onclick="nextPage()"> Next → </button> </div> </main> </div> <!-- Toast Notification --> <div class="toast" id="toast"></div> <script src="js/dashboard.js"></script> </body> </html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreeDOS Applicant Management System - Dashboard</title>
+    <link rel="icon" type="image/png" href="./img/ThreeDOS.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-container"> <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>🎓ThreeDOS Ushering</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-view="applicants">
+                    <span class="icon">👥</span> <span>Applicants</span> </a> <a href="statistics_page.html"
+                    class="nav-item" data-view="statistics"> <span class="icon">📊</span> <span>Statistics</span> </a>
+                <a href="RegistrationForm.html" class="nav-item"> <span class="icon">➕</span> <span>New
+                        Registration</span> </a>
+            </nav>
+            <div class="stats-summary">
+                <h3>Quick Stats</h3>
+                <div class="stat-item"> <span class="stat-label">Total</span> <span class="stat-value"
+                        id="stat-total">0</span> </div>
+                <div class="stat-item acceptance"> <span class="stat-label">Accepted</span> <span class="stat-value"
+                        id="stat-accepted">0</span> </div>
+                <div class="stat-item backup"> <span class="stat-label">Backup (B)</span> <span class="stat-value"
+                        id="stat-backup">0</span> </div>
+                <div class="stat-item rejection"> <span class="stat-label">Rejected</span> <span class="stat-value"
+                        id="stat-rejected">0</span> </div>
+                <div class="stat-item pending"> <span class="stat-label">Pending</span> <span class="stat-value"
+                        id="stat-pending">0</span> </div>
+            </div>
+        </aside> <!-- Main Content -->
+        <main class="main-content"> <!-- Header -->
+            <header class="header">
+                <h1>ThreeDOS Applicant Management</h1>
+                <div class="header-actions"> <button class="btn-refresh" onclick="loadApplicants()"> <span>🔄</span>
+                        Refresh </button> </div>
+            </header> <!-- Filters -->
+            <div class="filters-section">
+                <div class="search-box"> <span class="search-icon">🔍</span> <input type="text" id="search"
+                        placeholder="Search by name, email, college..."> </div> <select id="level-filter"
+                    class="filter-select">
+                    <option value="">All Levels</option>
+                    <option value="Level 1">Level 1</option>
+                    <option value="Level 2">Level 2</option>
+                    <option value="Level 3">Level 3</option>
+                    <option value="Level 4">Level 4</option>
+                </select> <select id="rating-filter" class="filter-select">
+                    <option value="">All Ratings</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Acceptance">Acceptance</option>
+                    <option value="B">B (Backup)</option>
+                    <option value="Rejection">Rejection</option>
+                </select> <button class="btn-clear-filters" onclick="clearFilters()">Clear Filters</button>
+            </div> <!-- Applicants Table -->
+            <div class="applicants-table-container">
+                <table class="applicants-table" id="applicants-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>College</th>
+                            <th>Level</th>
+                            <th>Preference</th>
+                            <th>Rating</th>
+                            <th>Interviewer</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicants-tbody"> <!-- Rows inserted by JS --> </tbody>
+                </table>
+            </div> <!-- Pagination -->
+            <div class="pagination"> <button class="btn-page" id="btn-prev" onclick="previousPage()"> ← Previous
+                </button> <span class="page-info" id="page-info">Page 1 of 1</span> <button class="btn-page"
+                    id="btn-next" onclick="nextPage()"> Next → </button> </div>
+        </main>
+    </div> <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

@@ -165,7 +165,69 @@ button:disabled {
     border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-    </style>
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+@media (max-width: 768px) {
+    .signup-card {
+        padding: 2rem;
+        max-width: 90%;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 1rem;
+    }
+
+    .signup-card {
+        padding: 1.5rem;
+        max-width: 100%;
+        border-radius: 1rem;
+    }
+
+    h1 {
+        font-size: 1.35rem;
+    }
+
+    p {
+        font-size: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    input,
+    select {
+        padding: 0.65rem 0.875rem;
+        font-size: 0.9rem;
+    }
+
+    button {
+        padding: 0.7rem;
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .links {
+        font-size: 0.8rem;
+    }
+
+    .status-msg {
+        font-size: 0.8rem;
+        padding: 0.65rem;
+    }
+}
+</style>
 </head>
 <body>
     <div class="signup-card">

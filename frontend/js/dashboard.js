@@ -6,8 +6,9 @@ const TOKEN = localStorage.getItem('usher_token');
 if (!TOKEN) window.location.href = 'login.html';
 
 // State
-let currentPage = 1;
-let totalPages = 1;
+let currentCursor = null;
+let prevCursor = null;
+let hasMore = false;
 let userRole = localStorage.getItem('user_role');
 let currentFilters = { search: '', level: '', rating: '' };
 
@@ -26,32 +27,40 @@ function setupEventListeners() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             currentFilters.search = e.target.value.trim();
-            currentPage = 1;
+            currentCursor = null; // Reset cursor on filter change
             loadApplicants();
         }, 500);
     });
 
     document.getElementById('level-filter').addEventListener('change', (e) => {
         currentFilters.level = e.target.value;
-        currentPage = 1;
+        currentCursor = null; // Reset cursor on filter change
         loadApplicants();
     });
 
     document.getElementById('rating-filter').addEventListener('change', (e) => {
         currentFilters.rating = e.target.value;
-        currentPage = 1;
+        currentCursor = null; // Reset cursor on filter change
         loadApplicants();
     
     });
 }
 
 // Load Applicants
-async function loadApplicants() {
+async function loadApplicants(usePrevCursor = false) {
     const tbody = document.getElementById('applicants-tbody');
     tbody.innerHTML = '<tr><td colspan="9">Loading applicants...</td></tr>';
 
     try {
-        let url = `${API_URL}?page=${currentPage}&limit=200`;
+        let url = `${API_URL}?limit=20`;
+        
+        // Add cursor for pagination
+        if (usePrevCursor && prevCursor) {
+            url += `&prev_cursor=${prevCursor}`;
+        } else if (!usePrevCursor && currentCursor) {
+            url += `&cursor=${currentCursor}`;
+        }
+        
         if (currentFilters.search) url += `&search=${encodeURIComponent(currentFilters.search)}`;
         if (currentFilters.level) url += `&level=${encodeURIComponent(currentFilters.level)}`;
         if (currentFilters.rating) url += `&rating=${encodeURIComponent(currentFilters.rating)}`;
@@ -61,7 +70,15 @@ async function loadApplicants() {
 
         if (result.status === 'success') {
             displayApplicants(result.data.applicants);
-            updatePagination(result.data.page, result.data.total_pages);
+            
+            // Update cursor state
+            hasMore = result.data.has_more;
+            if (!usePrevCursor) {
+                currentCursor = result.data.next_cursor;
+            }
+            prevCursor = result.data.prev_cursor;
+            
+            updatePaginationButtons();
             
         } else {
             if (response.status === 401) window.location.href = 'login.html';
@@ -132,18 +149,33 @@ async function updateStatistics() {
 
 
 // Pagination
-function updatePagination(page, total) {
-    currentPage = page;
-    totalPages = total;
-    document.getElementById('page-info').innerText = `Page ${currentPage} of ${totalPages}`;
+function updatePaginationButtons() {
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const pageInfo = document.getElementById('page-info');
+    
+    // Update button states
+    btnPrev.disabled = !prevCursor;
+    btnNext.disabled = !hasMore;
+    
+    // Update info text
+    pageInfo.innerText = hasMore ? 'More results available' : 'End of results';
 }
 
 function nextPage() {
-    if (currentPage < totalPages) { currentPage++; loadApplicants(); }
+    if (hasMore && currentCursor) {
+        loadApplicants(false); // Load next page
+    }
 }
+
 function previousPage() {
-    if (currentPage > 1) { currentPage--; loadApplicants(); }
+    if (prevCursor) {
+        // Reset to beginning
+        currentCursor = null;
+        loadApplicants(false);
+    }
 }
+
 
 // Clear Filters
 function clearFilters() {
@@ -151,7 +183,7 @@ function clearFilters() {
     document.getElementById('search').value = '';
     document.getElementById('level-filter').value = '';
     document.getElementById('rating-filter').value = '';
-    currentPage = 1;
+    currentCursor = null; // Reset cursor
     loadApplicants();
 }
 

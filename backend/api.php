@@ -138,25 +138,28 @@ $council = $user['council'];
     ]);
 }
 
-// 2-GET ALL Applicants
+// 2-GET ALL Applicants (Cursor-Based Pagination)
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     $council = $user['council'];
     $role = $user['role'];
 
-    $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 1;
-    $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-    $offset = ($page - 1) * $limit;
+    // Cursor-based pagination parameters
+    $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 20;
+    $cursor = isset($_GET['cursor']) ? (int) $_GET['cursor'] : null; // ID to start from
+    $prev_cursor = isset($_GET['prev_cursor']) ? (int) $_GET['prev_cursor'] : null; // For backward pagination
 
     $queryStr = "FROM registration WHERE 1=1"; // base query without SELECT *
     $params = [];
     $types = "";
+    
     //filter by council
     if(!empty($council)){
-            $queryStr .= " AND council = ?";
+        $queryStr .= " AND council = ?";
         $params[] = "$council";
         $types .= "s";
     }
+    
     //filter by id
     if (!empty($_GET["id"])) {
         $id = $_GET["id"];
@@ -191,7 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     }
 
     // ===============================
-    // 1️⃣ Get total count for pagination
+    // 1️⃣ Get total count (for reference)
     // ===============================
     $countQuery = "SELECT COUNT(*) as total " . $queryStr;
     $countStmt = $connection->prepare($countQuery);
@@ -206,16 +209,31 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $countStmt->execute();
     $totalResult = $countStmt->get_result()->fetch_assoc();
     $totalItems = (int) $totalResult['total'];
-    $totalPages = ceil($totalItems / $limit);
 
     // ===============================
-    // 2️⃣ Fetch actual data with LIMIT & OFFSET
+    // 2️⃣ Cursor-based data fetching
     // ===============================
-    $dataQuery = "SELECT * " . $queryStr . " ORDER BY id DESC LIMIT ? OFFSET ?";
     $dataParams = $params; // copy params from filters
-    $dataTypes = $types . "ii"; // add two integers for LIMIT & OFFSET
-    $dataParams[] = $limit;
-    $dataParams[] = $offset;
+    $dataTypes = $types;
+
+    // Add cursor condition for forward pagination
+    if ($cursor !== null) {
+        $queryStr .= " AND id < ?"; // Get records with ID less than cursor (descending order)
+        $dataParams[] = $cursor;
+        $dataTypes .= "i";
+    }
+
+    // Add cursor condition for backward pagination
+    if ($prev_cursor !== null) {
+        $queryStr .= " AND id > ?"; // Get records with ID greater than prev_cursor
+        $dataParams[] = $prev_cursor;
+        $dataTypes .= "i";
+    }
+
+    // Build the data query with cursor pagination
+    $dataQuery = "SELECT * " . $queryStr . " ORDER BY id DESC LIMIT ?";
+    $dataParams[] = $limit + 1; // Fetch one extra to check if there are more results
+    $dataTypes .= "i";
 
     $stmt = $connection->prepare($dataQuery);
     if ($stmt === false) {
@@ -231,14 +249,32 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $data = $result->fetch_all(MYSQLI_ASSOC);
 
     // ===============================
-    // 3️⃣ Return JSON with pagination info
+    // 3️⃣ Determine if there are more results
+    // ===============================
+    $hasMore = count($data) > $limit;
+    if ($hasMore) {
+        array_pop($data); // Remove the extra record
+    }
+
+    // Get cursors for next/previous pages
+    $nextCursor = null;
+    $prevCursor = null;
+
+    if (!empty($data)) {
+        $nextCursor = end($data)['id']; // Last record's ID for next page
+        $prevCursor = reset($data)['id']; // First record's ID for previous page
+    }
+
+    // ===============================
+    // 4️⃣ Return JSON with cursor pagination info
     // ===============================
     sendResponse('success', 'Data retrieved', [
         'applicants' => $data,
-        'page' => $page,
         'limit' => $limit,
         'total_items' => $totalItems,
-        'total_pages' => $totalPages
+        'has_more' => $hasMore,
+        'next_cursor' => $hasMore ? $nextCursor : null,
+        'prev_cursor' => $cursor ? $prevCursor : null
     ]);
 }
 
