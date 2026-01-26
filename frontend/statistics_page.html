@@ -495,7 +495,7 @@
                 let hasMore = true;
 
                 while (hasMore) {
-                    let url = `${API_URL}?limit=100`; // Fetch 100 at a time
+                    let url = `${API_URL}?limit=500`; // Fetch 500 at a time
                     if (cursor) {
                         url += `&cursor=${cursor}`;
                     }
