@@ -67,8 +67,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // For now, let's assume it maps to ID 1 or is set manually later
     $stmt = $connection->prepare("INSERT INTO registration (name, email, phone, college, level, council)
      VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssss", $input['name'], $input['email'], $input['phone'], 
-    $input['college'], $input['level'], $input['council']);
+    $stmt->bind_param(
+        "ssssss",
+        $input['name'],
+        $input['email'],
+        $input['phone'],
+        $input['college'],
+        $input['level'],
+        $input['council']
+    );
 
     if ($stmt->execute())
         sendResponse('success', 'Registration submitted!', ['id' => $stmt->insert_id], 201);
@@ -88,11 +95,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['quickstats'])) {
     $queryStr = "FROM registration WHERE 1=1";
     $params = [];
     $types = "";
-$council = $user['council'];
+    $council = $user['council'];
     $role = $user['role'];
-        //filter by council
-    if(!empty($council)){
-            $queryStr .= " AND council = ?";
+    //filter by council
+    if (!empty($council)) {
+        $queryStr .= " AND council = ?";
         $params[] = "$council";
         $types .= "s";
     }
@@ -130,15 +137,48 @@ $council = $user['council'];
     $result = $stmt->get_result()->fetch_assoc();
 
     sendResponse('success', 'Quick stats retrieved', [
-        'total' => (int)$result['total'],
-        'accepted' => (int)$result['accepted'],
-        'backup' => (int)$result['backup'],
-        'rejected' => (int)$result['rejected'],
-        'pending' => (int)$result['pending']
+        'total' => (int) $result['total'],
+        'accepted' => (int) $result['accepted'],
+        'backup' => (int) $result['backup'],
+        'rejected' => (int) $result['rejected'],
+        'pending' => (int) $result['pending']
     ]);
 }
 
-// 2-GET ALL Applicants (Cursor-Based Pagination)
+// 2-GET Interviews for Calendar
+if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['interviews'])) {
+    $council = $user['council'];
+    $role = $user['role'];
+
+    $queryStr = "SELECT id, name, interview_time, council, rating FROM registration WHERE interview_time IS NOT NULL";
+    $params = [];
+    $types = "";
+
+    if ($role !== "VP" && !empty($council)) {
+        $queryStr .= " AND council = ?";
+        $params[] = $council;
+        $types .= "s";
+    }
+
+    $queryStr .= " ORDER BY interview_time ASC";
+
+    $stmt = $connection->prepare($queryStr);
+    if ($stmt === false) {
+        sendResponse('error', 'Prepare failed: ' . $connection->error, null, 500);
+    }
+
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $interviews = $result->fetch_all(MYSQLI_ASSOC);
+
+    sendResponse('success', 'Interviews retrieved', ['interviews' => $interviews]);
+}
+
+// 3-GET ALL Applicants (Cursor-Based Pagination)
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     $council = $user['council'];
@@ -152,14 +192,14 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $queryStr = "FROM registration WHERE 1=1"; // base query without SELECT *
     $params = [];
     $types = "";
-    
+
     //filter by council
-    if(!empty($council)){
+    if (!empty($council)) {
         $queryStr .= " AND council = ?";
         $params[] = "$council";
         $types .= "s";
     }
-    
+
     //filter by id
     if (!empty($_GET["id"])) {
         $id = $_GET["id"];
@@ -278,40 +318,6 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     ]);
 }
 
-// ===============================
-// GET Interviews for Calendar
-// ===============================
-if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['interviews'])) {
-    $council = $user['council'];
-    $role = $user['role'];
-
-    $queryStr = "SELECT id, name, interview_time, council, rating FROM registration WHERE interview_time IS NOT NULL";
-    $params = [];
-    $types = "";
-
-    if ($role !== "VP" && !empty($council)) {
-        $queryStr .= " AND council = ?";
-        $params[] = $council;
-        $types .= "s";
-    }
-
-    $queryStr .= " ORDER BY interview_time ASC";
-
-    $stmt = $connection->prepare($queryStr);
-    if ($stmt === false) {
-        sendResponse('error', 'Prepare failed: ' . $connection->error, null, 500);
-    }
-
-    if (!empty($params)) {
-        $stmt->bind_param($types, ...$params);
-    }
-
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $interviews = $result->fetch_all(MYSQLI_ASSOC);
-
-    sendResponse('success', 'Interviews retrieved', ['interviews' => $interviews]);
-}
 
 // 3. PATCH - Update Applicant (Role Based)
 if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
@@ -380,7 +386,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     $updateQuery = "UPDATE registration SET " . implode(", ", $fields) . " WHERE id = ?";
     $stmt = $connection->prepare($updateQuery);
     if (!$stmt) {
-        sendResponse('error', 'Prepare failed: '.$connection->error, null, 500);
+        sendResponse('error', 'Prepare failed: ' . $connection->error, null, 500);
     }
 
     $stmt->bind_param($types, ...$params);
@@ -388,18 +394,18 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     if ($stmt->execute())
         sendResponse('success', 'Updated successfully');
     else
-        sendResponse('error', 'Update failed: '.$stmt->error, null, 500);
+        sendResponse('error', 'Update failed: ' . $stmt->error, null, 500);
 }
 
 // 4. DELETE - VP/Head only
 //if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
-  //  if ($user['role'] === 'Instructor')
-    //    sendResponse('error', 'Permission denied', null, 403);
+//  if ($user['role'] === 'Instructor')
+//    sendResponse('error', 'Permission denied', null, 403);
 
-    //$input = getJsonInput();
-    //$stmt = $connection->prepare("DELETE FROM registration WHERE id = ? AND (council = ? OR council IS NULL)");
-    //$stmt->bind_param("ii", $input['id'], $user['council']);
-   // $stmt->execute();
+//$input = getJsonInput();
+//$stmt = $connection->prepare("DELETE FROM registration WHERE id = ? AND (council = ? OR council IS NULL)");
+//$stmt->bind_param("ii", $input['id'], $user['council']);
+// $stmt->execute();
 
-  //sendResponse('success', 'Deleted successfully');
+//sendResponse('success', 'Deleted successfully');
 //}
