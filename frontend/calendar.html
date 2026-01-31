@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreeDOS Interview Calendar</title>
+    <link rel="icon" type="image/png" href="./img/ThreeDOS.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .calendar-container {
+            background: var(--dark-light);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 120px);
+        }
+
+        .calendar-header {
+            padding: 1.5rem 2rem;
+            background: var(--dark);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .current-period {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .view-switcher {
+            display: flex;
+            background: var(--dark-lighter);
+            padding: 0.25rem;
+            border-radius: 0.75rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .calendar-body {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Weekly View Grid */
+        .weekly-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(7, 1fr);
+            height: 100%;
+        }
+
+        .grid-header {
+            position: sticky;
+            top: 0;
+            background: var(--dark);
+            z-index: 10;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            padding: 1rem 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .grid-header.today {
+            color: var(--primary-light);
+            background: rgba(127, 71, 151, 0.05);
+        }
+
+        .time-col {
+            border-right: 1px solid var(--border);
+            background: var(--dark);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-align: center;
+            padding-top: 0.5rem;
+        }
+
+        .day-col {
+            border-right: 1px solid var(--border);
+            position: relative;
+            min-height: 1000px;
+            /* Adjust based on hour height */
+        }
+
+        .day-col:last-child {
+            border-right: none;
+        }
+
+        .hour-row {
+            height: 60px;
+            border-bottom: 1px solid rgba(86, 86, 87, 0.3);
+        }
+
+        /* Interview Event Card */
+        .event-card {
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 0.75rem;
+            color: #fff;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--primary-light);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            z-index: 5;
+        }
+
+        .event-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        .event-title {
+            font-weight: 700;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            margin-bottom: 2px;
+        }
+
+        .event-time {
+            opacity: 0.9;
+            font-size: 0.7rem;
+        }
+
+        /* Daily View */
+        .daily-grid {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            height: 100%;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--dark-light);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            width: 400px;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body p {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-body span {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Loading Spinner */
+        .loader-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(25, 25, 28, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--primary-light);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .weekly-grid {
+                grid-template-columns: 60px repeat(7, 120px);
+                overflow-x: auto;
+            }
+
+            .calendar-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>🎓ThreeDOS Ushering</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="icon">👥</span> <span>Applicants</span> </a>
+                <a href="calendar.html" class="nav-item active">
+                    <span class="icon">📅</span> <span>Calendar</span> </a>
+                <a href="statistics_page.html" class="nav-item">
+                    <span class="icon">📊</span> <span>Statistics</span> </a>
+                <a href="RegistrationForm.html" class="nav-item">
+                    <span class="icon">➕</span> <span>New Registration</span> </a>
+            </nav>
+            <div class="stats-summary">
+                <h3>Interviews Today</h3>
+                <div class="stat-item">
+                    <span class="stat-label">Scheduled</span>
+                    <span class="stat-value" id="today-count">0</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h1>Interview Calendar</h1>
+                <div class="header-actions">
+                    <div class="view-switcher">
+                        <button class="view-btn active" onclick="switchView('weekly')">Weekly</button>
+                        <button class="view-btn" onclick="switchView('daily')">Daily</button>
+                    </div>
+                    <button class="btn-refresh" onclick="fetchInterviews()"> <span>🔄</span> Refresh </button>
+                </div>
+            </header>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div class="calendar-controls">
+                        <button class="btn-page" onclick="changePeriod(-1)"> <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="current-period" id="current-period">January 2026</div>
+                        <button class="btn-page" onclick="changePeriod(1)"> <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="btn-secondary" onclick="goToToday()">Today</button>
+                    </div>
+                </div>
+                <div class="calendar-body" id="calendar-body">
+                    <div class="loader-container" id="loader">
+                        <span class="loader"></span>
+                    </div>
+                    <!-- Calendar grid will be injected here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Applicant Info Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Interview Details</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Data injected by JS -->
+            </div>
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button class="btn-primary" id="view-details-btn" style="flex: 1;">View Full Profile</button>
+                <button class="btn-secondary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '../backend/api.php';
+        const TOKEN = localStorage.getItem('usher_token');
+        if (!TOKEN) window.location.href = 'login.html';
+
+        let currentView = 'weekly';
+        let currentDate = new Date();
+        let interviews = [];
+
+        async function fetchInterviews() {
+            document.getElementById('loader').style.display = 'flex';
+            try {
+                const response = await fetch(`${API_URL}?interviews=1`, {
+                    headers: { 'X-Token': TOKEN }
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    interviews = result.data.interviews;
+                    renderCalendar();
+                    updateTodayStats();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase() === view);
+            });
+            renderCalendar();
+        }
+
+        function changePeriod(delta) {
+            if (currentView === 'weekly') {
+                currentDate.setDate(currentDate.getDate() + (delta * 7));
+            } else {
+                currentDate.setDate(currentDate.getDate() + delta);
+            }
+            renderCalendar();
+        }
+
+        function goToToday() {
+            currentDate = new Date();
+            renderCalendar();
+        }
+
+        function updateTodayStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const count = interviews.filter(i => i.interview_time && i.interview_time.startsWith(today)).length;
+            document.getElementById('today-count').innerText = count;
+        }
+
+        function renderCalendar() {
+            const calendarBody = document.getElementById('calendar-body');
+            const periodDisplay = document.getElementById('current-period');
+
+            if (currentView === 'weekly') {
+                renderWeeklyView(calendarBody, periodDisplay);
+            } else {
+                renderDailyView(calendarBody, periodDisplay);
+            }
+        }
+
+        function renderWeeklyView(container, display) {
+            // Calculate start of week (Sunday)
+            const startOfWeek = new Date(currentDate);
+            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+            display.innerText = `${startOfWeek.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+            let html = `<div class="weekly-grid">
+                <div class="grid-header time-col">Time</div>`;
+
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dayDates = [];
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(startOfWeek);
+                d.setDate(startOfWeek.getDate() + i);
+                dayDates.push(d.toISOString().split('T')[0]);
+                const isToday = new Date().toISOString().split('T')[0] === d.toISOString().split('T')[0];
+                html += `<div class="grid-header ${isToday ? 'today' : ''}">${days[i]} ${d.getDate()}</div>`;
+            }
+
+            // Hour rows
+            html += `<div class="time-col">`;
+            for (let h = 8; h <= 20; h++) {
+                html += `<div class="hour-row">${h}:00</div>`;
+            }
+            html += `</div>`;
+
+            // Day columns
+            for (let i = 0; i < 7; i++) {
+                html += `<div class="day-col" id="day-${i}">`;
+                for (let h = 8; h <= 20; h++) {
+                    html += `<div class="hour-row"></div>`;
+                }
+
+                // Filter interviews for this day
+                const dayInterviews = interviews.filter(inv => {
+                    if (!inv.interview_time) return false;
+                    return inv.interview_time.startsWith(dayDates[i]);
+                });
+
+                dayInterviews.forEach(inv => {
+                    const time = new Date(inv.interview_time);
+                    const hour = time.getHours();
+                    const minutes = time.getMinutes();
+
+                    if (hour >= 8 && hour <= 20) {
+                        const top = (hour - 8) * 60 + minutes;
+                        const height = 45; // Fixed height for now
+                        html += `
+                            <div class="event-card" style="top: ${top}px; height: ${height}px;" onclick="showInterviewDetails(${JSON.stringify(inv).replace(/"/g, '&quot;')})">
+                                <div class="event-title">${inv.name}</div>
+                                <div class="event-time">${hour}:${minutes.toString().padStart(2, '0')}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function renderDailyView(container, display) {
+            display.innerText = currentDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+            const dateStr = currentDate.toISOString().split('T')[0];
+
+            let html = `<div class="daily-grid">
+                <div class="time-col">Time</div>
+                <div class="day-col" style="min-height: 800px;">`;
+
+            // Hour rows labels
+            let timeLabels = '';
+            let gridRows = '';
+            for (let h = 8; h <= 20; h++) {
+                timeLabels += `<div class="hour-row">${h}:00</div>`;
+                gridRows += `<div class="hour-row"></div>`;
+            }
+
+            // Filter interviews for this day
+            const dayInterviews = interviews.filter(inv => {
+                if (!inv.interview_time) return false;
+                return inv.interview_time.startsWith(dateStr);
+            });
+
+            let eventHtml = '';
+            dayInterviews.forEach(inv => {
+                const time = new Date(inv.interview_time);
+                const hour = time.getHours();
+                const minutes = time.getMinutes();
+
+                if (hour >= 8 && hour <= 20) {
+                    const top = (hour - 8) * 60 + minutes;
+                    const height = 50;
+                    eventHtml += `
+                        <div class="event-card" style="top: ${top}px; height: ${height}px; font-size: 0.9rem;" onclick="showInterviewDetails(${JSON.stringify(inv).replace(/"/g, '&quot;')})">
+                            <div class="event-title">${inv.name}</div>
+                            <div class="event-time">${hour}:${minutes.toString().padStart(2, '0')} - ${inv.council}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            html = `
+                <div class="daily-grid">
+                    <div class="time-col">${timeLabels}</div>
+                    <div class="day-col" id="daily-day-col">
+                        ${gridRows}
+                        ${eventHtml}
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function showInterviewDetails(interview) {
+            const modal = document.getElementById('modal-overlay');
+            const body = document.getElementById('modal-body');
+            const title = document.getElementById('modal-title');
+
+            title.innerText = interview.name;
+            const time = new Date(interview.interview_time).toLocaleString();
+
+            body.innerHTML = `
+                <p><span>Council:</span> ${interview.council || 'Not Assigned'}</p>
+                <p><span>Scheduled Time:</span> ${time}</p>
+                <p><span>Current Status:</span> ${interview.rating}</p>
+            `;
+
+            document.getElementById('view-details-btn').onclick = () => {
+                window.location.href = `applicant_details_page.html?id=${interview.id}`;
+            };
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        // Initialize
+        fetchInterviews();
+
+        // Close modal on background click
+        window.onclick = function (event) {
+            const modal = document.getElementById('modal-overlay');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+
+</html>

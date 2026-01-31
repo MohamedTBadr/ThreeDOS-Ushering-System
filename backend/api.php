@@ -278,6 +278,41 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     ]);
 }
 
+// ===============================
+// GET Interviews for Calendar
+// ===============================
+if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['interviews'])) {
+    $council = $user['council'];
+    $role = $user['role'];
+
+    $queryStr = "SELECT id, name, interview_time, council, rating FROM registration WHERE interview_time IS NOT NULL";
+    $params = [];
+    $types = "";
+
+    if ($role !== "VP" && !empty($council)) {
+        $queryStr .= " AND council = ?";
+        $params[] = $council;
+        $types .= "s";
+    }
+
+    $queryStr .= " ORDER BY interview_time ASC";
+
+    $stmt = $connection->prepare($queryStr);
+    if ($stmt === false) {
+        sendResponse('error', 'Prepare failed: ' . $connection->error, null, 500);
+    }
+
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $interviews = $result->fetch_all(MYSQLI_ASSOC);
+
+    sendResponse('success', 'Interviews retrieved', ['interviews' => $interviews]);
+}
+
 // 3. PATCH - Update Applicant (Role Based)
 if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     $input = getJsonInput();

@@ -39,6 +39,8 @@ CREATE TABLE IF NOT EXISTS `registration` (
   `council_id` int(11) DEFAULT NULL,
   `rating` enum('Pending', 'Acceptance', 'B', 'Rejection') DEFAULT 'Pending',
   `notes` text,
+  `interview_time` datetime DEFAULT NULL,
+  `interviewed_by` varchar(100) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -65,6 +67,8 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 -- Add council_id column to existing registration table if it doesn't exist
 ALTER TABLE `registration` 
 ADD COLUMN IF NOT EXISTS `council_id` int(11) DEFAULT NULL AFTER `preferences`,
+ADD COLUMN IF NOT EXISTS `interview_time` datetime DEFAULT NULL AFTER `notes`,
+ADD COLUMN IF NOT EXISTS `interviewed_by` varchar(100) DEFAULT NULL AFTER `interview_time`,
 ADD KEY IF NOT EXISTS `idx_council` (`council_id`);
 
 -- Insert sample councils
