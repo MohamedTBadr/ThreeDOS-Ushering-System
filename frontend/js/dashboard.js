@@ -13,12 +13,33 @@ let userRole = localStorage.getItem('user_role');
 let currentFilters = { search: '', level: '', rating: '' };
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('.logo h2').innerText = `ThreeDOS'26`;
-    loadApplicants();
-        updateStatistics();
-    setupEventListeners();
+document.addEventListener('DOMContentLoaded', async () => {
+    // Safety fallback: Hide loader after 10s max (in case of data hang)
+    const safetyTimer = setTimeout(hideGlobalLoader, 10000);
+
+    try {
+        const logo = document.querySelector('.logo h2');
+        if (logo) logo.innerText = `ThreeDOS'26`;
+        
+        // Initial Load
+        await Promise.all([loadApplicants(), updateStatistics()]);
+    } catch (e) {
+        console.error("Init Error:", e);
+    } finally {
+        clearTimeout(safetyTimer);
+        // Hide Global Loader after data is ready (or optional error)
+        hideGlobalLoader();
+        setupEventListeners();
+    }
 });
+
+function hideGlobalLoader() {
+    const globalLoader = document.getElementById('global-loader');
+    if (globalLoader && !globalLoader.classList.contains('hidden')) {
+        globalLoader.classList.add('hidden');
+        setTimeout(() => globalLoader.style.display = 'none', 500);
+    }
+}
 
 // Setup Event Listeners
 function setupEventListeners() {
@@ -52,7 +73,7 @@ async function loadApplicants(usePrevCursor = false) {
     tbody.innerHTML = '<tr><td colspan="9">Loading applicants...</td></tr>';
 
     try {
-        let url = `${API_URL}?limit=20`;
+        let url = `${API_URL}?limit=100`;
         
         // Add cursor for pagination
         if (usePrevCursor && prevCursor) {
