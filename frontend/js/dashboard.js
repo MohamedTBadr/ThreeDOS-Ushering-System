@@ -3,7 +3,7 @@ const API_URL = '../backend/api.php';
 const TOKEN = localStorage.getItem('usher_token');
 
 // Redirect if not logged in
-if (!TOKEN) window.location.href = 'login.html';
+if (!TOKEN) window.location.href = 'register.html';
 
 // State
 let currentCursor = null;
@@ -73,7 +73,7 @@ async function loadApplicants(usePrevCursor = false) {
     tbody.innerHTML = '<tr><td colspan="9">Loading applicants...</td></tr>';
 
     try {
-        let url = `${API_URL}?limit=100`;
+        let url = `${API_URL}?limit=25`;
         
         // Add cursor for pagination
         if (usePrevCursor && prevCursor) {
@@ -130,6 +130,8 @@ function displayApplicants(applicants) {
             <td>${escapeHtml(app.level)}</td>
             <td>${escapeHtml(app.council || '')}</td>
             <td><span class="rating-badge rating-${getRatingClass(app.rating)}">${app.rating || 'Pending'}</span></td>
+                        <td>${escapeHtml(app.ushered_by || 'NA')}</td>
+
             <td>${escapeHtml(app.interviewed_by || 'NA')}</td>
 
             <td>
@@ -150,6 +152,8 @@ async function updateStatistics() {
         const response = await fetch(`${API_URL}?quickstats=1`, {
             headers: { 'X-Token': TOKEN }
         });
+        if (response.status === 401) window.location.href = 'register.html';
+        
         const result = await response.json();
 
         if (result.status === 'success') {
@@ -229,18 +233,3 @@ function showToast(message, type='info') {
     setTimeout(() => toast.style.display = 'none', 3000);
 }
 
-// Delete Applicant
-async function deleteApplicant(id) {
-    if (!confirm('Are you sure?')) return;
-
-    try {
-        const response = await fetch(API_URL, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json', 'X-Token': TOKEN },
-            body: JSON.stringify({ id })
-        });
-        const result = await response.json();
-        if (result.status === 'success') { showToast('Deleted', 'success'); loadApplicants(); }
-        else showToast(result.message, 'error');
-    } catch (error) { showToast('Failed to delete', 'error'); }
-}

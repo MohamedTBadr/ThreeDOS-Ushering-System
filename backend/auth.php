@@ -1,6 +1,8 @@
 <?php
+require_once "bootstrap.php";
+
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: https://threedos.infinityfree.me/frontend/');
 header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
@@ -72,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Return user data without password
     unset($user['password']);
     $user['token'] = $token;
+
     $user['expires_at'] = $expiresAt;
 
     sendResponse('success', 'Login successful', $user);
@@ -113,25 +116,31 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     sendResponse('success', 'Token valid', $user);
 }
 
-// DELETE - Logout
-if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
-    $headers = getallheaders();
-    $token = null;
 
-    if (isset($headers['Authorization'])) {
-        $token = str_replace('Bearer ', '', $headers['Authorization']);
-    }
+
+// DELETE or POST can be used; we'll support either for flexibility
+if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
+
+    // InfinityFree strips 'Authorization', so we use a custom header 'X-Token'
+    $token = $_SERVER['HTTP_X_TOKEN'] ?? null;
 
     if (!$token) {
         sendResponse('error', 'No token provided', null, 401);
+        exit;
     }
 
-    // Delete session
+    // Delete session from database
     $stmt = $connection->prepare("DELETE FROM sessions WHERE token = ?");
     $stmt->bind_param("s", $token);
     $stmt->execute();
 
-    sendResponse('success', 'Logout successful');
+    if ($stmt->affected_rows > 0) {
+        sendResponse('success', 'Logout successful');
+    } else {
+        sendResponse('error', 'Invalid token or already logged out', null, 400);
+    }
+
+ 
 }
 
 $connection->close();

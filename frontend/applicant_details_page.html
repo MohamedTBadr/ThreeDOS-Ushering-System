@@ -10,18 +10,183 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="./img/ThreeDOS.jpg">
 
-    <style>
+     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --threedos-purple: #7F4797;
+            --threedos-purple-light: #9A6BB2;
+            --white: #F4F4F4;
+            --light-gray: #A0A0A8;
+            --dark-bg: #0F0F12;
+            --card-bg: #1A1A1E;
+            --border-color: #2D2D32;
+            --transition: all 0.3s ease;
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.2);
+            --logo-gradient: linear-gradient(135deg, #9A6BB2, #7F4797);
+            --logo-glow: 0 0 30px rgba(127, 71, 151, 0.4);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background: #0F0F12;
-            color: #F4F4F4;
+            background: var(--dark-bg);
+            color: var(--white);
             min-height: 100vh;
+        }
+
+        /* ==================== HEADER & LOGO ==================== */
+        .header-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md), var(--logo-glow);
+            position: relative;
+            overflow: hidden;
+            animation: logoFloat 3s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes logoFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+                box-shadow: var(--shadow-md), var(--logo-glow);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(1deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(127, 71, 151, 0.6);
+            }
+        }
+
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .logo-img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            border-radius: 12px;
+            position: relative;
+            z-index: 2;
+            transition: var(--transition);
+        }
+
+        .logo-container:hover .logo-img {
+            transform: scale(1.05);
+        }
+
+        .logo-fallback {
+            font-size: 3rem;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .org-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .org-name {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--white) 0%, var(--threedos-purple-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(127, 71, 151, 0.3);
+            line-height: 1;
+        }
+
+        .org-subtitle {
+            font-size: 0.9rem;
+            color: var(--light-gray);
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .org-subtitle::before,
+        .org-subtitle::after {
+            content: '•';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--threedos-purple);
+        }
+
+        .org-subtitle::before {
+            left: 0;
+        }
+
+        .org-subtitle::after {
+            right: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1.8rem;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--threedos-purple);
+            border-radius: 2px;
+            background: linear-gradient(to right, transparent, var(--threedos-purple), transparent);
         }
 
         .dashboard-container {
@@ -33,7 +198,7 @@
         /* ===== Sidebar ===== */
         .sidebar {
             background: linear-gradient(180deg, #1A1A1E 0%, #0F0F12 100%);
-            border-right: 1px solid #2D2D32;
+            border-right: 1px solid var(--border-color);
             padding: 2rem 1.5rem;
             display: flex;
             flex-direction: column;
@@ -41,31 +206,7 @@
             position: sticky;
             top: 0;
             height: 100vh;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #9A6BB2, #7F4797);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #9A6BB2, #7F4797);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            overflow-y: auto;
         }
 
         .nav-menu {
@@ -80,9 +221,9 @@
             gap: 0.75rem;
             padding: 0.875rem 1rem;
             border-radius: 0.75rem;
-            color: #A0A0A8;
+            color: var(--light-gray);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             font-weight: 500;
         }
 
@@ -93,8 +234,8 @@
 
         .nav-item.active {
             background: rgba(127, 71, 151, 0.2);
-            color: #9A6BB2;
-            border-left: 3px solid #7F4797;
+            color: var(--threedos-purple-light);
+            border-left: 3px solid var(--threedos-purple);
         }
 
         .nav-item i {
@@ -105,7 +246,7 @@
         .user-profile {
             margin-top: auto;
             padding-top: 1.5rem;
-            border-top: 1px solid #2D2D32;
+            border-top: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -115,21 +256,11 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #7F4797, #9A6BB2);
+            background: var(--logo-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-        }
-
-        .user-info h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .user-info p {
-            font-size: 0.8rem;
-            color: #A0A0A8;
         }
 
         /* ===== Main Content ===== */
@@ -138,6 +269,7 @@
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
+            overflow-y: auto;
         }
 
         /* ===== Header ===== */
@@ -146,6 +278,20 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-top-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         .header-left h1 {
@@ -155,7 +301,7 @@
         }
 
         .header-left p {
-            color: #A0A0A8;
+            color: var(--light-gray);
             font-size: 0.95rem;
         }
 
@@ -166,17 +312,17 @@
 
         /* ===== Applicant Card ===== */
         .applicant-card {
-            background: #1A1A1E;
+            background: var(--card-bg);
             border-radius: 1rem;
-            border: 1px solid #2D2D32;
+            border: 1px solid var(--border-color);
             overflow: hidden;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-md);
         }
 
         .card-header {
             padding: 1.5rem 2rem;
-            border-bottom: 1px solid #2D2D32;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -186,6 +332,13 @@
         .card-header h2 {
             font-size: 1.5rem;
             font-weight: 600;
+            text-align: left;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .card-header h2::after {
+            display: none;
         }
 
         .status-badge {
@@ -242,7 +395,7 @@
         .detail-group label {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #A0A0A8;
+            color: var(--light-gray);
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -251,21 +404,21 @@
         .detail-group input,
         .detail-group select,
         .detail-group textarea {
-            background: #0F0F12;
+            background: var(--dark-bg);
             border: 1px solid #3A3A40;
             border-radius: 0.75rem;
             padding: 0.875rem 1rem;
-            color: #F4F4F4;
+            color: var(--white);
             font-size: 1rem;
             font-family: 'Inter', sans-serif;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .detail-group input:focus,
         .detail-group select:focus,
         .detail-group textarea:focus {
             outline: none;
-            border-color: #7F4797;
+            border-color: var(--threedos-purple);
             box-shadow: 0 0 0 3px rgba(127, 71, 151, 0.2);
         }
 
@@ -274,13 +427,14 @@
         .detail-group textarea:disabled {
             background: transparent;
             border: 1px solid transparent;
-            color: #F4F4F4;
+            color: var(--white);
+            cursor: not-allowed;
         }
 
         .interview-section {
             margin-top: 2rem;
             padding-top: 1.5rem;
-            border-top: 1px solid #2D2D32;
+            border-top: 1px solid var(--border-color);
         }
 
         .interview-section h3 {
@@ -314,7 +468,7 @@
             justify-content: flex-end;
             gap: 1rem;
             padding: 1.5rem 2rem;
-            border-top: 1px solid #2D2D32;
+            border-top: 1px solid var(--border-color);
             background: rgba(26, 26, 30, 0.8);
         }
 
@@ -325,7 +479,7 @@
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             font-size: 0.95rem;
             display: inline-flex;
             align-items: center;
@@ -334,20 +488,20 @@
 
         .btn-edit {
             background: rgba(127, 71, 151, 0.15);
-            border: 1px solid #7F4797;
+            border: 1px solid var(--threedos-purple);
             color: #D0A8E8;
         }
 
         .btn-edit:hover {
-            background: #7F4797;
-            color: #fff;
+            background: var(--threedos-purple);
+            color: var(--white);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(127, 71, 151, 0.3);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #7F4797, #9A6BB2);
-            color: #fff;
+            background: var(--logo-gradient);
+            color: var(--white);
         }
 
         .btn-primary:hover {
@@ -358,13 +512,13 @@
 
         .btn-secondary {
             background: transparent;
-            color: #A0A0A8;
+            color: var(--light-gray);
             border: 1px solid #3A3A40;
         }
 
         .btn-secondary:hover {
             background: #2D2D32;
-            color: #F4F4F4;
+            color: var(--white);
         }
 
         .btn-danger {
@@ -375,7 +529,7 @@
 
         .btn-danger:hover {
             background: rgba(220, 53, 69, 0.3);
-            color: #fff;
+            color: var(--white);
         }
 
         .btn:disabled {
@@ -389,8 +543,8 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            background: #1A1A1E;
-            border: 1px solid #2D2D32;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-left: 4px solid #28A745;
             border-radius: 0.75rem;
             padding: 1rem 1.5rem;
@@ -413,6 +567,164 @@
             border-left-color: #DC3545;
         }
 
+        /* ===== Interview Questions Section ===== */
+        .questions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .questions-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .questions-toggle {
+            display: flex;
+            background: var(--dark-bg);
+            border: 1px solid #3A3A40;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            padding: 0.25rem;
+        }
+
+        .question-note-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 15, 18, 0.5);
+            border: 1px solid #3A3A40;
+            border-radius: 0.5rem;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            resize: vertical;
+            min-height: 80px;
+            transition: var(--transition);
+            cursor: not-allowed;
+        }
+
+        .question-note-input:focus {
+            outline: none;
+            border-color: var(--threedos-purple);
+            box-shadow: 0 0 0 2px rgba(127, 71, 151, 0.2);
+        }
+
+        .question-note-input:disabled {
+            background: rgba(15, 15, 18, 0.5);
+            border-color: #2D2D32;
+            color: var(--light-gray);
+            cursor: not-allowed;
+        }
+
+        .question-note-input:not(:disabled) {
+            background: rgba(26, 26, 30, 0.8);
+            cursor: text;
+        }
+
+        .toggle-btn {
+            padding: 0.6rem 1.25rem;
+            background: transparent;
+            border: none;
+            color: var(--light-gray);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-btn.active {
+            background: rgba(127, 71, 151, 0.2);
+            color: #D0A8E8;
+            box-shadow: 0 2px 8px rgba(127, 71, 151, 0.1);
+        }
+
+        .toggle-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+        }
+
+        .questions-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .questions-category {
+            background: rgba(26, 26, 30, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .questions-category.hidden {
+            display: none;
+        }
+
+        .questions-category h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--threedos-purple-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .question-item {
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: var(--transition);
+        }
+
+        .question-item:hover {
+            border-color: #3A3A40;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--light-gray);
+        }
+
+        .no-questions {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-gray);
+            font-style: italic;
+        }
+
         /* ===== Responsive Design ===== */
         @media (max-width: 1024px) {
             .dashboard-container {
@@ -420,10 +732,17 @@
             }
 
             .sidebar {
-                position: relative;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid #2D2D32;
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                z-index: 1000;
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(280px);
             }
 
             .details-grid {
@@ -436,14 +755,6 @@
         }
 
         @media (max-width: 768px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                display: none;
-            }
-
             .main-content {
                 padding: 1.5rem;
             }
@@ -458,15 +769,6 @@
                 font-size: 1.5rem;
             }
 
-            .header-actions {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-
-            .interview-time-container {
-                grid-template-columns: 1fr;
-            }
-
             .action-bar {
                 flex-direction: column;
                 padding: 1.25rem 1.5rem;
@@ -479,6 +781,9 @@
 
             .card-header {
                 padding: 1.25rem 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
             }
 
             .card-body {
@@ -486,118 +791,38 @@
             }
         }
 
-        @media (max-width: 480px) {
-            .main-content {
-                padding: 1rem;
-            }
-
-            .header-left h1 {
-                font-size: 1.25rem;
-            }
-
-            .header-left p {
-                font-size: 0.85rem;
-            }
-
-            .header-actions .btn {
-                padding: 0.65rem 1rem;
-                font-size: 0.875rem;
-            }
-
-            .card-header {
-                padding: 1rem;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-
-            .card-header h2 {
-                font-size: 1.25rem;
-            }
-
-            .card-body {
-                padding: 1rem;
-            }
-
-            .details-grid {
-                gap: 1rem;
-            }
-
-            .detail-group label {
-                font-size: 0.8rem;
-            }
-
-            .detail-group input,
-            .detail-group select,
-            .detail-group textarea {
-                padding: 0.75rem 0.875rem;
-                font-size: 0.9rem;
-            }
-
-            .interview-section h3 {
-                font-size: 1.1rem;
-            }
-
-            .action-bar {
-                padding: 1rem;
-                gap: 0.75rem;
-            }
-
-            .btn {
-                padding: 0.65rem 1.25rem;
-                font-size: 0.875rem;
-            }
-
-            .toast {
-                bottom: 1rem;
-                right: 1rem;
-                left: 1rem;
-                font-size: 0.875rem;
-                padding: 0.875rem 1.25rem;
-            }
-
-            .status-badge {
-                padding: 0.35rem 0.875rem;
-                font-size: 0.8rem;
-            }
-
-            .time-display {
-                padding: 0.65rem 1rem;
-                font-size: 0.875rem;
-            }
+        /* RESPONSIVE SIDEBAR */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 1rem;
+            padding: 0.5rem;
         }
 
-
-        /* ===== Loading State ===== */
-        .loading-shimmer {
-            background: linear-gradient(90deg, #1A1A1E 25%, #2D2D32 50%, #1A1A1E 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 0.5rem;
-            height: 20px;
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        @keyframes shimmer {
-            0% {
-                background-position: -200% 0;
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .menu-toggle {
+                display: block;
             }
-
-            100% {
-                background-position: 200% 0;
-            }
-        }
-
-        /* ===== Utility Classes ===== */
-        .hidden {
-            display: none !important;
-        }
-
-        .text-muted {
-            color: #A0A0A8;
-        }
-
-        .icon-sm {
-            font-size: 0.9rem;
         }
 
         /* Global Loader Styles */
@@ -605,7 +830,7 @@
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: linear-gradient(135deg, #0F0F12 0%, #1A1A1E 100%);
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--card-bg) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -624,7 +849,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background-color: #1A1A1E;
+            background-color: var(--card-bg);
             box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2), 0 0 40px rgba(127, 71, 151, 0.4);
             overflow: hidden;
             animation: logoPulse 2s infinite ease-in-out;
@@ -641,7 +866,7 @@
             font-size: 2.5rem;
             font-weight: 800;
             letter-spacing: 4px;
-            color: #F4F4F4;
+            color: var(--white);
             background: linear-gradient(90deg, #9A6BB2, #FF6B8B, #9A6BB2);
             -webkit-background-clip: text;
             background-clip: text;
@@ -666,9 +891,9 @@
             top: 0;
             height: 100%;
             width: 40%;
-            background: #7F4797;
+            background: var(--threedos-purple);
             border-radius: 4px;
-            box-shadow: 0 0 10px #7F4797;
+            box-shadow: 0 0 10px var(--threedos-purple);
             animation: barLoading 1.5s ease-in-out infinite;
         }
 
@@ -707,6 +932,11 @@
                 width: 40%;
             }
         }
+
+        /* ===== Utility Classes ===== */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -721,29 +951,50 @@
     </div>
 
     <div class="dashboard-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>ThreeDOS'26</h2>
+        <aside class="sidebar" id="sidebar">
+            <!-- ThreeDOS Header with Logo -->
+            <div class="header-logo">
+                <div class="logo-container">
+                    <!-- Logo Image with fallback -->
+                    <img src="./img/ThreeDOS.jpg" alt="ThreeDOS Logo" class="logo-img" id="logoImage"
+                        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+                    <div class="logo-fallback" id="logoFallback" style="display: none;">
+                        <i class="fas fa-users-crown"></i>
+                    </div>
+                </div>
+                <div class="org-title">
+                    <div class="org-name">ThreeDOS</div>
+                    <div class="org-subtitle">Academic Councils</div>
+                </div>
             </div>
             <nav class="nav-menu">
-                <a href="dashboard.html" class="nav-item active" data-view="applicants">
-                    <span class="icon">👥</span> <span>Applicants</span> </a>
+                <a href="dashboard.html" class="nav-item active">
+                    <span class="icon">👥</span> <span>Applicants</span>
+                </a>
                 <a href="calendar.html" class="nav-item">
-                    <span class="icon">📅</span> <span>Calendar</span> </a>
-                <a href="statistics_page.html" class="nav-item" data-view="statistics">
-                    <span class="icon">📊</span> <span>Statistics</span> </a>
+                    <span class="icon">📅</span> <span>Calendar</span>
+                </a>
+                <a href="statistics_page.html" class="nav-item">
+                    <span class="icon">📊</span> <span>Statistics</span>
+                </a>
                 <a href="RegistrationForm.html" class="nav-item">
-                    <span class="icon">➕</span> <span>New Registration</span> </a>
+                    <span class="icon">➕</span> <span>New Registration</span>
+                </a>
             </nav>
         </aside>
 
         <main class="main-content">
             <header class="header">
-                <div class="header-left">
-                    <h1>Applicant Details</h1>
-                    <p>View and manage applicant information</p>
+                <div class="header-top-row">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div class="header-left">
+                        <h1>Applicant Details</h1>
+                        <p>View and manage applicant information</p>
+                    </div>
                 </div>
 
                 <div class="header-actions">
@@ -802,6 +1053,21 @@
                         </div>
 
                         <div class="detail-group">
+                            <label for="applicant-council">
+                                <i class="fas fa-users"></i>
+                                Council
+                            </label>
+                            <select id="applicant-council" disabled>
+                                <option value="">Select council</option>
+                                <option value="Marketing Council">Marketing Council</option>
+                                <option value="Backend Development Council">Backend Development Council</option>
+                                <option value="Frontend Development Council">Frontend Development Council</option>
+                                <option value="Stock Marketing Council">Stock Marketing Council</option>
+                                <option value="CEO Council">CEO Council</option>
+                            </select>
+                        </div>
+
+                        <div class="detail-group">
                             <label for="applicant-level">
                                 <i class="fas fa-layer-group"></i>
                                 Academic Level
@@ -823,7 +1089,7 @@
                             <select id="applicant-rating" disabled>
                                 <option value="Pending">Pending Review</option>
                                 <option value="Acceptance">Accepted</option>
-                                <option value="Backup Candidate">Backup Candidate</option>
+                                <option value="B">Backup Candidate</option>
                                 <option value="Rejection">Rejected</option>
                             </select>
                         </div>
@@ -855,9 +1121,53 @@
                                 <input type="datetime-local" id="interview-time" disabled>
                             </div>
 
-                            <div class="time-display hidden" id="time-display">
+                            <div class="time-display" id="time-display">
                                 <i class="fas fa-calendar-alt"></i>
                                 <span id="formatted-time">Not scheduled</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interview Questions Section -->
+                    <div class="interview-section">
+                        <div class="questions-header">
+                            <h3>
+                                <i class="fas fa-question-circle"></i>
+                                Interview Questions
+                            </h3>
+                            <div class="questions-toggle">
+                                <button class="toggle-btn active" data-category="soft-skills">
+                                    <i class="fas fa-users"></i>
+                                    Soft Skills
+                                </button>
+                                <button class="toggle-btn" data-category="tech-skills">
+                                    <i class="fas fa-code"></i>
+                                    Tech Skills
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="questions-container">
+                            <!-- Soft Skills Questions -->
+                            <div class="questions-category" id="soft-skills-questions">
+                                <h4>
+                                    <i class="fas fa-users"></i>
+                                    Soft Skills Questions
+                                </h4>
+                                <div class="question-list" id="soft-skills-list">
+                                    <!-- Questions will be loaded here -->
+                                </div>
+                            </div>
+
+                            <!-- Tech Skills Questions -->
+                            <div class="questions-category hidden" id="tech-skills-questions">
+                                <h4>
+                                    <i class="fas fa-code"></i>
+                                    Tech Skills Questions
+                                </h4>
+                                <div class="question-list" id="tech-skills-list">
+                                    <!-- Questions will be loaded here -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -875,8 +1185,7 @@
                                 Notes
                             </label>
                             <textarea id="applicant-notes" rows="4"
-                                placeholder="Write internal notes about the applicant..." disabled
-                                style="background:#0F0F12;border:1px solid #3A3A40;border-radius:0.75rem;padding:1rem;color:#F4F4F4;resize:vertical;"></textarea>
+                                placeholder="Write internal notes about the applicant..." disabled></textarea>
                         </div>
                     </div>
                 </div>
@@ -900,295 +1209,361 @@
         </main>
     </div>
 
-    <script>
-        const API_URL = '../backend/api.php';
-        const TOKEN = localStorage.getItem('usher_token');
-        if (!TOKEN) window.location.href = 'login.html';
+ <script>
+/* =====================================================
+   APPLICANT DETAILS PAGE - FULL SCRIPT
+===================================================== */
 
+/* ================== CONFIG ================== */
+const API_URL = '../backend/api.php';
+const TOKEN = localStorage.getItem('usher_token');
 
+if (!TOKEN) {
+    window.location.href = 'login.html';
+}
 
-        const applicantId = new URLSearchParams(window.location.search).get('id');
+const urlParams = new URLSearchParams(window.location.search);
+const applicantId = urlParams.get('id');
 
-        // DOM Elements
-        const nameInput = document.getElementById('applicant-name');
-        const emailInput = document.getElementById('applicant-email');
-        const phoneInput = document.getElementById('applicant-phone');
-        const ratingSelect = document.getElementById('applicant-rating');
-        const interviewerInput = document.getElementById('interviewer');
-        const interviewTimeInput = document.getElementById('interview-time');
-        const nameDisplay = document.getElementById('applicant-name-display');
-        const statusBadge = document.getElementById('applicant-status');
-        const timeDisplay = document.getElementById('time-display');
-        const formattedTime = document.getElementById('formatted-time');
-        const collegeInput = document.getElementById('applicant-college');
-        const levelSelect = document.getElementById('applicant-level');
-        const notesInput = document.getElementById('applicant-notes');
+if (!applicantId) {
+    alert('No applicant ID provided');
+    window.history.back();
+}
 
+/* ================== DOM ELEMENTS ================== */
+const globalLoader = document.getElementById('global-loader');
 
-        // Buttons
-        const editBtn = document.getElementById('edit-toggle');
-        const saveBtn = document.getElementById('save-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const actionBar = document.getElementById('action-bar');
-        const toast = document.getElementById('toast');
-        const toastMessage = document.getElementById('toast-message');
+const nameInput = document.getElementById('applicant-name');
+const emailInput = document.getElementById('applicant-email');
+const phoneInput = document.getElementById('applicant-phone');
+const collegeInput = document.getElementById('applicant-college');
+const councilSelect = document.getElementById('applicant-council');
+const levelSelect = document.getElementById('applicant-level');
+const ratingSelect = document.getElementById('applicant-rating');
+const interviewerInput = document.getElementById('interviewer');
+const interviewTimeInput = document.getElementById('interview-time');
+const notesInput = document.getElementById('applicant-notes');
 
-        // Status badge classes
-        const statusClasses = {
-            'Pending': 'status-pending',
-            'Acceptance': 'status-accepted',
-            'B': 'status-backup',
-            'Rejection': 'status-rejected'
-        };
+const nameDisplay = document.getElementById('applicant-name-display');
+const statusBadge = document.getElementById('applicant-status');
+const formattedTime = document.getElementById('formatted-time');
+const timeDisplay = document.getElementById('time-display');
 
-        const statusIcons = {
-            'Pending': 'fa-clock',
-            'Acceptance': 'fa-check-circle',
-            'B': 'fa-user-clock',
-            'Rejection': 'fa-times-circle'
-        };
+const softSkillsList = document.getElementById('soft-skills-list');
+const techSkillsList = document.getElementById('tech-skills-list');
+const toggleBtns = document.querySelectorAll('.toggle-btn');
 
-        // Format date for display
-        function formatDateTime(dateTimeStr) {
-            if (!dateTimeStr) return 'Not scheduled';
+const editBtn = document.getElementById('edit-toggle');
+const saveBtn = document.getElementById('save-btn');
+const cancelBtn = document.getElementById('cancel-btn');
+const actionBar = document.getElementById('action-bar');
 
-            const date = new Date(dateTimeStr.replace(' ', 'T'));
-            return date.toLocaleString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+const toast = document.getElementById('toast');
+const toastMessage = document.getElementById('toast-message');
+
+/* ================== STATUS CONFIG ================== */
+const statusClasses = {
+    Pending: 'status-pending',
+    Acceptance: 'status-accepted',
+    B: 'status-backup',
+    Rejection: 'status-rejected'
+};
+
+const statusIcons = {
+    Pending: 'fa-clock',
+    Acceptance: 'fa-check-circle',
+    B: 'fa-user-clock',
+    Rejection: 'fa-times-circle'
+};
+
+/* ================== UTILITIES ================== */
+function formatDateTime(dateTimeStr) {
+    if (!dateTimeStr || dateTimeStr === '0000-00-00 00:00:00') return 'Not scheduled';
+    try {
+        const date = new Date(dateTimeStr.replace(' ', 'T'));
+        return date.toLocaleString();
+    } catch {
+        return 'Invalid date';
+    }
+}
+
+function formatDateTimeForInput(dateTimeStr) {
+    if (!dateTimeStr || dateTimeStr === '0000-00-00 00:00:00') return '';
+    try {
+        const date = new Date(dateTimeStr.replace(' ', 'T'));
+        return date.toISOString().slice(0, 16);
+    } catch {
+        return '';
+    }
+}
+
+function showToast(message, isError = false) {
+    toastMessage.textContent = message;
+    toast.classList.toggle('toast-error', isError);
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function updateStatusBadge(status) {
+    const statusText =
+        status === 'Acceptance' ? 'Accepted' :
+        status === 'B' ? 'Backup' :
+        status === 'Rejection' ? 'Rejected' : 'Pending';
+
+    statusBadge.className = `status-badge ${statusClasses[status] || 'status-pending'}`;
+    statusBadge.innerHTML = `
+        <i class="fas ${statusIcons[status] || 'fa-clock'}"></i>
+        <span>${statusText}</span>
+    `;
+}
+
+/* ================== QUESTION RENDERING ================== */
+function createQuestionItem(question) {
+    const div = document.createElement('div');
+    div.className = 'question-item';
+    div.dataset.questionId = question.id;
+    div.dataset.category = question.category || (question.id.startsWith('default_soft') ? 'Soft Skills' : 'Tech Skills');
+    div.dataset.difficulty = question.difficulty || 'Medium';
+    div.dataset.council = question.council || councilSelect.value.replace(' Council', '');
+
+    div.innerHTML = `
+        <div class="question-text">${question.question}</div>
+        <div class="question-meta">
+            <span><i class="fas fa-signal"></i> ${div.dataset.difficulty}</span>
+        </div>
+        <div class="question-notes">
+            <textarea 
+                class="question-note-input" 
+                placeholder="Add notes for this question..."
+                rows="2"
+                disabled
+            >${question.note || ""}</textarea>
+        </div>
+    `;
+
+    return div;
+}
+
+function renderInterviewQuestions(questions = []) {
+    softSkillsList.innerHTML = '';
+    techSkillsList.innerHTML = '';
+
+    if (!Array.isArray(questions)) return;
+
+    questions.forEach(question => {
+        const element = createQuestionItem(question);
+
+        if (question.category === 'Soft Skills') {
+            softSkillsList.appendChild(element);
+        } else if (question.category === 'Tech Skills') {
+            techSkillsList.appendChild(element);
         }
+    });
 
-        // Show toast notification
-        function showToast(message, isError = false) {
-            toastMessage.textContent = message;
-            toast.classList.toggle('toast-error', isError);
-            toast.classList.add('show');
+    updateQuestionCounts(questions);
+}
 
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+function updateQuestionCounts(questions) {
+    const softCount = questions.filter(q => q.category === 'Soft Skills').length;
+    const techCount = questions.filter(q => q.category === 'Tech Skills').length;
+
+    toggleBtns.forEach(btn => {
+        const isSoft = btn.dataset.category === 'soft-skills';
+        const count = isSoft ? softCount : techCount;
+
+        let badge = btn.querySelector('.count-badge');
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'count-badge';
+            badge.style.marginLeft = '6px';
+            btn.appendChild(badge);
         }
+        badge.textContent = count;
+    });
+}
 
-        // Update status badge
-        function updateStatusBadge(status) {
-            const statusText = status === 'Acceptance' ? 'Accepted' :
-                status === 'B' ? 'Backup' :
-                    status === 'Rejection' ? 'Rejected' : 'Pending';
+function collectQuestionNotes() {
+    const results = [];
 
-            statusBadge.className = `status-badge ${statusClasses[status] || statusClasses.Pending}`;
-            statusBadge.innerHTML = `<i class="fas ${statusIcons[status] || statusIcons.Pending}"></i><span>${statusText}</span>`;
-        }
+    document.querySelectorAll('.question-item').forEach(item => {
+        const id = item.dataset.questionId;
+        const questionText = item.querySelector('.question-text').textContent;
+        const note = item.querySelector('.question-note-input').value.trim();
+        const category = item.dataset.category;
+        const difficulty = item.dataset.difficulty;
+        const council = item.dataset.council;
 
-        // Load applicant data
-        async function loadApplicant() {
-            try {
-                const res = await fetch(`${API_URL}?id=${applicantId}`, {
-                    headers: { 'X-Token': TOKEN }
-                });
-
-                const json = await res.json();
-
-                if (json.status !== 'success') {
-                    throw new Error('Failed to load applicant data');
-                }
-
-                const applicant = json.data.applicants.find(x => x.id == applicantId);
-                if (!applicant) {
-                    throw new Error('Applicant not found');
-                }
-
-                // Populate form fields
-                nameInput.value = applicant.name || '';
-                emailInput.value = applicant.email || '';
-                phoneInput.value = applicant.phone || '';
-                ratingSelect.value = applicant.rating || 'Pending';
-                collegeInput.value = applicant.college || '';
-                levelSelect.value = applicant.level || '';
-                notesInput.value = applicant.notes || '';
-
-                //console.log(levelSelect.value);
-                const interviewTime = applicant.interview_time ?
-                    applicant.interview_time.replace(' ', 'T').substr(0, 16) : '';
-                interviewTimeInput.value = interviewTime;
-                interviewerInput.value = applicant.interviewed_by || 'NA';
-                // Update display
-                nameDisplay.textContent = applicant.name || 'Unnamed Applicant';
-                updateStatusBadge(applicant.rating || 'Pending');
-
-                // Update time display
-                if (applicant.interview_time) {
-                    formattedTime.textContent = formatDateTime(applicant.interview_time);
-                    timeDisplay.classList.remove('hidden');
-                } else {
-                    timeDisplay.classList.add('hidden');
-                }
-
-            } catch (error) {
-                console.error('Error loading applicant:', error);
-                showToast('Failed to load applicant data', true);
-            } finally {
-                // Hide global loader with safety check (after data load)
-                const globalLoader = document.getElementById('global-loader');
-                if (globalLoader && !globalLoader.classList.contains('hidden')) {
-                    globalLoader.classList.add('hidden');
-                    setTimeout(() => globalLoader.style.display = 'none', 500);
-                }
-            }
-        }
-
-        // Initial Call
-        loadApplicant();
-
-        // Safety Fallback (10s)
-        setTimeout(() => {
-            const globalLoader = document.getElementById('global-loader');
-            if (globalLoader && !globalLoader.classList.contains('hidden')) {
-                globalLoader.classList.add('hidden');
-                setTimeout(() => globalLoader.style.display = 'none', 500);
-            }
-        }, 10000);
-
-        // Enable edit mode
-        editBtn.onclick = () => {
-            // Enable all inputs
-            [nameInput, emailInput, phoneInput, ratingSelect, interviewTimeInput,
-                collegeInput, levelSelect, notesInput]
-                .forEach(e => e.disabled = false);
-
-
-            // Show action bar
-            actionBar.classList.remove('hidden');
-
-            // Hide edit button
-            editBtn.classList.add('hidden');
-
-            // Hide time display when editing
-            timeDisplay.classList.add('hidden');
-
-            // Focus on first input
-            nameInput.focus();
-        };
-
-        // Cancel edit mode
-        cancelBtn.onclick = () => {
-            // Reload original data
-            loadApplicant();
-
-            // Disable all inputs
-            [nameInput, emailInput, phoneInput, ratingSelect, interviewTimeInput,
-                collegeInput, levelSelect, notesInput]
-                .forEach(e => e.disabled = true);
-
-
-            // Hide action bar
-            actionBar.classList.add('hidden');
-
-            // Show edit button
-            editBtn.classList.remove('hidden');
-        };
-
-        // Save changes
-        saveBtn.onclick = async () => {
-            // Validate inputs
-            if (!nameInput.value.trim()) {
-                showToast('Please enter a name', true);
-                nameInput.focus();
-                return;
-            }
-
-            if (!emailInput.value.trim()) {
-                showToast('Please enter an email', true);
-                emailInput.focus();
-                return;
-            }
-
-            // Prepare payload
-            const payload = {
-                id: parseInt(applicantId),
-                name: nameInput.value.trim(),
-                email: emailInput.value.trim(),
-                phone: phoneInput.value.trim(),
-                rating: ratingSelect.value,
-                college: collegeInput.value.trim(),
-                level: levelSelect.value,
-                notes: notesInput.value.trim(),
-                interviewered_by: interviewerInput.value,
-                interview_time: interviewTimeInput.value
-                    ? interviewTimeInput.value.replace('T', ' ')
-                    : null
-            };
-
-
-            // Show loading state
-            const originalText = saveBtn.innerHTML;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            saveBtn.disabled = true;
-
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Token': TOKEN
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const json = await res.json();
-
-                if (json.status === 'success') {
-                    showToast('Applicant details updated successfully');
-
-                    // Update display
-                    nameDisplay.textContent = payload.name;
-                    updateStatusBadge(payload.rating);
-
-                    if (payload.interview_time) {
-                        formattedTime.textContent = formatDateTime(payload.interview_time);
-                        timeDisplay.classList.remove('hidden');
-                    }
-
-                    // Exit edit mode
-                    cancelBtn.onclick();
-                } else {
-                    throw new Error(json.message || 'Update failed');
-                }
-            } catch (error) {
-                console.error('Error saving applicant:', error);
-                showToast('Failed to save changes: ' + error.message, true);
-            } finally {
-                // Restore button state
-                saveBtn.innerHTML = originalText;
-                saveBtn.disabled = false;
-            }
-        };
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            loadApplicant();
-
-            // Update time display when interview time changes
-            interviewTimeInput.addEventListener('change', () => {
-                if (interviewTimeInput.value) {
-                    const date = new Date(interviewTimeInput.value);
-                    formattedTime.textContent = formatDateTime(date.toISOString());
-                    timeDisplay.classList.remove('hidden');
-                } else {
-                    timeDisplay.classList.add('hidden');
-                }
-            });
-
-            // Update status badge when rating changes
-            ratingSelect.addEventListener('change', () => {
-                updateStatusBadge(ratingSelect.value);
-            });
+        results.push({
+            id,
+            question: questionText,
+            category,
+            difficulty,
+            council,
+            note
         });
-    </script>
+    });
+
+    return results;
+}
+
+/* ================== EDIT MODE ================== */
+function setFormEditing(enabled) {
+    const inputs = [
+        nameInput, emailInput, phoneInput, collegeInput,
+        levelSelect, ratingSelect,
+        interviewTimeInput, notesInput
+    ];
+
+    inputs.forEach(input => input.disabled = !enabled);
+
+    document.querySelectorAll('.question-note-input')
+        .forEach(textarea => textarea.disabled = !enabled);
+
+    actionBar.classList.toggle('hidden', !enabled);
+    editBtn.classList.toggle('hidden', enabled);
+    timeDisplay.classList.toggle('hidden', enabled);
+}
+
+/* ================== LOAD APPLICANT ================== */
+async function loadApplicant() {
+    try {
+        const response = await fetch(`${API_URL}?id=${applicantId}`, {
+            headers: { 'X-Token': TOKEN }
+        });
+
+        if (response.status === 401) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const data = await response.json();
+
+        if (data.status !== 'success' || !data.data.applicants.length) {
+            throw new Error('Applicant not found');
+        }
+
+        const applicant = data.data.applicants[0];
+
+        nameInput.value = applicant.name || '';
+        emailInput.value = applicant.email || '';
+        phoneInput.value = applicant.phone || '';
+        collegeInput.value = applicant.college || '';
+        councilSelect.value = applicant.council
+            ? applicant.council + ' Council'
+            : '';
+        levelSelect.value = applicant.level || '';
+        ratingSelect.value = applicant.rating || 'Pending';
+        interviewerInput.value = applicant.interviewed_by || '';
+        interviewTimeInput.value = formatDateTimeForInput(applicant.interview_time);
+        notesInput.value = applicant.notes || '';
+
+        nameDisplay.textContent = applicant.name || 'Unnamed Applicant';
+        updateStatusBadge(applicant.rating || 'Pending');
+
+        if (applicant.interview_time) {
+            formattedTime.textContent = formatDateTime(applicant.interview_time);
+            timeDisplay.classList.remove('hidden');
+        }
+
+        renderInterviewQuestions(applicant.interview_questions || []);
+
+    } catch (error) {
+        console.error('Load error:', error);
+        showToast('Failed to load applicant', true);
+    } finally {
+        if (globalLoader) globalLoader.classList.add('hidden');
+    }
+}
+
+/* ================== SAVE APPLICANT ================== */
+async function saveApplicant() {
+    try {
+        const payload = {
+            id: parseInt(applicantId),
+            name: nameInput.value.trim(),
+            email: emailInput.value.trim(),
+            phone: phoneInput.value.trim(),
+            college: collegeInput.value.trim(),
+            council: councilSelect.value.replace(' Council', ''),
+            level: levelSelect.value,
+            rating: ratingSelect.value,
+            interviewed_by: interviewerInput.value.trim(),
+            interview_time: interviewTimeInput.value
+                ? interviewTimeInput.value.replace('T', ' ')
+                : null,
+            notes: notesInput.value.trim(),
+            interview_questions: collectQuestionNotes()
+        };
+
+        const response = await fetch(API_URL, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Token': TOKEN
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (data.status !== 'success') {
+            throw new Error(data.message);
+        }
+
+        showToast('Applicant updated successfully');
+        updateStatusBadge(payload.rating);
+        setFormEditing(false);
+
+    } catch (error) {
+        console.error('Save error:', error);
+        showToast('Save failed: ' + error.message, true);
+    }
+}
+
+/* ================== EVENTS ================== */
+document.addEventListener('DOMContentLoaded', () => {
+
+    loadApplicant();
+
+    editBtn.addEventListener('click', () => {
+        setFormEditing(true);
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        setFormEditing(false);
+        loadApplicant();
+    });
+
+    saveBtn.addEventListener('click', saveApplicant);
+
+    ratingSelect.addEventListener('change', () => {
+        updateStatusBadge(ratingSelect.value);
+    });
+
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            toggleBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const category = btn.dataset.category;
+
+            document.getElementById('soft-skills-questions')
+                .classList.toggle('hidden', category !== 'soft-skills');
+
+            document.getElementById('tech-skills-questions')
+                .classList.toggle('hidden', category !== 'tech-skills');
+        });
+    });
+});
+
+/* ================== SAFETY LOADER ================== */
+setTimeout(() => {
+    if (globalLoader && !globalLoader.classList.contains('hidden')) {
+        globalLoader.classList.add('hidden');
+    }
+}, 5000);
+</script>
+
 </body>
 
 </html>

@@ -1,5 +1,5 @@
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,144 +9,196 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* =========================
-   GLOBAL RESET
-========================= */
+            GLOBAL RESET
+        ========================= */
+        :root {
+            --threedos-purple: #7F4797;
+            --threedos-purple-light: #9A6BB2;
+            --bg-dark: #19191C;
+            --bg-card: #252429;
+            --text-main: #F4F4F4;
+            --text-muted: #B0B0B0;
+            --border-color: #565657;
+        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #19191C 0%, #252429 100%);
-            color: #F4F4F4;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
+            color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
         }
-
         /* =========================
-   DASHBOARD LAYOUT
-========================= */
+            DASHBOARD LAYOUT
+        ========================= */
         .dashboard-container {
-            display: grid;
-            grid-template-columns: 280px 1fr;
+            display: flex;
             min-height: 100vh;
+            position: relative;
         }
-
         /* =========================
-   SIDEBAR
-========================= */
+            SIDEBAR - (تم تعديل الـ position هنا)
+        ========================= */
         .sidebar {
-            background: linear-gradient(180deg, #252429 0%, #19191C 100%);
-            border-right: 1px solid #565657;
+            width: 280px;
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            border-right: 1px solid var(--border-color);
             padding: 2rem 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 2rem;
-            position: sticky;
+            position: fixed; /* تم التغيير من sticky لـ fixed لثبات القائمة */
+            left: 0;
             top: 0;
             height: 100vh;
             overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 1100; /* أعلى من الـ overlay */
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         .logo h2 {
             font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #9A6BB2, #7F4797);
+            background: linear-gradient(135deg, var(--threedos-purple-light), var(--threedos-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .nav-menu {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
         }
-
         .nav-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             padding: 0.875rem 1rem;
             border-radius: 0.75rem;
-            color: #B0B0B0;
+            color: var(--text-muted);
             text-decoration: none;
             transition: all 0.3s ease;
             font-weight: 500;
         }
-
         .nav-item:hover {
             background: rgba(127, 71, 151, 0.15);
-            color: #9A6BB2;
+            color: var(--threedos-purple-light);
             transform: translateX(4px);
         }
-
         .nav-item.active {
             background: rgba(127, 71, 151, 0.25);
-            color: #9A6BB2;
-            border-left: 3px solid #7F4797;
+            color: var(--threedos-purple-light);
+            border-left: 3px solid var(--threedos-purple);
         }
-
         .nav-item .icon {
             font-size: 1.25rem;
         }
-
+        /* ==================== HEADER & LOGO ==================== */
+        .header-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            animation: logoFloat 3s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50%      { transform: translateY(-10px) rotate(1deg); }
+        }
+        .logo-img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            border-radius: 12px;
+            position: relative;
+            z-index: 2;
+        }
+        .logo-fallback {
+            font-size: 3rem;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+        .org-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .org-name {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, var(--threedos-purple-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+        .org-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            padding: 0 10px;
+        }
         /* =========================
-   MAIN CONTENT
-========================= */
+            MAIN CONTENT - (تم إضافة margin لتعويض الـ sidebar الـ fixed)
+        ========================= */
         .main-content {
             padding: 2rem;
-            max-width: 1600px;
-            margin: 0 auto;
+            flex-grow: 1;
+            width: 100%;
+            min-width: 0;
+            margin-left: 280px; /* لترك مساحة للقائمة الجانبية */
         }
-
         /* =========================
-   HEADER
-========================= */
+            HEADER
+        ========================= */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             margin-bottom: 2rem;
+            gap: 1rem;
         }
-
         .header h1 {
             font-size: 2rem;
             font-weight: 700;
-            color: #F4F4F4;
+            color: var(--text-main);
+            line-height: 1.2;
         }
-
-        .filters {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .filters select,
-        .filters input {
-            padding: 0.5rem 1rem;
-            border-radius: 0.75rem;
-            border: none;
-            background: #1e1e2f;
-            color: #F4F4F4;
-        }
-
         /* =========================
-   STATS CARDS
-========================= */
+            STATS CARDS
+        ========================= */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-
         .stat-card {
-            background: linear-gradient(135deg, #252429, #19191C);
-            border: 1px solid #565657;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-dark));
+            border: 1px solid var(--border-color);
             border-radius: 1rem;
             padding: 1.5rem;
             display: flex;
@@ -154,80 +206,103 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            text-align: center;
         }
-
         .stat-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
-            border-color: #7F4797;
+            border-color: var(--threedos-purple);
         }
-
         .stat-card h2 {
             font-size: 2rem;
             margin-bottom: 0.5rem;
-            color: #F4F4F4;
+            color: var(--text-main);
         }
-
         .stat-card p {
-            color: #B0B0B0;
+            color: var(--text-muted);
             font-weight: 500;
+            font-size: 0.9rem;
         }
-
         /* =========================
-   TABLE
-========================= */
+            TABLE
+        ========================= */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            background: var(--bg-card);
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #252429;
-            border: 1px solid #565657;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            margin-bottom: 2rem;
+            min-width: 700px;
+            border: none;
+            margin: 0;
+            border-radius: 0;
         }
-
         thead {
             background: #343338;
         }
-
         thead th {
-            padding: 0.75rem 1rem;
+            padding: 1rem;
             text-align: left;
-            color: #F4F4F4;
+            color: var(--text-main);
+            font-weight: 600;
+            white-space: nowrap;
         }
-
         tbody td {
-            padding: 0.75rem 1rem;
-            border-top: 1px solid #565657;
-            color: #F4F4F4;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-main);
         }
-
         tbody tr:hover {
             background: rgba(127, 71, 151, 0.1);
         }
-
         /* =========================
-   CHARTS
-========================= */
+            CHARTS CONTAINER
+        ========================= */
         .chart-container {
             display: flex;
-            flex-wrap: wrap;
+            justify-content: center;
+            align-items: stretch;
             gap: 2rem;
+            flex-wrap: wrap;
             margin-bottom: 2rem;
         }
-
-        .chart-box {
-            background: linear-gradient(135deg, #252429, #19191C);
-            border: 1px solid #565657;
-            border-radius: 1rem;
-            padding: 1rem;
+        .chart-card {
             flex: 1;
             min-width: 300px;
+            min-height: 400px;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-dark));
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
         }
-
+        .chart-title {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .chart-wrapper {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chart-wrapper canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
         /* =========================
-   BUTTONS
-========================= */
+            BUTTONS
+        ========================= */
         button {
             padding: 0.5rem 1rem;
             border-radius: 0.75rem;
@@ -235,175 +310,52 @@
             cursor: pointer;
             border: none;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
-
         .btn-refresh,
         .btn-export {
             background: rgba(127, 71, 151, 0.15);
-            border: 1px solid #7F4797;
-            color: #9A6BB2;
+            border: 1px solid var(--threedos-purple);
+            color: var(--threedos-purple-light);
         }
-
         .btn-refresh:hover,
         .btn-export:hover {
-            background: #7F4797;
+            background: var(--threedos-purple);
             color: #fff;
-            box-shadow: 0 6px 18px rgba(127, 71, 151, 0.4);
             transform: translateY(-2px);
         }
-
         /* =========================
-   RESPONSIVE
-========================= */
-        /* Tablets and smaller laptops (1024px and below) */
-        @media (max-width:1024px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                position: relative;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid #565657;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-
-            .chart-container {
-                flex-direction: column;
-            }
-
-            .chart-box {
-                min-width: 100%;
-            }
+            SIDEBAR TOGGLE & OVERLAY
+        ========================= */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            margin-right: 1rem;
         }
-
-        /* Tablets (768px and below) */
-        @media (max-width:768px) {
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-            }
-
-            .stat-card {
-                padding: 1rem;
-            }
-
-            .stat-card h2 {
-                font-size: 1.5rem;
-            }
-
-            /* Make table scrollable horizontally */
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-
-            thead,
-            tbody,
-            tr {
-                display: table;
-                width: 100%;
-                table-layout: fixed;
-            }
-
-            .chart-box {
-                padding: 0.75rem;
-            }
-
-            .main-content {
-                padding: 1.5rem;
-            }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1050; /* تحت الـ sidebar */
+            backdrop-filter: blur(2px);
         }
-
-        /* Mobile devices (480px and below) */
-        @media (max-width:480px) {
-            .main-content {
-                padding: 1rem;
-            }
-
-            .header h1 {
-                font-size: 1.25rem;
-            }
-
-            .header>div {
-                width: 100%;
-                display: flex;
-                gap: 0.5rem;
-            }
-
-            .btn-refresh,
-            .btn-export {
-                flex: 1;
-                padding: 0.75rem 0.5rem;
-                font-size: 0.875rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
-            }
-
-            .stat-card {
-                padding: 0.875rem;
-            }
-
-            .stat-card h2 {
-                font-size: 1.25rem;
-            }
-
-            .stat-card p {
-                font-size: 0.875rem;
-            }
-
-            /* Stack table cells vertically on very small screens */
-            table {
-                font-size: 0.875rem;
-            }
-
-            thead th,
-            tbody td {
-                padding: 0.5rem;
-            }
-
-            .chart-box {
-                padding: 0.5rem;
-            }
-
-            .sidebar {
-                padding: 1rem;
-            }
-
-            .logo h2 {
-                font-size: 1.25rem;
-            }
-
-            .nav-item {
-                padding: 0.75rem;
-                font-size: 0.875rem;
-            }
+        .sidebar-overlay.active {
+            display: block;
         }
-
-        /* Global Loader Styles */
+        /* =========================
+            LOADER
+        ========================= */
         #global-loader {
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: linear-gradient(135deg, #19191C 0%, #252429 100%);
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -411,35 +363,33 @@
             gap: 2rem;
             transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
         }
-
         #global-loader.hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
-
         .global-loader-logo {
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background-color: #252429;
+            background-color: var(--bg-card);
             box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2), 0 0 40px rgba(127, 71, 151, 0.4);
             overflow: hidden;
             animation: logoPulse 2s infinite ease-in-out;
-            position: relative;
         }
-
         .global-loader-logo img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2); }
+            50%      { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(127, 71, 151, 0.3); }
+        }
         .global-loader-text {
             font-size: 2.5rem;
             font-weight: 800;
-            letter-spacing: 4px;
-            color: #F4F4F4;
+            color: var(--text-main);
             background: linear-gradient(90deg, #9A6BB2, #FF6B8B, #9A6BB2);
             -webkit-background-clip: text;
             background-clip: text;
@@ -447,7 +397,6 @@
             background-size: 200% auto;
             animation: textShimmer 3s linear infinite;
         }
-
         .global-loader-bar {
             width: 200px;
             height: 4px;
@@ -456,7 +405,6 @@
             overflow: hidden;
             position: relative;
         }
-
         .global-loader-bar::after {
             content: '';
             position: absolute;
@@ -469,47 +417,83 @@
             box-shadow: 0 0 10px #7F4797;
             animation: barLoading 1.5s ease-in-out infinite;
         }
-
-        @keyframes logoPulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2), 0 0 40px rgba(127, 71, 151, 0.4);
-            }
-
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 8px rgba(127, 71, 151, 0.3), 0 0 60px rgba(127, 71, 151, 0.6);
-            }
-        }
-
         @keyframes textShimmer {
-            to {
-                background-position: 200% center;
+            to { background-position: 200% center; }
+        }
+        @keyframes barLoading {
+            0%   { left: -40%; }
+            50%  { left: 40%; width: 60%; }
+            100% { left: 100%; width: 40%; }
+        }
+        /* =========================
+            RESPONSIVE BREAKPOINTS
+        ========================= */
+        @media (max-width: 1024px) {
+            .menu-toggle {
+                display: block;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0; /* إلغاء الـ margin في الموبايل */
+            }
+            .chart-card {
+                flex: 1 1 100%;
             }
         }
-
-        @keyframes barLoading {
-            0% {
-                left: -40%;
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1.5rem;
             }
-
-            50% {
-                left: 40%;
-                width: 60%;
+            .header h1 {
+                font-size: 1.5rem;
             }
-
-            100% {
-                left: 100%;
-                width: 40%;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 1rem;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .header > div {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            .btn-refresh,
+            .btn-export {
+                flex: 1;
+                text-align: center;
+                font-size: 0.85rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .chart-wrapper {
+                height: 250px;
+            }
+            .chart-card {
+                padding: 1rem;
+                min-height: auto;
             }
         }
     </style>
 </head>
-
 <body>
-    <!-- Global Loader -->
     <div id="global-loader">
         <div class="global-loader-logo">
             <img src="./img/ThreeDOS.jpg" alt="ThreeDOS Logo">
@@ -519,10 +503,21 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>ThreeDOS'26</h2>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="header-logo">
+                <div class="logo-container">
+                    <img src="./img/ThreeDOS.jpg" alt="ThreeDOS Logo" class="logo-img" id="logoImage"
+                        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+                    <div class="logo-fallback" id="logoFallback" style="display: none;">
+                        <i class="fas fa-users-crown"></i>
+                    </div>
+                </div>
+                <div class="org-title">
+                    <div class="org-name">ThreeDOS</div>
+                    <div class="org-subtitle">Academic Councils</div>
+                </div>
             </div>
             <nav class="nav-menu">
                 <a href="dashboard.html" class="nav-item" data-view="applicants">
@@ -544,273 +539,264 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <header class="header">
-                <h1>Statistics Overview</h1>
+                <div style="display:flex; align-items:center;">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h1>Statistics Overview</h1>
+                </div>
                 <div>
                     <button class="btn-refresh" onclick="loadStatistics()">🔄 Refresh</button>
                     <button class="btn-export" onclick="exportCSV()">📥 Export CSV</button>
                 </div>
             </header>
 
-
-
-            <!-- Quick Stats Cards -->
             <div class="stats-grid" id="stats-grid"></div>
 
-            <!-- Charts -->
             <div class="chart-container">
-                <div class="chart-box"><canvas id="ratingChart"></canvas></div>
-                <div class="chart-box"><canvas id="levelChart"></canvas></div>
-                <div class="chart-box"><canvas id="councilChart"></canvas></div>
+                <div class="chart-card">
+                    <div class="chart-title">Rating Charts</div>
+                    <div class="chart-wrapper">
+                        <canvas id="ratingChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Level Chart</div>
+                    <div class="chart-wrapper">
+                        <canvas id="levelChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Council Distribution</div>
+                    <div class="chart-wrapper">
+                        <canvas id="councilChart"></canvas>
+                    </div>
+                </div>
             </div>
+            <br>
 
-            <!-- Detailed Table -->
-            <table id="stats-table">
-                <thead>
-                    <tr>
-                        <th>Level</th>
-                        <th>Council</th>
-                        <th>Total Applicants</th>
-                        <th>Pending</th>
-                        <th>Accepted</th>
-                        <th>Backup (B)</th>
-                        <th>Rejected</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div class="table-container">
+                <table id="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Council</th>
+                            <th>Total Applicants</th>
+                            <th>Pending</th>
+                            <th>Accepted</th>
+                            <th>Backup (B)</th>
+                            <th>Rejected</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </main>
     </div>
 
     <script>
+        // ==========================================
+        // MOBILE SIDEBAR TOGGLE
+        // ==========================================
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const menuToggle = document.getElementById('menuToggle');
+
+        function openSidebar() {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (menuToggle) menuToggle.addEventListener('click', openSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+
+        // ==========================================
+        // STATISTICS LOGIC (UNCHANGED)
+        // ==========================================
         const API_URL = '../backend/api.php';
         const TOKEN = localStorage.getItem('usher_token');
         if (!TOKEN) window.location.href = 'login.html';
 
-
-
         let ratingChart, levelChart, councilChart;
-        let allApplicants = []; // Store all applicants for CSV export
+        let allApplicants = [];
 
         async function loadStatistics() {
             const grid = document.getElementById('stats-grid');
             const tableBody = document.querySelector('#stats-table tbody');
 
-            const ratingFilter = document.getElementById('rating-filter');
-
             grid.innerHTML = '<div>Loading statistics...</div>';
             tableBody.innerHTML = '';
 
             try {
-                const response = await fetch(`${API_URL}?quickstats=1`, { headers: { 'X-Token': TOKEN } });
-                const result = await response.json();
-                if (result.status !== 'success') { alert(result.message); return; }
-
-                const stats = result.data;
-
-                // ===============================
-                // Fetch ALL applicants using cursor-based pagination
-                // ===============================
+                // Fetch ALL applicants
                 allApplicants = [];
                 let cursor = null;
                 let hasMore = true;
 
                 while (hasMore) {
-                    let url = `${API_URL}?limit=500`; // Fetch 500 at a time
-                    if (cursor) {
-                        url += `&cursor=${cursor}`;
+                    let url = `${API_URL}?limit=500`;
+                    if (cursor) url += `&cursor=${cursor}`;
+
+                    const res = await fetch(url, { headers: { 'X-Token': TOKEN } });
+                    if (res.status === 401) window.location.href = 'register.html';
+
+                    const data = await res.json();
+                    if (data.status !== 'success') {
+                        alert(data.message);
+                        return;
                     }
 
-                    const applicantsResponse = await fetch(url, { headers: { 'X-Token': TOKEN } });
-                    const applicantsResult = await applicantsResponse.json();
+                    allApplicants = allApplicants.concat(data.data.applicants);
+                    hasMore = data.data.has_more;
+                    cursor = data.data.next_cursor;
 
-                    if (applicantsResult.status !== 'success') {
-                        alert(applicantsResult.message);
-                        break;
-                    }
-
-                    const batch = applicantsResult.data.applicants;
-                    allApplicants = allApplicants.concat(batch);
-
-                    hasMore = applicantsResult.data.has_more;
-                    cursor = applicantsResult.data.next_cursor;
-
-                    // Update loading indicator
-                    grid.innerHTML = `<div>Loading statistics... (${allApplicants.length} records loaded)</div>`;
+                    grid.innerHTML = `<div>Loading... (${allApplicants.length} records)</div>`;
                 }
 
-                let applicants = allApplicants; // Use all fetched applicants
-
-
+                const applicants = allApplicants;
 
                 // Quick stats cards
                 const ratingMap = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
-                applicants.forEach(a => { ratingMap[a.rating || 'Pending']++; });
+                applicants.forEach(a => {
+                    ratingMap[a.rating || 'Pending'] = (ratingMap[a.rating || 'Pending'] || 0) + 1;
+                });
+
                 grid.innerHTML = `
-            <div class="stat-card"><h2>${applicants.length}</h2><p>Total Applicants</p></div>
-            <div class="stat-card"><h2>${ratingMap.Acceptance}</h2><p>Accepted</p></div>
-            <div class="stat-card"><h2>${ratingMap.B}</h2><p>Backup (B)</p></div>
-            <div class="stat-card"><h2>${ratingMap.Rejection}</h2><p>Rejected</p></div>
-            <div class="stat-card"><h2>${ratingMap.Pending}</h2><p>Pending</p></div>
-        `;
+                    <div class="stat-card"><h2>${applicants.length}</h2><p>Total Applicants</p></div>
+                    <div class="stat-card"><h2>${ratingMap.Acceptance}</h2><p>Accepted</p></div>
+                    <div class="stat-card"><h2>${ratingMap.B}</h2><p>Backup (B)</p></div>
+                    <div class="stat-card"><h2>${ratingMap.Rejection}</h2><p>Rejected</p></div>
+                    <div class="stat-card"><h2>${ratingMap.Pending}</h2><p>Pending</p></div>
+                `;
 
-
-
-                // Aggregate data for table & charts
+                // Aggregations
                 const tableMap = {};
                 const levelMap = {};
                 const councilMap = {};
+
                 applicants.forEach(a => {
-                    const lvl = a.level;
-                    const c = a.council;
+                    const lvl = a.level || 'Unknown';
+                    const c = a.council || 'None';
                     const r = a.rating || 'Pending';
 
-                    // Table aggregation (level + council)
                     const key = `${lvl}_${c}`;
-                    if (!tableMap[key]) tableMap[key] = { total: 0, Pending: 0, Acceptance: 0, B: 0, Rejection: 0, level: lvl, council: c };
-                    tableMap[key].total++; tableMap[key][r]++;
+                    if (!tableMap[key]) {
+                        tableMap[key] = { total: 0, Pending: 0, Acceptance: 0, B: 0, Rejection: 0, level: lvl, council: c };
+                    }
+                    tableMap[key].total++;
+                    tableMap[key][r]++;
 
-                    // Level chart
                     if (!levelMap[lvl]) levelMap[lvl] = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
                     levelMap[lvl][r]++;
 
-                    // Council chart
                     if (!councilMap[c]) councilMap[c] = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
                     councilMap[c][r]++;
                 });
 
-                // Populate table
+                // Table
                 tableBody.innerHTML = '';
                 Object.values(tableMap).forEach(row => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${row.level}</td><td>${row.council}</td><td>${row.total}</td><td>${row.Pending}</td><td>${row.Acceptance}</td><td>${row.B}</td><td>${row.Rejection}</td>`;
+                    tr.innerHTML = `
+                        <td>${row.level}</td>
+                        <td>${row.council}</td>
+                        <td>${row.total}</td>
+                        <td>${row.Pending}</td>
+                        <td>${row.Acceptance}</td>
+                        <td>${row.B}</td>
+                        <td>${row.Rejection}</td>
+                    `;
                     tableBody.appendChild(tr);
                 });
 
-                // Rating chart
-                if (ratingChart) ratingChart.destroy();
-                const ctxR = document.getElementById('ratingChart').getContext('2d');
-                ratingChart = new Chart(ctxR, {
-                    type: 'pie',
-                    data: {
-                        labels: Object.keys(ratingMap),
-                        datasets: [{ data: Object.values(ratingMap), backgroundColor: ['#F0AD4E', '#5CB85C', '#5BC0DE', '#D9534F'] }]
-                    },
-                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-                });
-
-                // Level chart
-                if (levelChart) levelChart.destroy();
-                const ctxL = document.getElementById('levelChart').getContext('2d');
-                levelChart = new Chart(ctxL, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(levelMap),
-                        datasets: [
-                            { label: 'Pending', data: Object.values(levelMap).map(l => l.Pending), backgroundColor: '#F0AD4E' },
-                            { label: 'Accepted', data: Object.values(levelMap).map(l => l.Acceptance), backgroundColor: '#5CB85C' },
-                            { label: 'Backup', data: Object.values(levelMap).map(l => l.B), backgroundColor: '#5BC0DE' },
-                            { label: 'Rejected', data: Object.values(levelMap).map(l => l.Rejection), backgroundColor: '#D9534F' },
-                        ]
-                    },
-                    options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
-                });
-
-                // Council chart
-                if (councilChart) councilChart.destroy();
-                const ctxC = document.getElementById('councilChart').getContext('2d');
-                councilChart = new Chart(ctxC, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(councilMap),
-                        datasets: [
-                            { label: 'Pending', data: Object.values(councilMap).map(c => c.Pending), backgroundColor: '#F0AD4E' },
-                            { label: 'Accepted', data: Object.values(councilMap).map(c => c.Acceptance), backgroundColor: '#5CB85C' },
-                            { label: 'Backup', data: Object.values(councilMap).map(c => c.B), backgroundColor: '#5BC0DE' },
-                            { label: 'Rejected', data: Object.values(councilMap).map(c => c.Rejection), backgroundColor: '#D9534F' },
-                        ]
-                    },
-                    options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
-                });
+                // Charts
+                renderCharts(ratingMap, levelMap, councilMap);
 
             } catch (err) {
                 console.error(err);
                 alert('Failed to load statistics');
             } finally {
-                // Hide global loader with safety check
-                const globalLoader = document.getElementById('global-loader');
-                if (globalLoader && !globalLoader.classList.contains('hidden')) {
-                    globalLoader.classList.add('hidden');
-                    setTimeout(() => globalLoader.style.display = 'none', 500);
-                }
+                hideLoader();
             }
         }
 
-        // Safety Fallback (10s)
-        setTimeout(() => {
-            const globalLoader = document.getElementById('global-loader');
-            if (globalLoader && !globalLoader.classList.contains('hidden')) {
-                globalLoader.classList.add('hidden');
-                setTimeout(() => globalLoader.style.display = 'none', 500);
-            }
-        }, 10000);
+        function renderCharts(ratingMap, levelMap, councilMap) {
+            // Rating Pie
+            if (ratingChart) ratingChart.destroy();
+            ratingChart = new Chart(document.getElementById('ratingChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(ratingMap),
+                    datasets: [{
+                        data: Object.values(ratingMap),
+                        backgroundColor: ['#F0AD4E', '#5CB85C', '#5BC0DE', '#D9534F']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
 
-        // Export all applicant records to CSV
+            // Level Bar
+            if (levelChart) levelChart.destroy();
+            levelChart = new Chart(document.getElementById('levelChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(levelMap),
+                    datasets: [
+                        { label: 'Pending', data: Object.values(levelMap).map(l => l.Pending), backgroundColor: '#F0AD4E' },
+                        { label: 'Accepted', data: Object.values(levelMap).map(l => l.Acceptance), backgroundColor: '#5CB85C' },
+                        { label: 'Backup', data: Object.values(levelMap).map(l => l.B), backgroundColor: '#5BC0DE' },
+                        { label: 'Rejected', data: Object.values(levelMap).map(l => l.Rejection), backgroundColor: '#D9534F' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            // Council Bar
+            if (councilChart) councilChart.destroy();
+            councilChart = new Chart(document.getElementById('councilChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(councilMap),
+                    datasets: [
+                        { label: 'Pending', data: Object.values(councilMap).map(c => c.Pending), backgroundColor: '#F0AD4E' },
+                        { label: 'Accepted', data: Object.values(councilMap).map(c => c.Acceptance), backgroundColor: '#5CB85C' },
+                        { label: 'Backup', data: Object.values(councilMap).map(c => c.B), backgroundColor: '#5BC0DE' },
+                        { label: 'Rejected', data: Object.values(councilMap).map(c => c.Rejection), backgroundColor: '#D9534F' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.classList.add('hidden');
+                setTimeout(() => loader.style.display = 'none', 500);
+            }
+        }
+
         function exportCSV() {
-            if (!allApplicants || allApplicants.length === 0) {
-                alert('No applicant data available to export. Please refresh the statistics first.');
-                return;
-            }
-
-            // Define CSV headers
-            const headers = ['ID', 'Name', 'Email', 'Phone', 'College', 'Level', 'Council/Preference', 'Rating', 'Interviewer'];
-
-            // Convert applicants to CSV rows
-            const rows = allApplicants.map(app => [
-                app.id || '',
-                app.name || '',
-                app.email || '',
-                app.phone || '',
-                app.college || '',
-                app.level || '',
-                app.council || '',
-                app.rating || 'Pending',
-                app.interviewed_by || 'N/A'
-            ]);
-
-            // Escape CSV values (handle commas and quotes)
-            const escapeCSV = (value) => {
-                const str = String(value);
-                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                    return `"${str.replace(/"/g, '""')}"`;
-                }
-                return str;
-            };
-
-            // Build CSV content
-            const csvContent = [
-                headers.map(escapeCSV).join(','),
-                ...rows.map(row => row.map(escapeCSV).join(','))
-            ].join('\n');
-
-            // Create and download CSV file
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            if (!allApplicants.length) return alert('No data to export.');
+            const headers = ['ID','Name','Email','Phone','College','Level','Council','Rating'];
+            const rows = allApplicants.map(a => [a.id, a.name, a.email, a.phone, a.college, a.level, a.council, a.rating || 'Pending']);
+            const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
             a.href = url;
-            a.download = `ThreeDOS_Applicants_${timestamp}.csv`;
+            a.download = `ThreeDOS_Statistics_${new Date().toLocaleDateString()}.csv`;
             a.click();
-            URL.revokeObjectURL(url);
         }
 
-
-
-        // Load on page load
         document.addEventListener('DOMContentLoaded', loadStatistics);
     </script>
 </body>
-
 </html>

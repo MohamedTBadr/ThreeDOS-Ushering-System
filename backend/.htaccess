@@ -1,0 +1,4 @@
+RewriteEngine On
+
+RewriteCond %{HTTP_REFERER} !^https://threedos.infinityfree.me/frontend/ [NC]
+RewriteRule .* - [F]
