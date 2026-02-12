@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS `registration` (
   `preferences` text,
   `council_id` int(11) DEFAULT NULL,
   `rating` enum('Pending', 'Acceptance', 'B', 'Rejection') DEFAULT 'Pending',
+  `ushered_by` varchar(100) DEFAULT NULL,
   `notes` text,
   `interview_time` datetime DEFAULT NULL,
   `interviewed_by` varchar(100) DEFAULT NULL,
