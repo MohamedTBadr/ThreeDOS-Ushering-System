@@ -149,7 +149,7 @@ function handleGetRequests($connection, $user) {
     }
 
     // ------------------------
-    // Quick Stats Endpoint
+    //2.1 Quick Stats Endpoint
     // ------------------------
     if (isset($_GET['quickstats'])) {
         $cacheKey = 'quickstats_' .$cachePrefix2. '_' . md5(json_encode($_GET));
@@ -190,7 +190,7 @@ function handleGetRequests($connection, $user) {
     }
 
     // ------------------------
-    // Interviews Endpoint
+    // 2.2 Interviews Endpoint
     // ------------------------
     if (isset($_GET['interviews'])) {
         $cacheKey = 'interviews_' . $cachePrefix2 . '_' . md5(json_encode($_GET));
@@ -214,7 +214,7 @@ function handleGetRequests($connection, $user) {
     }
 
     // ------------------------
-    // Applicants Listing
+    //2.3 Applicants Listing
     // ------------------------
     if(isset($_GET['quickstats']) || isset($_GET['interviews'])) return;
 
