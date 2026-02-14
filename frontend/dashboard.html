@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,11 @@
         /* =========================
             GLOBAL RESET
         ========================= */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         /* =========================
             THREEDOS BRAND PALETTE
@@ -23,10 +28,10 @@
             --warning: #f59e0b;
             --danger: #ef4444;
             --info: #3b82f6;
-            --dark: #19191C;
-            --dark-light: #252429;
+            --bg-dark: #19191C;
+            --bg-card: #252429;
             --dark-lighter: #343338;
-            --text: #F4F4F4;
+            --text-main: #F4F4F4;
             --text-secondary: #B0B0B0;
             --border: #565657;
             --shadow: rgba(0, 0, 0, 0.35);
@@ -38,8 +43,8 @@
         ========================= */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
-            color: var(--text);
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
+            color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -58,7 +63,7 @@
             SIDEBAR (FIXED STICKY)
         ========================= */
         .sidebar {
-            background: linear-gradient(180deg, var(--dark-light) 0%, var(--dark) 100%);
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
             border-right: 1px solid var(--border);
             padding: 2rem 1.5rem;
             display: flex;
@@ -89,16 +94,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
-        
-        .logo-img { width: 100%; height: 100%; object-fit: cover; }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         .org-name {
             font-size: 1.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--primary-light), var(--primary));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -140,7 +150,9 @@
             border-left: 3px solid var(--primary);
         }
 
-        .nav-item .icon { font-size: 1.25rem; }
+        .nav-item .icon {
+            font-size: 1.25rem;
+        }
 
         .stats-summary {
             background: rgba(127, 71, 151, 0.08);
@@ -166,8 +178,14 @@
             font-size: 0.9rem;
         }
 
-        .stat-item:last-child { border-bottom: none; }
-        .stat-value { font-weight: 700; color: var(--text); }
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--text);
+        }
 
         .close-sidebar-btn {
             display: none;
@@ -189,7 +207,8 @@
         .main-content {
             padding: 2rem;
             width: 100%;
-            min-width: 0; /* Ensures grid item doesn't overflow */
+            min-width: 0;
+            /* Ensures grid item doesn't overflow */
             overflow-x: hidden;
         }
 
@@ -205,7 +224,7 @@
         .header h1 {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--text);
+            color: var(--text-main);
         }
 
         .header-actions {
@@ -226,15 +245,19 @@
             gap: 0.5rem;
         }
 
-        button:active { transform: scale(0.98); }
+        button:active {
+            transform: scale(0.98);
+        }
 
-        .btn-refresh, .btn-clear-filters {
+        .btn-refresh,
+        .btn-clear-filters {
             background: rgba(127, 71, 151, 0.15);
             border: 1px solid var(--primary);
             color: var(--primary-light);
         }
 
-        .btn-refresh:hover, .btn-clear-filters:hover {
+        .btn-refresh:hover,
+        .btn-clear-filters:hover {
             background: var(--primary);
             color: #fff;
             box-shadow: 0 6px 18px rgba(127, 71, 151, 0.4);
@@ -254,10 +277,119 @@
             transform: translateY(-2px);
         }
 
+
+        /* =========================
+            LOADER
+        ========================= */
+        #global-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+
+        #global-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .global-loader-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2), 0 0 40px rgba(127, 71, 151, 0.4);
+            overflow: hidden;
+            animation: logoPulse 2s infinite ease-in-out;
+        }
+
+        .global-loader-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes logoPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(127, 71, 151, 0.3);
+            }
+        }
+
+        .global-loader-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            background: linear-gradient(90deg, #9A6BB2, #FF6B8B, #9A6BB2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: textShimmer 3s linear infinite;
+        }
+
+        .global-loader-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .global-loader-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 40%;
+            background: #7F4797;
+            border-radius: 4px;
+            box-shadow: 0 0 10px #7F4797;
+            animation: barLoading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes textShimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        @keyframes barLoading {
+            0% {
+                left: -40%;
+            }
+
+            50% {
+                left: 40%;
+                width: 60%;
+            }
+
+            100% {
+                left: 100%;
+                width: 40%;
+            }
+        }
+
         /* ---------- NICE WELCOME DIV ---------- */
         #welcome-message {
-            background: linear-gradient(145deg, rgba(127,71,151,0.18) 0%, rgba(106,58,130,0.08) 100%);
-            border: 1px solid rgba(127,71,151,0.35);
+            background: linear-gradient(145deg, rgba(127, 71, 151, 0.18) 0%, rgba(106, 58, 130, 0.08) 100%);
+            border: 1px solid rgba(127, 71, 151, 0.35);
             border-radius: 24px;
             padding: 1.25rem 1.75rem;
             margin-bottom: 2rem;
@@ -265,7 +397,7 @@
             align-items: center;
             gap: 1.5rem;
             backdrop-filter: blur(10px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
             transition: all 0.2s ease;
         }
 
@@ -281,8 +413,8 @@
             font-weight: 700;
             color: white;
             text-transform: uppercase;
-            border: 2px solid rgba(255,255,255,0.2);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
             flex-shrink: 0;
         }
 
@@ -323,10 +455,10 @@
             align-items: center;
             gap: 0.6rem;
             color: var(--text-secondary);
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
             padding: 0.3rem 0.9rem;
             border-radius: 40px;
-            border: 1px solid rgba(255,255,255,0.06);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .detail-item i {
@@ -351,7 +483,7 @@
         .search-box {
             display: flex;
             align-items: center;
-            background: var(--dark-light);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             padding: 0.6rem 1rem;
@@ -368,16 +500,16 @@
             background: transparent;
             border: none;
             outline: none;
-            color: var(--text);
+            color: var(--text-main);
             width: 100%;
             margin-left: 0.5rem;
             font-size: 1rem;
         }
 
         .filter-select {
-            background: var(--dark-light);
+            background: var(--bg-card);
             border: 1px solid var(--border);
-            color: var(--text);
+            color: var(--text-main);
             border-radius: 0.75rem;
             padding: 0.6rem 1rem;
             cursor: pointer;
@@ -385,7 +517,9 @@
             min-width: 140px;
         }
 
-        .filter-select:focus { border-color: var(--primary-light); }
+        .filter-select:focus {
+            border-color: var(--primary-light);
+        }
 
         .applicants-table-container {
             width: 100%;
@@ -393,24 +527,25 @@
             margin-bottom: 2rem;
             border-radius: 1rem;
             border: 1px solid var(--border);
-            background: var(--dark-light);
+            background: var(--bg-card);
         }
 
         .applicants-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 900px; 
+            min-width: 900px;
         }
 
         .applicants-table thead {
-            background: var(--dark-lighter);
+            background: var(--bg-card);
         }
 
-        .applicants-table th, .applicants-table td {
+        .applicants-table th,
+        .applicants-table td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid var(--border);
-            color: var(--text);
+            color: var(--text-main);
         }
 
         .applicants-table th {
@@ -422,7 +557,7 @@
         }
 
         .applicants-table tr:hover {
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .rating-badge {
@@ -432,10 +567,29 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
-        .rating-pending { background: rgba(255,255,255,0.1); color: #fff; }
-        .rating-acceptance { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .rating-b { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .rating-rejection { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .rating-pending {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .rating-acceptance {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .rating-b {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .rating-rejection {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
 
         .pagination {
             display: flex;
@@ -446,12 +600,12 @@
         }
 
         .btn-page {
-            background: var(--dark-light);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             padding: 0.5rem 1rem;
             cursor: pointer;
-            color: var(--text);
+            color: var(--text-main);
             transition: all 0.3s ease;
         }
 
@@ -478,7 +632,7 @@
             display: none;
             background: none;
             border: none;
-            color: var(--text);
+            color: var(--text-main);
             font-size: 1.5rem;
             cursor: pointer;
             margin-right: 0.5rem;
@@ -495,7 +649,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
+
         .sidebar-overlay.active {
             display: block;
             opacity: 1;
@@ -514,50 +668,71 @@
                 width: 280px;
                 transform: translateX(-100%);
                 z-index: 2000;
-                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
             }
 
             .sidebar.active {
                 transform: translateX(0);
             }
 
-            .menu-toggle { display: block; }
-            .close-sidebar-btn { display: block; }
+            .menu-toggle {
+                display: block;
+            }
+
+            .close-sidebar-btn {
+                display: block;
+            }
         }
 
         @media (max-width: 768px) {
-            .main-content { padding: 1rem; }
-            .header h1 { font-size: 1.5rem; }
-            .filters-section { flex-direction: column; align-items: stretch; }
-            .search-box, .filter-select, .btn-clear-filters { width: 100%; }
-            
+            .main-content {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .filters-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box,
+            .filter-select,
+            .btn-clear-filters {
+                width: 100%;
+            }
+
             #welcome-message {
                 flex-direction: column;
                 align-items: flex-start;
                 padding: 1.25rem;
             }
-            .welcome-avatar { width: 60px; height: 60px; font-size: 1.7rem; }
-            .welcome-name { font-size: 1.5rem; }
-        }
 
-        #global-loader {
-            position: fixed; inset: 0; z-index: 9999;
-            background: var(--dark); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 1rem;
+            .welcome-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.7rem;
+            }
+
+            .welcome-name {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #fff;
+            }
         }
-        #global-loader.hidden { display: none; }
-        .global-loader-logo { width: 80px; height: 80px; border-radius: 50%; animation: pulse 2s infinite; }
-        .global-loader-logo img { width: 100%; height: 100%; object-fit: cover; }
-        @keyframes pulse { 50% { transform: scale(1.1); } }
     </style>
 </head>
 
 <body>
     <div id="global-loader">
-        <div class="global-loader-logo"><img src="./img/ThreeDOS.jpg" alt=""></div>
-        <div style="font-weight:bold; font-size:1.5rem;">ThreeDOS</div>
+        <div class="global-loader-logo">
+            <img src="./img/ThreeDOS.jpg" alt="ThreeDOS Logo">
+        </div>
+        <div class="global-loader-text">ThreeDOS</div>
+        <div class="global-loader-bar"></div>
     </div>
-
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="dashboard-container">
@@ -578,7 +753,8 @@
                 <a href="#" class="nav-item active"><span class="icon">👥</span> <span>Applicants</span></a>
                 <a href="calendar.html" class="nav-item"><span class="icon">📅</span> <span>Calendar</span></a>
                 <a href="statistics_page.html" class="nav-item"><span class="icon">📊</span> <span>Statistics</span></a>
-                <a href="RegistrationForm.html" class="nav-item"><span class="icon">➕</span> <span>New Registration</span></a>
+                <a href="RegistrationForm.html" class="nav-item"><span class="icon">➕</span> <span>New
+                        Registration</span></a>
             </nav>
 
             <div class="stats-summary">
@@ -594,20 +770,20 @@
         <main class="main-content">
             <!-- ===== NICE WELCOME DIV with Name, Council, Role ===== -->
             <div id="welcome-message">
-                <div class="welcome-avatar" id="welcome-avatar">JD</div>
+                <div class="welcome-avatar" id="welcome-avatar"></div>
                 <div class="welcome-info">
                     <div class="welcome-greeting">
                         <span>👋 WELCOME BACK</span>
                     </div>
-                    <div class="welcome-name" id="welcome-name">John Doe</div>
+                    <div class="welcome-name" id="welcome-name"></div>
                     <div class="welcome-details">
                         <div class="detail-item">
                             <i>🏛️</i>
-                            <span id="welcome-council">Academic Council</span>
+                            <span id="welcome-council"></span>
                         </div>
                         <div class="detail-item">
                             <i>👤</i>
-                            <span id="welcome-role">Reviewer</span>
+                            <span id="welcome-role"></span>
                         </div>
                     </div>
                 </div>
@@ -643,6 +819,13 @@
                     <option value="B">B (Backup)</option>
                     <option value="Rejection">Rejection</option>
                 </select>
+                <select id="event-type-filter" class="filter-select">
+                    <option value="">All Event Types</option>
+                    
+                    <option value="Innovation Area">Innovation Area</option>
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                </select>
                 <button class="btn-clear-filters" onclick="clearFilters()">Clear</button>
             </div>
 
@@ -658,6 +841,7 @@
                             <th>Preference</th>
                             <th>Rating</th>
                             <th>Ushered By</th>
+                            <th>Event Type</th>
                             <th>Interviewer</th>
                             <th>Actions</th>
                         </tr>
@@ -677,93 +861,73 @@
     <script src="js/sidebar.js"></script>
     <script src="js/dashboard.js"></script>
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        
-        function toggleSidebar() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
+        document.addEventListener('DOMContentLoaded', () => {
 
-        overlay.addEventListener('click', toggleSidebar);
+            // ===============================
+            // Sidebar
+            // ===============================
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
 
-        // --- WELCOME MESSAGE POPULATOR (Name, Council, Role) ---
-        function populateWelcomeMessage() {
-            // Try to get user data from localStorage (adjust keys as needed)
-            let userName = localStorage.getItem('user_name');
-// For council, handle null, undefined, or literal "null"
-let userCouncil = localStorage.getItem('user_council');
-if (!userCouncil || userCouncil === "null") {
-    userCouncil = "Academic Council";
-}
-            let userRole = localStorage.getItem('user_role');
-			let userInitials = userName.split(' ')       // split name by space
-                           .map(word => word[0]?.toUpperCase() || '') // take first letter of each word
-                           .slice(0, 2)     // take first 2 letters only
-                           .join('');       // join as string
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
 
+            window.toggleSidebar = toggleSidebar;
+            overlay.addEventListener('click', toggleSidebar);
 
-            // Attempt to retrieve from localStorage (common pattern)
-        
-                try {
-                   
-                    userName =userName;
-                    userCouncil = userCouncil;
-                    userRole = userRole;
-                    // Create initials from name
-                    if (userName) {
-                        const nameParts = userName.trim().split(' ');
-                        userInitials = nameParts.length > 1 
-                            ? (nameParts[0][0] + nameParts[nameParts.length-1][0]).toUpperCase()
-                            : nameParts[0].substring(0,2).toUpperCase();
+            // ===============================
+            // Welcome Message
+            // ===============================
+            function populateWelcomeMessage() {
+
+                let userName = localStorage.getItem('user_name') || 'User';
+                let userCouncil = localStorage.getItem('user_council');
+                let userRole = localStorage.getItem('user_role') || 'Member';
+
+                if (!userCouncil || userCouncil === "null") {
+                    userCouncil = "Academic Council";
+                }
+
+                // Safe initials generation
+                let userInitials = 'US';
+
+                if (userName && typeof userName === 'string') {
+                    const nameParts = userName.trim().split(' ');
+                    if (nameParts.length > 1) {
+                        userInitials = (
+                            nameParts[0][0] +
+                            nameParts[nameParts.length - 1][0]
+                        ).toUpperCase();
+                    } else {
+                        userInitials = nameParts[0].substring(0, 2).toUpperCase();
                     }
-                } catch(e) { /* use fallback */ }
-          
+                }
 
-            // Inject into welcome elements
-            document.getElementById('welcome-name').textContent = userName;
-            document.getElementById('welcome-council').textContent = userCouncil;
-            document.getElementById('welcome-role').textContent = userRole;
-            document.getElementById('welcome-avatar').textContent = userInitials;
-        }
+                document.getElementById('welcome-name').textContent = userName;
+                document.getElementById('welcome-council').textContent = userCouncil;
+                document.getElementById('welcome-role').textContent = userRole;
+                document.getElementById('welcome-avatar').textContent = userInitials;
+            }
 
-        window.addEventListener('load', () => {
-            // Simulate loading then hide loader and show welcome
-            setTimeout(() => {
-                document.getElementById('global-loader').classList.add('hidden');
-                // Welcome is already visible, but we populate it with real data
-                populateWelcomeMessage();
-                // Welcome message div is always visible, no need to toggle display
-            }, 600);
+            populateWelcomeMessage();
         });
 
+        // ===============================
+        // Logout
+        // ===============================
         function logout() {
-            if(confirm("Are you sure you want to logout?")) {
+            if (confirm("Are you sure you want to logout?")) {
                 localStorage.removeItem('usher_token');
-                localStorage.removeItem('user');
-                localStorage.removeItem('userProfile');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('user_council');
+                localStorage.removeItem('user_role');
                 window.location.href = 'register.html';
             }
         }
-       	
-        // Placeholder functions to prevent errors if dashboard.js is not loaded
-        if(typeof loadApplicants === 'undefined') { 
-            window.loadApplicants = function(){ console.log("Loading applicants..."); } 
-        }
-        if(typeof clearFilters === 'undefined') { 
-            window.clearFilters = function(){ 
-                document.getElementById('search').value = ''; 
-                document.querySelectorAll('select').forEach(s => s.selectedIndex = 0); 
-            } 
-        }
-        if(typeof previousPage === 'undefined') window.previousPage = function(){};
-        if(typeof nextPage === 'undefined') window.nextPage = function(){};
-
-        // Ensure welcome avatar gets proper initials on load
-        window.addEventListener('DOMContentLoaded', function() {
-            // pre-populate even before loader hides (avatar will update later but fine)
-            populateWelcomeMessage();
-        });
     </script>
+
 </body>
+
 </html>

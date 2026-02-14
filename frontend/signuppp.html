@@ -273,7 +273,7 @@ button:disabled {
             <div id="statusMsg" class="status-msg"></div>
         </form>
         <div class="links">
-            Already have an account? <a href="login.html">Sign In</a>
+            Already have an account? <a href="register.html">Sign In</a>
         </div>
     </div>
 
@@ -330,7 +330,7 @@ button:disabled {
                     msg.innerText = 'Account created! Redirecting to login...';
                     msg.className = 'status-msg success';
                     msg.style.display = 'block';
-                    setTimeout(() => window.location.href = 'login.html', 2000);
+                    setTimeout(() => window.location.href = 'register.html', 2000);
                 } else {
                     msg.innerText = data.message;
                     msg.className = 'status-msg error';

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="./img/ThreeDOS.jpg">
 
-     <style>
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -1093,6 +1093,18 @@
                                 <option value="Rejection">Rejected</option>
                             </select>
                         </div>
+
+                        <div class="detail-group">
+                            <label for="applicant-event-type">
+                                <i class="fas fa-calendar-alt"></i>
+                                Event Type
+                            </label>
+                            <select id="applicant-event-type" disabled>
+                                <option value="Youth Scope">Youth Scope</option>
+                                <option value="Online">Online</option>
+                                <option value="Offline">Offline</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Interview Section -->
@@ -1209,124 +1221,125 @@
         </main>
     </div>
 
- <script>
-/* =====================================================
-   APPLICANT DETAILS PAGE - FULL SCRIPT
-===================================================== */
+    <script>
+        /* =====================================================
+           APPLICANT DETAILS PAGE - FULL SCRIPT
+        ===================================================== */
 
-/* ================== CONFIG ================== */
-const API_URL = '../backend/api.php';
-const TOKEN = localStorage.getItem('usher_token');
+        /* ================== CONFIG ================== */
+        const API_URL = '../backend/api.php';
+        const TOKEN = localStorage.getItem('usher_token');
 
-if (!TOKEN) {
-    window.location.href = 'login.html';
-}
+        if (!TOKEN) {
+            window.location.href = 'login.html';
+        }
 
-const urlParams = new URLSearchParams(window.location.search);
-const applicantId = urlParams.get('id');
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicantId = urlParams.get('id');
 
-if (!applicantId) {
-    alert('No applicant ID provided');
-    window.history.back();
-}
+        if (!applicantId) {
+            alert('No applicant ID provided');
+            window.history.back();
+        }
 
-/* ================== DOM ELEMENTS ================== */
-const globalLoader = document.getElementById('global-loader');
+        /* ================== DOM ELEMENTS ================== */
+        const globalLoader = document.getElementById('global-loader');
 
-const nameInput = document.getElementById('applicant-name');
-const emailInput = document.getElementById('applicant-email');
-const phoneInput = document.getElementById('applicant-phone');
-const collegeInput = document.getElementById('applicant-college');
-const councilSelect = document.getElementById('applicant-council');
-const levelSelect = document.getElementById('applicant-level');
-const ratingSelect = document.getElementById('applicant-rating');
-const interviewerInput = document.getElementById('interviewer');
-const interviewTimeInput = document.getElementById('interview-time');
-const notesInput = document.getElementById('applicant-notes');
+        const nameInput = document.getElementById('applicant-name');
+        const emailInput = document.getElementById('applicant-email');
+        const phoneInput = document.getElementById('applicant-phone');
+        const collegeInput = document.getElementById('applicant-college');
+        const councilSelect = document.getElementById('applicant-council');
+        const levelSelect = document.getElementById('applicant-level');
+        const ratingSelect = document.getElementById('applicant-rating');
+        const eventTypeSelect = document.getElementById('applicant-event-type');
+        const interviewerInput = document.getElementById('interviewer');
+        const interviewTimeInput = document.getElementById('interview-time');
+        const notesInput = document.getElementById('applicant-notes');
 
-const nameDisplay = document.getElementById('applicant-name-display');
-const statusBadge = document.getElementById('applicant-status');
-const formattedTime = document.getElementById('formatted-time');
-const timeDisplay = document.getElementById('time-display');
+        const nameDisplay = document.getElementById('applicant-name-display');
+        const statusBadge = document.getElementById('applicant-status');
+        const formattedTime = document.getElementById('formatted-time');
+        const timeDisplay = document.getElementById('time-display');
 
-const softSkillsList = document.getElementById('soft-skills-list');
-const techSkillsList = document.getElementById('tech-skills-list');
-const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const softSkillsList = document.getElementById('soft-skills-list');
+        const techSkillsList = document.getElementById('tech-skills-list');
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
 
-const editBtn = document.getElementById('edit-toggle');
-const saveBtn = document.getElementById('save-btn');
-const cancelBtn = document.getElementById('cancel-btn');
-const actionBar = document.getElementById('action-bar');
+        const editBtn = document.getElementById('edit-toggle');
+        const saveBtn = document.getElementById('save-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const actionBar = document.getElementById('action-bar');
 
-const toast = document.getElementById('toast');
-const toastMessage = document.getElementById('toast-message');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
 
-/* ================== STATUS CONFIG ================== */
-const statusClasses = {
-    Pending: 'status-pending',
-    Acceptance: 'status-accepted',
-    B: 'status-backup',
-    Rejection: 'status-rejected'
-};
+        /* ================== STATUS CONFIG ================== */
+        const statusClasses = {
+            Pending: 'status-pending',
+            Acceptance: 'status-accepted',
+            B: 'status-backup',
+            Rejection: 'status-rejected'
+        };
 
-const statusIcons = {
-    Pending: 'fa-clock',
-    Acceptance: 'fa-check-circle',
-    B: 'fa-user-clock',
-    Rejection: 'fa-times-circle'
-};
+        const statusIcons = {
+            Pending: 'fa-clock',
+            Acceptance: 'fa-check-circle',
+            B: 'fa-user-clock',
+            Rejection: 'fa-times-circle'
+        };
 
-/* ================== UTILITIES ================== */
-function formatDateTime(dateTimeStr) {
-    if (!dateTimeStr || dateTimeStr === '0000-00-00 00:00:00') return 'Not scheduled';
-    try {
-        const date = new Date(dateTimeStr.replace(' ', 'T'));
-        return date.toLocaleString();
-    } catch {
-        return 'Invalid date';
-    }
-}
+        /* ================== UTILITIES ================== */
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr || dateTimeStr === '0000-00-00 00:00:00') return 'Not scheduled';
+            try {
+                const date = new Date(dateTimeStr.replace(' ', 'T'));
+                return date.toLocaleString();
+            } catch {
+                return 'Invalid date';
+            }
+        }
 
-function formatDateTimeForInput(dateTimeStr) {
-    if (!dateTimeStr || dateTimeStr === '0000-00-00 00:00:00') return '';
-    try {
-        const date = new Date(dateTimeStr.replace(' ', 'T'));
-        return date.toISOString().slice(0, 16);
-    } catch {
-        return '';
-    }
-}
+        function formatDateTimeForInput(dateTimeStr) {
+            if (!dateTimeStr || dateTimeStr === '0000-00-00 00:00:00') return '';
+            try {
+                const date = new Date(dateTimeStr.replace(' ', 'T'));
+                return date.toISOString().slice(0, 16);
+            } catch {
+                return '';
+            }
+        }
 
-function showToast(message, isError = false) {
-    toastMessage.textContent = message;
-    toast.classList.toggle('toast-error', isError);
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-}
+        function showToast(message, isError = false) {
+            toastMessage.textContent = message;
+            toast.classList.toggle('toast-error', isError);
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
 
-function updateStatusBadge(status) {
-    const statusText =
-        status === 'Acceptance' ? 'Accepted' :
-        status === 'B' ? 'Backup' :
-        status === 'Rejection' ? 'Rejected' : 'Pending';
+        function updateStatusBadge(status) {
+            const statusText =
+                status === 'Acceptance' ? 'Accepted' :
+                    status === 'B' ? 'Backup' :
+                        status === 'Rejection' ? 'Rejected' : 'Pending';
 
-    statusBadge.className = `status-badge ${statusClasses[status] || 'status-pending'}`;
-    statusBadge.innerHTML = `
+            statusBadge.className = `status-badge ${statusClasses[status] || 'status-pending'}`;
+            statusBadge.innerHTML = `
         <i class="fas ${statusIcons[status] || 'fa-clock'}"></i>
         <span>${statusText}</span>
     `;
-}
+        }
 
-/* ================== QUESTION RENDERING ================== */
-function createQuestionItem(question) {
-    const div = document.createElement('div');
-    div.className = 'question-item';
-    div.dataset.questionId = question.id;
-    div.dataset.category = question.category || (question.id.startsWith('default_soft') ? 'Soft Skills' : 'Tech Skills');
-    div.dataset.difficulty = question.difficulty || 'Medium';
-    div.dataset.council = question.council || councilSelect.value.replace(' Council', '');
+        /* ================== QUESTION RENDERING ================== */
+        function createQuestionItem(question) {
+            const div = document.createElement('div');
+            div.className = 'question-item';
+            div.dataset.questionId = question.id;
+            div.dataset.category = question.category || (question.id.startsWith('default_soft') ? 'Soft Skills' : 'Tech Skills');
+            div.dataset.difficulty = question.difficulty || 'Medium';
+            div.dataset.council = question.council || councilSelect.value.replace(' Council', '');
 
-    div.innerHTML = `
+            div.innerHTML = `
         <div class="question-text">${question.question}</div>
         <div class="question-meta">
             <span><i class="fas fa-signal"></i> ${div.dataset.difficulty}</span>
@@ -1341,228 +1354,251 @@ function createQuestionItem(question) {
         </div>
     `;
 
-    return div;
-}
-
-function renderInterviewQuestions(questions = []) {
-    softSkillsList.innerHTML = '';
-    techSkillsList.innerHTML = '';
-
-    if (!Array.isArray(questions)) return;
-
-    questions.forEach(question => {
-        const element = createQuestionItem(question);
-
-        if (question.category === 'Soft Skills') {
-            softSkillsList.appendChild(element);
-        } else if (question.category === 'Tech Skills') {
-            techSkillsList.appendChild(element);
+            return div;
         }
-    });
 
-    updateQuestionCounts(questions);
-}
+        function renderInterviewQuestions(questions = []) {
+            softSkillsList.innerHTML = '';
+            techSkillsList.innerHTML = '';
 
-function updateQuestionCounts(questions) {
-    const softCount = questions.filter(q => q.category === 'Soft Skills').length;
-    const techCount = questions.filter(q => q.category === 'Tech Skills').length;
+            if (!Array.isArray(questions)) return;
 
-    toggleBtns.forEach(btn => {
-        const isSoft = btn.dataset.category === 'soft-skills';
-        const count = isSoft ? softCount : techCount;
+            questions.forEach(question => {
+                const element = createQuestionItem(question);
 
-        let badge = btn.querySelector('.count-badge');
-        if (!badge) {
-            badge = document.createElement('span');
-            badge.className = 'count-badge';
-            badge.style.marginLeft = '6px';
-            btn.appendChild(badge);
+                if (question.category === 'Soft Skills') {
+                    softSkillsList.appendChild(element);
+                } else if (question.category === 'Tech Skills') {
+                    techSkillsList.appendChild(element);
+                }
+            });
+
+            updateQuestionCounts(questions);
         }
-        badge.textContent = count;
-    });
-}
 
-function collectQuestionNotes() {
-    const results = [];
+        function updateQuestionCounts(questions) {
+            const softCount = questions.filter(q => q.category === 'Soft Skills').length;
+            const techCount = questions.filter(q => q.category === 'Tech Skills').length;
 
-    document.querySelectorAll('.question-item').forEach(item => {
-        const id = item.dataset.questionId;
-        const questionText = item.querySelector('.question-text').textContent;
-        const note = item.querySelector('.question-note-input').value.trim();
-        const category = item.dataset.category;
-        const difficulty = item.dataset.difficulty;
-        const council = item.dataset.council;
+            toggleBtns.forEach(btn => {
+                const isSoft = btn.dataset.category === 'soft-skills';
+                const count = isSoft ? softCount : techCount;
 
-        results.push({
-            id,
-            question: questionText,
-            category,
-            difficulty,
-            council,
-            note
+                let badge = btn.querySelector('.count-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'count-badge';
+                    badge.style.marginLeft = '6px';
+                    btn.appendChild(badge);
+                }
+                badge.textContent = count;
+            });
+        }
+
+        function collectQuestionNotes() {
+            const results = [];
+
+            document.querySelectorAll('.question-item').forEach(item => {
+                const id = item.dataset.questionId;
+                const questionText = item.querySelector('.question-text').textContent;
+                const note = item.querySelector('.question-note-input').value.trim();
+                const category = item.dataset.category;
+                const difficulty = item.dataset.difficulty;
+                const council = item.dataset.council;
+
+                results.push({
+                    id,
+                    question: questionText,
+                    category,
+                    difficulty,
+                    council,
+                    note
+                });
+            });
+
+            return results;
+        }
+
+        /* ================== EDIT MODE ================== */
+        function setFormEditing(enabled) {
+            const inputs = [
+                nameInput, emailInput, phoneInput, collegeInput,
+                levelSelect, ratingSelect, eventTypeSelect,
+                interviewerInput, interviewTimeInput, notesInput
+            ];
+
+            inputs.forEach(input => input.disabled = !enabled);
+
+            document.querySelectorAll('.question-note-input')
+                .forEach(textarea => textarea.disabled = !enabled);
+
+            actionBar.classList.toggle('hidden', !enabled);
+            editBtn.classList.toggle('hidden', enabled);
+            timeDisplay.classList.toggle('hidden', enabled);
+        }
+
+        /* ================== LOAD APPLICANT ================== */
+        async function loadApplicant() {
+            if (globalLoader) {
+                globalLoader.classList.remove('hidden');
+                globalLoader.style.display = 'flex';
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?id=${applicantId}`, {
+                    headers: { 'X-Token': TOKEN }
+                });
+
+                if (response.status === 401) {
+                    window.location.href = 'register.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.status !== 'success' || !data.data.applicants.length) {
+                    throw new Error('Applicant not found');
+                }
+
+                const applicant = data.data.applicants[0];
+
+                // Update Form Inputs
+                nameInput.value = applicant.name || '';
+                emailInput.value = applicant.email || '';
+                phoneInput.value = applicant.phone || '';
+                collegeInput.value = applicant.college || '';
+                councilSelect.value = applicant.council
+                    ? applicant.council + ' Council'
+                    : '';
+                levelSelect.value = applicant.level || '';
+                ratingSelect.value = applicant.rating || 'Pending';
+                eventTypeSelect.value = applicant.event_type;
+                interviewerInput.value = applicant.interviewed_by || '';
+                interviewTimeInput.value = formatDateTimeForInput(applicant.interview_time);
+                notesInput.value = applicant.notes || '';
+
+                // Update Display Elements
+                nameDisplay.textContent = applicant.name || 'Unnamed Applicant';
+                updateStatusBadge(applicant.rating || 'Pending');
+
+                if (applicant.interview_time) {
+                    formattedTime.textContent = formatDateTime(applicant.interview_time);
+                    timeDisplay.classList.remove('hidden');
+                } else {
+                    formattedTime.textContent = 'Not scheduled';
+                }
+
+                renderInterviewQuestions(applicant.interview_questions || []);
+
+            } catch (error) {
+                console.error('Load error:', error);
+                showToast('Failed to load applicant: ' + error.message, true);
+            } finally {
+                if (globalLoader) {
+                    globalLoader.classList.add('hidden');
+                    setTimeout(() => globalLoader.style.display = 'none', 500);
+                }
+            }
+        }
+
+        /* ================== SAVE APPLICANT ================== */
+        async function saveApplicant() {
+            try {
+                const payload = {
+                    id: parseInt(applicantId),
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    college: collegeInput.value.trim(),
+                    council: councilSelect.value.replace(' Council', ''),
+                    level: levelSelect.value,
+                    rating: ratingSelect.value,
+                    event_type: eventTypeSelect.value,
+                    interviewed_by: interviewerInput.value.trim(),
+                    interview_time: interviewTimeInput.value
+                        ? interviewTimeInput.value.replace('T', ' ')
+                        : null,
+                    notes: notesInput.value.trim(),
+                    interview_questions: collectQuestionNotes()
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Token': TOKEN
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.status !== 'success') {
+                    throw new Error(data.message);
+                }
+
+                showToast('Applicant updated successfully');
+                updateStatusBadge(payload.rating);
+
+                // Update formatted time display
+                if (payload.interview_time) {
+                    formattedTime.textContent = formatDateTime(payload.interview_time);
+                    timeDisplay.classList.remove('hidden');
+                } else {
+                    formattedTime.textContent = 'Not scheduled';
+                }
+
+                setFormEditing(false);
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showToast('Save failed: ' + error.message, true);
+            }
+        }
+
+        /* ================== EVENTS ================== */
+        document.addEventListener('DOMContentLoaded', () => {
+
+            loadApplicant();
+
+            editBtn.addEventListener('click', () => {
+                setFormEditing(true);
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                setFormEditing(false);
+                loadApplicant();
+            });
+
+            saveBtn.addEventListener('click', saveApplicant);
+
+            ratingSelect.addEventListener('change', () => {
+                updateStatusBadge(ratingSelect.value);
+            });
+
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    toggleBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const category = btn.dataset.category;
+
+                    document.getElementById('soft-skills-questions')
+                        .classList.toggle('hidden', category !== 'soft-skills');
+
+                    document.getElementById('tech-skills-questions')
+                        .classList.toggle('hidden', category !== 'tech-skills');
+                });
+            });
         });
-    });
 
-    return results;
-}
-
-/* ================== EDIT MODE ================== */
-function setFormEditing(enabled) {
-    const inputs = [
-        nameInput, emailInput, phoneInput, collegeInput,
-        levelSelect, ratingSelect,
-        interviewTimeInput, notesInput
-    ];
-
-    inputs.forEach(input => input.disabled = !enabled);
-
-    document.querySelectorAll('.question-note-input')
-        .forEach(textarea => textarea.disabled = !enabled);
-
-    actionBar.classList.toggle('hidden', !enabled);
-    editBtn.classList.toggle('hidden', enabled);
-    timeDisplay.classList.toggle('hidden', enabled);
-}
-
-/* ================== LOAD APPLICANT ================== */
-async function loadApplicant() {
-    try {
-        const response = await fetch(`${API_URL}?id=${applicantId}`, {
-            headers: { 'X-Token': TOKEN }
-        });
-
-        if (response.status === 401) {
-            window.location.href = 'login.html';
-            return;
-        }
-
-        const data = await response.json();
-
-        if (data.status !== 'success' || !data.data.applicants.length) {
-            throw new Error('Applicant not found');
-        }
-
-        const applicant = data.data.applicants[0];
-
-        nameInput.value = applicant.name || '';
-        emailInput.value = applicant.email || '';
-        phoneInput.value = applicant.phone || '';
-        collegeInput.value = applicant.college || '';
-        councilSelect.value = applicant.council
-            ? applicant.council + ' Council'
-            : '';
-        levelSelect.value = applicant.level || '';
-        ratingSelect.value = applicant.rating || 'Pending';
-        interviewerInput.value = applicant.interviewed_by || '';
-        interviewTimeInput.value = formatDateTimeForInput(applicant.interview_time);
-        notesInput.value = applicant.notes || '';
-
-        nameDisplay.textContent = applicant.name || 'Unnamed Applicant';
-        updateStatusBadge(applicant.rating || 'Pending');
-
-        if (applicant.interview_time) {
-            formattedTime.textContent = formatDateTime(applicant.interview_time);
-            timeDisplay.classList.remove('hidden');
-        }
-
-        renderInterviewQuestions(applicant.interview_questions || []);
-
-    } catch (error) {
-        console.error('Load error:', error);
-        showToast('Failed to load applicant', true);
-    } finally {
-        if (globalLoader) globalLoader.classList.add('hidden');
-    }
-}
-
-/* ================== SAVE APPLICANT ================== */
-async function saveApplicant() {
-    try {
-        const payload = {
-            id: parseInt(applicantId),
-            name: nameInput.value.trim(),
-            email: emailInput.value.trim(),
-            phone: phoneInput.value.trim(),
-            college: collegeInput.value.trim(),
-            council: councilSelect.value.replace(' Council', ''),
-            level: levelSelect.value,
-            rating: ratingSelect.value,
-            interviewed_by: interviewerInput.value.trim(),
-            interview_time: interviewTimeInput.value
-                ? interviewTimeInput.value.replace('T', ' ')
-                : null,
-            notes: notesInput.value.trim(),
-            interview_questions: collectQuestionNotes()
-        };
-
-        const response = await fetch(API_URL, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Token': TOKEN
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (data.status !== 'success') {
-            throw new Error(data.message);
-        }
-
-        showToast('Applicant updated successfully');
-        updateStatusBadge(payload.rating);
-        setFormEditing(false);
-
-    } catch (error) {
-        console.error('Save error:', error);
-        showToast('Save failed: ' + error.message, true);
-    }
-}
-
-/* ================== EVENTS ================== */
-document.addEventListener('DOMContentLoaded', () => {
-
-    loadApplicant();
-
-    editBtn.addEventListener('click', () => {
-        setFormEditing(true);
-    });
-
-    cancelBtn.addEventListener('click', () => {
-        setFormEditing(false);
-        loadApplicant();
-    });
-
-    saveBtn.addEventListener('click', saveApplicant);
-
-    ratingSelect.addEventListener('change', () => {
-        updateStatusBadge(ratingSelect.value);
-    });
-
-    toggleBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            toggleBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const category = btn.dataset.category;
-
-            document.getElementById('soft-skills-questions')
-                .classList.toggle('hidden', category !== 'soft-skills');
-
-            document.getElementById('tech-skills-questions')
-                .classList.toggle('hidden', category !== 'tech-skills');
-        });
-    });
-});
-
-/* ================== SAFETY LOADER ================== */
-setTimeout(() => {
-    if (globalLoader && !globalLoader.classList.contains('hidden')) {
-        globalLoader.classList.add('hidden');
-    }
-}, 5000);
-</script>
+        /* ================== SAFETY LOADER ================== */
+        setTimeout(() => {
+            if (globalLoader && !globalLoader.classList.contains('hidden')) {
+                globalLoader.classList.add('hidden');
+            }
+        }, 5000);
+    </script>
 
 </body>
 

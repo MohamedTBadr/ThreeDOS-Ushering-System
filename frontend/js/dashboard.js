@@ -10,7 +10,7 @@ let currentCursor = null;
 let prevCursor = null;
 let hasMore = false;
 let userRole = localStorage.getItem('user_role');
-let currentFilters = { search: '', level: '', rating: '' };
+let currentFilters = { search: '', level: '', rating: '', event_type: '' };
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -63,7 +63,12 @@ function setupEventListeners() {
         currentFilters.rating = e.target.value;
         currentCursor = null; // Reset cursor on filter change
         loadApplicants();
-    
+    });
+
+    document.getElementById('event-type-filter').addEventListener('change', (e) => {
+        currentFilters.event_type = e.target.value;
+        currentCursor = null; // Reset cursor on filter change
+        loadApplicants();
     });
 }
 
@@ -85,6 +90,7 @@ async function loadApplicants(usePrevCursor = false) {
         if (currentFilters.search) url += `&search=${encodeURIComponent(currentFilters.search)}`;
         if (currentFilters.level) url += `&level=${encodeURIComponent(currentFilters.level)}`;
         if (currentFilters.rating) url += `&rating=${encodeURIComponent(currentFilters.rating)}`;
+        if (currentFilters.event_type) url += `&event_type=${encodeURIComponent(currentFilters.event_type)}`;
 
         const response = await fetch(url, { headers: { 'X-Token': TOKEN } });
         const result = await response.json();
@@ -130,12 +136,11 @@ function displayApplicants(applicants) {
             <td>${escapeHtml(app.level)}</td>
             <td>${escapeHtml(app.council || '')}</td>
             <td><span class="rating-badge rating-${getRatingClass(app.rating)}">${app.rating || 'Pending'}</span></td>
-                        <td>${escapeHtml(app.ushered_by || 'NA')}</td>
-
+            <td>${escapeHtml(app.ushered_by || 'NA')}</td>
+            <td>${escapeHtml(app.event_type || 'Interview')}</td>
             <td>${escapeHtml(app.interviewed_by || 'NA')}</td>
-
             <td>
-                <button class="btn-primary" onclick="redirectEdit(${app.id})">✏️ Edit</button>
+                <button class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="redirectEdit(${app.id})">✏️ Edit</button>
             </td>
         </tr>
     `).join('');
@@ -204,10 +209,11 @@ function previousPage() {
 
 // Clear Filters
 function clearFilters() {
-    currentFilters = { search: '', level: '', rating: '' };
+    currentFilters = { search: '', level: '', rating: '', event_type: '' };
     document.getElementById('search').value = '';
     document.getElementById('level-filter').value = '';
     document.getElementById('rating-filter').value = '';
+    document.getElementById('event-type-filter').value = '';
     currentCursor = null; // Reset cursor
     loadApplicants();
 }
