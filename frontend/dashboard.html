@@ -821,7 +821,7 @@
                 </select>
                 <select id="event-type-filter" class="filter-select">
                     <option value="">All Event Types</option>
-                    
+
                     <option value="Innovation Area">Innovation Area</option>
                     <option value="Online">Online</option>
                     <option value="Offline">Offline</option>
@@ -909,6 +909,19 @@
                 document.getElementById('welcome-council').textContent = userCouncil;
                 document.getElementById('welcome-role').textContent = userRole;
                 document.getElementById('welcome-avatar').textContent = userInitials;
+
+                // SPECIAL ACCESS: Logs for Backend Team
+                if (userCouncil === 'Backend Development') {
+                    const nav = document.querySelector('.nav-menu');
+                    // Check if link already exists
+                    if (!nav.querySelector('a[href="logs.html"]')) {
+                        const logsLink = document.createElement('a');
+                        logsLink.href = 'logs.html';
+                        logsLink.className = 'nav-item';
+                        logsLink.innerHTML = '<span class="icon">📜</span> <span>System Logs</span>';
+                        nav.appendChild(logsLink);
+                    }
+                }
             }
 
             populateWelcomeMessage();
