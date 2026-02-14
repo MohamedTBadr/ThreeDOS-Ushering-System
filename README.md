@@ -1,6 +1,6 @@
 # ThreeDOS Ushering System
 
-![ThreeDOS Logo](https://via.placeholder.com/150) <!-- Replace with actual logo if available -->
+![ThreeDOS Logo](frontend/img/ThreeDOS.jpg) <!-- Replace with actual logo if available -->
 
 A comprehensive applicant management system designed for the ThreeDOS organization to streamline the recruitment and selection process for ushering teams across various councils.
 
