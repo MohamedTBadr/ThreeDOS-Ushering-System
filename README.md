@@ -1,93 +1,58 @@
-# ThreeDOS Ushering System
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
-  <img src="frontend/img/ThreeDOS.jpg" width="700">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-A comprehensive applicant management system designed for the ThreeDOS organization to streamline the recruitment and selection process for ushering teams across various councils.
+## About Laravel
 
-## 🚀 Overview
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-The ThreeDOS Ushering System provides a robust platform for potential ushers to apply and for organization leaders to review, rate, and manage these applications efficiently. It features a modern frontend interface and a secure PHP-powered backend with role-based access control.
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-## ✨ Key Features
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-### 📝 Applicant Registration
-- **Public Form**: Easy-to-use registration form for prospective applicants.
-- **Detailed Profiles**: Collects essential information including contact details, college, level, and council preferences.
+## Learning Laravel
 
-### 🔐 Secure Authentication & RBAC
-- **Multi-Level Roles**: 
-  - **VP**: Full system access, including cross-council management and deletion rights.
-  - **Head**: Full access to their respective council's applicants.
-  - **Instructor**: Permission to view applicants and update ratings/notes only.
-- **Token-Based Sessions**: Secure session management using unique tokens.
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-### 📊 Administrative Dashboard
-- **Real-Time Data**: Instant access to all applicant registrations.
-- **Advanced Filtering**: Filter by council, academic level, or current rating status (Pending, Acceptance, B, Rejection).
-- **Search Functionality**: Quickly find applicants by name or email.
-- **Pagination**: Optimized for handling large volumes of registrations.
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-### 📈 Statistics & Analytics
-- **Visual Insights**: Quick statistics on total applications and a breakdown of recruitment statuses.
-- **Council-Specific Stats**: View data relevant to specific department performance.
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-## 🛠️ Tech Stack
+## Agentic Development
 
-- **Frontend**: 
-  - HTML5 & CSS3 (Modern, responsive design)
-  - Vanilla JavaScript (Dynamic UI updates using Fetch API)
-- **Backend**: 
-  - PHP (RESTful API architecture)
-- **Database**: 
-  - MySQL (Relational data management)
-- **Security**: 
-  - Password Hashing (Bcrypt)
-  - Token-Based Authentication
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
 
-## 📂 Project Structure
+```bash
+composer require laravel/boost --dev
 
-```text
-├── backend/
-│   ├── api.php           # Main REST API endpoints
-│   ├── auth.php          # Authentication logic (Login/Logout)
-│   ├── signup.php        # Staff account creation
-│   ├── connection.php     # Database connection configuration
-│   └── schema.sql        # Database table definitions
-├── frontend/
-│   ├── css/              # Stylesheets
-│   ├── js/               # Frontend logic & API integration
-│   ├── login.html        # Admin login page
-│   ├── signup.html       # Admin signup page
-│   ├── dashboard.html    # Main administrative portal
-│   ├── RegsitrationForm.html # Public applicant form
-│   ├── applicant_details_page.html # Individual profile view
-│   └── statsitics_page.html # Data analytics view
+php artisan boost:install
 ```
 
-## ⚙️ Installation & Setup
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
-1. **Database Setup**:
-   - Create a new MySQL database.
-   - Import the provided `backend/schema.sql` file to create the necessary tables and sample data.
+## Contributing
 
-2. **Backend Configuration**:
-   - Update `backend/connection.php` with your database credentials (host, username, password, and database name).
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-3. **Deployment**:
-   - Upload the files to your web server (compatible with PHP 7.4+ and MySQL).
-   - Ensure the `backend` directory is accessible for API requests.
+## Code of Conduct
 
-4. **Default Credentials (from Schema)**:
-   - **Username**: `head_tech`
-   - **Password**: `password123`
-   - *Note: It is recommended to create your own accounts via `signup.html` for production.*
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## 🤝 Contributing
+## Security Vulnerabilities
 
-Contributions are welcome! Please feel free to submit a Pull Request or open an issue for any bugs or feature requests.
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
----
+## License
 
-**ThreeDOS Ushering System** - *Empowering our events with organized recruitment.*
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -1,0 +1,1606 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreeDOS Applicant Details - Interview Schedule</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ asset('img/ThreeDOS.jpg') }}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --threedos-purple: #7F4797;
+            --threedos-purple-light: #9A6BB2;
+            --white: #F4F4F4;
+            --light-gray: #A0A0A8;
+            --dark-bg: #0F0F12;
+            --card-bg: #1A1A1E;
+            --border-color: #2D2D32;
+            --transition: all 0.3s ease;
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.2);
+            --logo-gradient: linear-gradient(135deg, #9A6BB2, #7F4797);
+            --logo-glow: 0 0 30px rgba(127, 71, 151, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--white);
+            min-height: 100vh;
+        }
+
+        /* ==================== HEADER & LOGO ==================== */
+        .header-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md), var(--logo-glow);
+            position: relative;
+            overflow: hidden;
+            animation: logoFloat 3s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes logoFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+                box-shadow: var(--shadow-md), var(--logo-glow);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(1deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(127, 71, 151, 0.6);
+            }
+        }
+
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .logo-img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            border-radius: 12px;
+            position: relative;
+            z-index: 2;
+            transition: var(--transition);
+        }
+
+        .logo-container:hover .logo-img {
+            transform: scale(1.05);
+        }
+
+        .logo-fallback {
+            font-size: 3rem;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .org-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .org-name {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--white) 0%, var(--threedos-purple-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(127, 71, 151, 0.3);
+            line-height: 1;
+        }
+
+        .org-subtitle {
+            font-size: 0.9rem;
+            color: var(--light-gray);
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .org-subtitle::before,
+        .org-subtitle::after {
+            content: 'â€¢';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--threedos-purple);
+        }
+
+        .org-subtitle::before {
+            left: 0;
+        }
+
+        .org-subtitle::after {
+            right: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1.8rem;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--threedos-purple);
+            border-radius: 2px;
+            background: linear-gradient(to right, transparent, var(--threedos-purple), transparent);
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* ===== Sidebar ===== */
+        .sidebar {
+            background: linear-gradient(180deg, #1A1A1E 0%, #0F0F12 100%);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            color: var(--light-gray);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(127, 71, 151, 0.1);
+            color: #D0A8E8;
+        }
+
+        .nav-item.active {
+            background: rgba(127, 71, 151, 0.2);
+            color: var(--threedos-purple-light);
+            border-left: 3px solid var(--threedos-purple);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-profile {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--logo-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        /* ===== Header ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-top-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-left h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-left p {
+            color: var(--light-gray);
+            font-size: 0.95rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* ===== Applicant Card ===== */
+        .applicant-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 26, 30, 0.8);
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: left;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .card-header h2::after {
+            display: none;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.15);
+            color: #FFC107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .status-accepted {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28A745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .status-rejected {
+            background: rgba(220, 53, 69, 0.15);
+            color: #DC3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .status-backup {
+            background: rgba(0, 123, 255, 0.15);
+            color: #007BFF;
+            border: 1px solid rgba(0, 123, 255, 0.3);
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-group input,
+        .detail-group select,
+        .detail-group textarea {
+            background: var(--dark-bg);
+            border: 1px solid #3A3A40;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            color: var(--white);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+        }
+
+        .detail-group input:focus,
+        .detail-group select:focus,
+        .detail-group textarea:focus {
+            outline: none;
+            border-color: var(--threedos-purple);
+            box-shadow: 0 0 0 3px rgba(127, 71, 151, 0.2);
+        }
+
+        .detail-group input:disabled,
+        .detail-group select:disabled,
+        .detail-group textarea:disabled {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--white);
+            cursor: not-allowed;
+        }
+
+        .interview-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .interview-section h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .interview-time-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .time-display {
+            background: rgba(127, 71, 151, 0.1);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ===== Action Bar ===== */
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border-color);
+            background: rgba(26, 26, 30, 0.8);
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-edit {
+            background: rgba(127, 71, 151, 0.15);
+            border: 1px solid var(--threedos-purple);
+            color: #D0A8E8;
+        }
+
+        .btn-edit:hover {
+            background: var(--threedos-purple);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(127, 71, 151, 0.3);
+        }
+
+        .btn-primary {
+            background: var(--logo-gradient);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #9A6BB2, #7F4797);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(127, 71, 151, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--light-gray);
+            border: 1px solid #3A3A40;
+        }
+
+        .btn-secondary:hover {
+            background: #2D2D32;
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: #F18A94;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(220, 53, 69, 0.3);
+            color: var(--white);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ===== Toast Notification ===== */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid #28A745;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-error {
+            border-left-color: #DC3545;
+        }
+
+        /* ===== Interview Questions Section ===== */
+        .questions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .questions-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .questions-toggle {
+            display: flex;
+            background: var(--dark-bg);
+            border: 1px solid #3A3A40;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            padding: 0.25rem;
+        }
+
+        .question-note-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 15, 18, 0.5);
+            border: 1px solid #3A3A40;
+            border-radius: 0.5rem;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            resize: vertical;
+            min-height: 80px;
+            transition: var(--transition);
+            cursor: not-allowed;
+        }
+
+        .question-note-input:focus {
+            outline: none;
+            border-color: var(--threedos-purple);
+            box-shadow: 0 0 0 2px rgba(127, 71, 151, 0.2);
+        }
+
+        .question-note-input:disabled {
+            background: rgba(15, 15, 18, 0.5);
+            border-color: #2D2D32;
+            color: var(--light-gray);
+            cursor: not-allowed;
+        }
+
+        .question-note-input:not(:disabled) {
+            background: rgba(26, 26, 30, 0.8);
+            cursor: text;
+        }
+
+        .toggle-btn {
+            padding: 0.6rem 1.25rem;
+            background: transparent;
+            border: none;
+            color: var(--light-gray);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-btn.active {
+            background: rgba(127, 71, 151, 0.2);
+            color: #D0A8E8;
+            box-shadow: 0 2px 8px rgba(127, 71, 151, 0.1);
+        }
+
+        .toggle-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+        }
+
+        .questions-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .questions-category {
+            background: rgba(26, 26, 30, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .questions-category.hidden {
+            display: none;
+        }
+
+        .questions-category h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--threedos-purple-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .question-item {
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: var(--transition);
+        }
+
+        .question-item:hover {
+            border-color: #3A3A40;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--light-gray);
+        }
+
+        .no-questions {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-gray);
+            font-style: italic;
+        }
+
+        /* ===== Responsive Design ===== */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                z-index: 1000;
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(280px);
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .interview-time-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1.5rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .header-left h1 {
+                font-size: 1.5rem;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                padding: 1.25rem 1.5rem;
+            }
+
+            .action-bar .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card-header {
+                padding: 1.25rem 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+        }
+
+        /* RESPONSIVE SIDEBAR */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 1rem;
+            padding: 0.5rem;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Global Loader Styles */
+        #global-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--card-bg) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+
+        #global-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .global-loader-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2), 0 0 40px rgba(127, 71, 151, 0.4);
+            overflow: hidden;
+            animation: logoPulse 2s infinite ease-in-out;
+            position: relative;
+        }
+
+        .global-loader-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .global-loader-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: var(--white);
+            background: linear-gradient(90deg, #9A6BB2, #FF6B8B, #9A6BB2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: textShimmer 3s linear infinite;
+        }
+
+        .global-loader-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .global-loader-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 40%;
+            background: var(--threedos-purple);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--threedos-purple);
+            animation: barLoading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2), 0 0 40px rgba(127, 71, 151, 0.4);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(127, 71, 151, 0.3), 0 0 60px rgba(127, 71, 151, 0.6);
+            }
+        }
+
+        @keyframes textShimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        @keyframes barLoading {
+            0% {
+                left: -40%;
+            }
+
+            50% {
+                left: 40%;
+                width: 60%;
+            }
+
+            100% {
+                left: 100%;
+                width: 40%;
+            }
+        }
+
+        /* ===== Utility Classes ===== */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Global Loader -->
+    <div id="global-loader">
+        <div class="global-loader-logo">
+            <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="ThreeDOS Logo">
+        </div>
+        <div class="global-loader-text">ThreeDOS</div>
+        <div class="global-loader-bar"></div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- ThreeDOS Header with Logo -->
+            <div class="header-logo">
+                <div class="logo-container">
+                    <!-- Logo Image with fallback -->
+                    <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="ThreeDOS Logo" class="logo-img" id="logoImage"
+                        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+                    <div class="logo-fallback" id="logoFallback" style="display: none;">
+                        <i class="fas fa-users-crown"></i>
+                    </div>
+                </div>
+                <div class="org-title">
+                    <div class="org-name">ThreeDOS</div>
+                    <div class="org-subtitle">Academic Councils</div>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item active">
+                    <span class="icon">ðŸ‘¥</span> <span>Applicants</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <span class="icon">ðŸ“…</span> <span>Calendar</span>
+                </a>
+                <a href="statistics_page.html" class="nav-item">
+                    <span class="icon">ðŸ“Š</span> <span>Statistics</span>
+                </a>
+                <a href="RegistrationForm.html" class="nav-item">
+                    <span class="icon">âž•</span> <span>New Registration</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="header-top-row">
+                    <button class="menu-toggle" id="menuToggle">â˜°</button>
+                    <div class="header-left">
+                        <h1>Applicant Details</h1>
+                        <p>View and manage applicant information</p>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="window.history.back()">
+                        <i class="fas fa-arrow-left"></i>
+                        Back
+                    </button>
+                    <button class="btn btn-edit" id="edit-toggle">
+                        <i class="fas fa-edit"></i>
+                        Edit Details
+                    </button>
+                </div>
+            </header>
+
+            <div class="applicant-card">
+                <div class="card-header">
+                    <h2 id="applicant-name-display">Loading...</h2>
+                    <span class="status-badge status-pending" id="applicant-status">
+                        <i class="fas fa-clock"></i>
+                        <span>Pending</span>
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="details-grid">
+                        <div class="detail-group">
+                            <label for="applicant-name">
+                                <i class="fas fa-user"></i>
+                                Full Name
+                            </label>
+                            <input type="text" id="applicant-name" placeholder="Enter full name" disabled>
+                        </div>
+
+                        <div class="detail-group">
+                            <label for="applicant-email">
+                                <i class="fas fa-envelope"></i>
+                                Email Address
+                            </label>
+                            <input type="email" id="applicant-email" placeholder="Enter email address" disabled>
+                        </div>
+
+                        <div class="detail-group">
+                            <label for="applicant-phone">
+                                <i class="fas fa-phone"></i>
+                                Phone Number
+                            </label>
+                            <input type="tel" id="applicant-phone" placeholder="Enter phone number" disabled>
+                        </div>
+
+                        <div class="detail-group">
+                            <label for="applicant-college">
+                                <i class="fas fa-university"></i>
+                                College
+                            </label>
+                            <input type="text" id="applicant-college" placeholder="Enter college name" disabled>
+                        </div>
+
+                        <div class="detail-group">
+                            <label for="applicant-council">
+                                <i class="fas fa-users"></i>
+                                Council
+                            </label>
+                            <select id="applicant-council" disabled>
+                                <option value="">Select council</option>
+                                <option value="Marketing Council">Marketing Council</option>
+                                <option value="Backend Development Council">Backend Development Council</option>
+                                <option value="Frontend Development Council">Frontend Development Council</option>
+                                <option value="Stock Marketing Council">Stock Marketing Council</option>
+                                <option value="CEO Council">CEO Council</option>
+                            </select>
+                        </div>
+
+                        <div class="detail-group">
+                            <label for="applicant-level">
+                                <i class="fas fa-layer-group"></i>
+                                Academic Level
+                            </label>
+                            <select id="applicant-level" disabled>
+                                <option value="">Select level</option>
+                                <option value="Level 1">Level 1</option>
+                                <option value="Level 2">Level 2</option>
+                                <option value="Level 3">Level 3</option>
+                                <option value="Level 4">Level 4</option>
+                            </select>
+                        </div>
+
+                        <div class="detail-group">
+                            <label for="applicant-rating">
+                                <i class="fas fa-star"></i>
+                                Rating & Status
+                            </label>
+                            <select id="applicant-rating" disabled>
+                                <option value="Pending">Pending Review</option>
+                                <option value="Acceptance">Accepted</option>
+                                <option value="B">Backup Candidate</option>
+                                <option value="Rejection">Rejected</option>
+                            </select>
+                        </div>
+
+                        <div class="detail-group">
+                            <label for="applicant-event-type">
+                                <i class="fas fa-calendar-alt"></i>
+                                Event Type
+                            </label>
+                            <select id="applicant-event-type" disabled>
+                                <option value="Youth Scope">Youth Scope</option>
+                                <option value="Online">Online</option>
+                                <option value="Offline">Offline</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Interview Section -->
+                    <div class="interview-section">
+                        <h3>
+                            <i class="fas fa-calendar-check"></i>
+                            Interview Schedule
+                        </h3>
+
+                        <div class="interview-time-container">
+                            <!-- Interviewer Name -->
+                            <div class="detail-group">
+                                <label for="interviewer">
+                                    <i class="fas fa-user"></i>
+                                    Interviewer Name
+                                </label>
+                                <input type="text" id="interviewer" disabled>
+                            </div>
+
+                            <!-- Interview Time -->
+                            <div class="detail-group">
+                                <label for="interview-time">
+                                    <i class="fas fa-clock"></i>
+                                    Scheduled Time
+                                </label>
+                                <input type="datetime-local" id="interview-time" disabled>
+                            </div>
+
+                            <div class="time-display" id="time-display">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span id="formatted-time">Not scheduled</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interview Questions Section -->
+                    <div class="interview-section">
+                        <div class="questions-header">
+                            <h3>
+                                <i class="fas fa-question-circle"></i>
+                                Interview Questions
+                            </h3>
+                            <div class="questions-toggle">
+                                <button class="toggle-btn active" data-category="soft-skills">
+                                    <i class="fas fa-users"></i>
+                                    Soft Skills
+                                </button>
+                                <button class="toggle-btn" data-category="tech-skills">
+                                    <i class="fas fa-code"></i>
+                                    Tech Skills
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="questions-container">
+                            <!-- Soft Skills Questions -->
+                            <div class="questions-category" id="soft-skills-questions">
+                                <h4>
+                                    <i class="fas fa-users"></i>
+                                    Soft Skills Questions
+                                </h4>
+                                <div class="question-list" id="soft-skills-list">
+                                    <!-- Questions will be loaded here -->
+                                </div>
+                            </div>
+
+                            <!-- Tech Skills Questions -->
+                            <div class="questions-category hidden" id="tech-skills-questions">
+                                <h4>
+                                    <i class="fas fa-code"></i>
+                                    Tech Skills Questions
+                                </h4>
+                                <div class="question-list" id="tech-skills-list">
+                                    <!-- Questions will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes Section -->
+                    <div class="interview-section">
+                        <h3>
+                            <i class="fas fa-sticky-note"></i>
+                            Internal Notes
+                        </h3>
+
+                        <div class="detail-group">
+                            <label for="applicant-notes">
+                                <i class="fas fa-pen"></i>
+                                Notes
+                            </label>
+                            <textarea id="applicant-notes" rows="4"
+                                placeholder="Write internal notes about the applicant..." disabled></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-bar hidden" id="action-bar">
+                    <button class="btn btn-danger" id="cancel-btn">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button class="btn btn-primary" id="save-btn">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="toast" id="toast">
+                <i class="fas fa-check-circle"></i>
+                <span id="toast-message">Changes saved successfully!</span>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /* =====================================================
+           APPLICANT DETAILS PAGE - FULL SCRIPT
+        ===================================================== */
+
+        /* ================== CONFIG ================== */
+        const API_URL = '{{ url('api/registrations') }}';
+        const TOKEN = localStorage.getItem('usher_token');
+
+        if (!TOKEN) {
+            window.location.href = 'login.html';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicantId = urlParams.get('id');
+
+        if (!applicantId) {
+            alert('No applicant ID provided');
+            window.history.back();
+        }
+
+        /* ================== DOM ELEMENTS ================== */
+        const globalLoader = document.getElementById('global-loader');
+
+        const nameInput = document.getElementById('applicant-name');
+        const emailInput = document.getElementById('applicant-email');
+        const phoneInput = document.getElementById('applicant-phone');
+        const collegeInput = document.getElementById('applicant-college');
+        const councilSelect = document.getElementById('applicant-council');
+        const levelSelect = document.getElementById('applicant-level');
+        const ratingSelect = document.getElementById('applicant-rating');
+        const eventTypeSelect = document.getElementById('applicant-event-type');
+        const interviewerInput = document.getElementById('interviewer');
+        const interviewTimeInput = document.getElementById('interview-time');
+        const notesInput = document.getElementById('applicant-notes');
+
+        const nameDisplay = document.getElementById('applicant-name-display');
+        const statusBadge = document.getElementById('applicant-status');
+        const formattedTime = document.getElementById('formatted-time');
+        const timeDisplay = document.getElementById('time-display');
+
+        const softSkillsList = document.getElementById('soft-skills-list');
+        const techSkillsList = document.getElementById('tech-skills-list');
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+
+        const editBtn = document.getElementById('edit-toggle');
+        const saveBtn = document.getElementById('save-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const actionBar = document.getElementById('action-bar');
+
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+
+        /* ================== STATUS CONFIG ================== */
+        const statusClasses = {
+            Pending: 'status-pending',
+            Acceptance: 'status-accepted',
+            B: 'status-backup',
+            Rejection: 'status-rejected'
+        };
+
+        const statusIcons = {
+            Pending: 'fa-clock',
+            Acceptance: 'fa-check-circle',
+            B: 'fa-user-clock',
+            Rejection: 'fa-times-circle'
+        };
+
+        /* ================== UTILITIES ================== */
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr || dateTimeStr === '0000-00-00 00:00:00') return 'Not scheduled';
+            try {
+                const date = new Date(dateTimeStr.replace(' ', 'T'));
+                return date.toLocaleString();
+            } catch {
+                return 'Invalid date';
+            }
+        }
+
+        function formatDateTimeForInput(dateTimeStr) {
+            if (!dateTimeStr || dateTimeStr === '0000-00-00 00:00:00') return '';
+            try {
+                const date = new Date(dateTimeStr.replace(' ', 'T'));
+                return date.toISOString().slice(0, 16);
+            } catch {
+                return '';
+            }
+        }
+
+        function showToast(message, isError = false) {
+            toastMessage.textContent = message;
+            toast.classList.toggle('toast-error', isError);
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function updateStatusBadge(status) {
+            const statusText =
+                status === 'Acceptance' ? 'Accepted' :
+                    status === 'B' ? 'Backup' :
+                        status === 'Rejection' ? 'Rejected' : 'Pending';
+
+            statusBadge.className = `status-badge ${statusClasses[status] || 'status-pending'}`;
+            statusBadge.innerHTML = `
+        <i class="fas ${statusIcons[status] || 'fa-clock'}"></i>
+        <span>${statusText}</span>
+    `;
+        }
+
+        /* ================== QUESTION RENDERING ================== */
+        function createQuestionItem(question) {
+            const div = document.createElement('div');
+            div.className = 'question-item';
+            div.dataset.questionId = question.id;
+            div.dataset.category = question.category || (question.id.startsWith('default_soft') ? 'Soft Skills' : 'Tech Skills');
+            div.dataset.difficulty = question.difficulty || 'Medium';
+            div.dataset.council = question.council || councilSelect.value.replace(' Council', '');
+
+            div.innerHTML = `
+        <div class="question-text">${question.question}</div>
+        <div class="question-meta">
+            <span><i class="fas fa-signal"></i> ${div.dataset.difficulty}</span>
+        </div>
+        <div class="question-notes">
+            <textarea 
+                class="question-note-input" 
+                placeholder="Add notes for this question..."
+                rows="2"
+                disabled
+            >${question.note || ""}</textarea>
+        </div>
+    `;
+
+            return div;
+        }
+
+        function renderInterviewQuestions(questions = []) {
+            softSkillsList.innerHTML = '';
+            techSkillsList.innerHTML = '';
+
+            if (!Array.isArray(questions)) return;
+
+            questions.forEach(question => {
+                const element = createQuestionItem(question);
+
+                if (question.category === 'Soft Skills') {
+                    softSkillsList.appendChild(element);
+                } else if (question.category === 'Tech Skills') {
+                    techSkillsList.appendChild(element);
+                }
+            });
+
+            updateQuestionCounts(questions);
+        }
+
+        function updateQuestionCounts(questions) {
+            const softCount = questions.filter(q => q.category === 'Soft Skills').length;
+            const techCount = questions.filter(q => q.category === 'Tech Skills').length;
+
+            toggleBtns.forEach(btn => {
+                const isSoft = btn.dataset.category === 'soft-skills';
+                const count = isSoft ? softCount : techCount;
+
+                let badge = btn.querySelector('.count-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'count-badge';
+                    badge.style.marginLeft = '6px';
+                    btn.appendChild(badge);
+                }
+                badge.textContent = count;
+            });
+        }
+
+        function collectQuestionNotes() {
+            const results = [];
+
+            document.querySelectorAll('.question-item').forEach(item => {
+                const id = item.dataset.questionId;
+                const questionText = item.querySelector('.question-text').textContent;
+                const note = item.querySelector('.question-note-input').value.trim();
+                const category = item.dataset.category;
+                const difficulty = item.dataset.difficulty;
+                const council = item.dataset.council;
+
+                results.push({
+                    id,
+                    question: questionText,
+                    category,
+                    difficulty,
+                    council,
+                    note
+                });
+            });
+
+            return results;
+        }
+
+        /* ================== EDIT MODE ================== */
+        function setFormEditing(enabled) {
+            const inputs = [
+                nameInput, emailInput, phoneInput, collegeInput,
+                levelSelect, ratingSelect, eventTypeSelect,
+                interviewerInput, interviewTimeInput, notesInput
+            ];
+
+            inputs.forEach(input => input.disabled = !enabled);
+
+            document.querySelectorAll('.question-note-input')
+                .forEach(textarea => textarea.disabled = !enabled);
+
+            actionBar.classList.toggle('hidden', !enabled);
+            editBtn.classList.toggle('hidden', enabled);
+            timeDisplay.classList.toggle('hidden', enabled);
+        }
+
+        /* ================== LOAD APPLICANT ================== */
+        async function loadApplicant() {
+            if (globalLoader) {
+                globalLoader.classList.remove('hidden');
+                globalLoader.style.display = 'flex';
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?id=${applicantId}`, {
+                    headers: { 'X-Token': TOKEN }
+                });
+
+                if (response.status === 401) {
+                    window.location.href = 'register.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.status !== 'success' || !data.data.applicants.length) {
+                    throw new Error('Applicant not found');
+                }
+
+                const applicant = data.data.applicants[0];
+
+                // Update Form Inputs
+                nameInput.value = applicant.name || '';
+                emailInput.value = applicant.email || '';
+                phoneInput.value = applicant.phone || '';
+                collegeInput.value = applicant.college || '';
+                councilSelect.value = applicant.council
+                    ? applicant.council + ' Council'
+                    : '';
+                levelSelect.value = applicant.level || '';
+                ratingSelect.value = applicant.rating || 'Pending';
+                eventTypeSelect.value = applicant.event_type;
+                interviewerInput.value = applicant.interviewed_by || '';
+                interviewTimeInput.value = formatDateTimeForInput(applicant.interview_time);
+                notesInput.value = applicant.notes || '';
+
+                // Update Display Elements
+                nameDisplay.textContent = applicant.name || 'Unnamed Applicant';
+                updateStatusBadge(applicant.rating || 'Pending');
+
+                if (applicant.interview_time) {
+                    formattedTime.textContent = formatDateTime(applicant.interview_time);
+                    timeDisplay.classList.remove('hidden');
+                } else {
+                    formattedTime.textContent = 'Not scheduled';
+                }
+
+                renderInterviewQuestions(applicant.interview_questions || []);
+
+            } catch (error) {
+                console.error('Load error:', error);
+                showToast('Failed to load applicant: ' + error.message, true);
+            } finally {
+                if (globalLoader) {
+                    globalLoader.classList.add('hidden');
+                    setTimeout(() => globalLoader.style.display = 'none', 500);
+                }
+            }
+        }
+
+        /* ================== SAVE APPLICANT ================== */
+        async function saveApplicant() {
+            try {
+                const payload = {
+                    id: parseInt(applicantId),
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    college: collegeInput.value.trim(),
+                    council: councilSelect.value.replace(' Council', ''),
+                    level: levelSelect.value,
+                    rating: ratingSelect.value,
+                    event_type: eventTypeSelect.value,
+                    interviewed_by: interviewerInput.value.trim(),
+                    interview_time: interviewTimeInput.value
+                        ? interviewTimeInput.value.replace('T', ' ')
+                        : null,
+                    notes: notesInput.value.trim(),
+                    interview_questions: collectQuestionNotes()
+                };
+
+                const response = await fetch(API_URL, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Token': TOKEN
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.status !== 'success') {
+                    throw new Error(data.message);
+                }
+
+                showToast('Applicant updated successfully');
+                updateStatusBadge(payload.rating);
+
+                // Update formatted time display
+                if (payload.interview_time) {
+                    formattedTime.textContent = formatDateTime(payload.interview_time);
+                    timeDisplay.classList.remove('hidden');
+                } else {
+                    formattedTime.textContent = 'Not scheduled';
+                }
+
+                setFormEditing(false);
+
+            } catch (error) {
+                console.error('Save error:', error);
+                showToast('Save failed: ' + error.message, true);
+            }
+        }
+
+        /* ================== EVENTS ================== */
+        document.addEventListener('DOMContentLoaded', () => {
+
+            loadApplicant();
+
+            editBtn.addEventListener('click', () => {
+                setFormEditing(true);
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                setFormEditing(false);
+                loadApplicant();
+            });
+
+            saveBtn.addEventListener('click', saveApplicant);
+
+            ratingSelect.addEventListener('change', () => {
+                updateStatusBadge(ratingSelect.value);
+            });
+
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    toggleBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const category = btn.dataset.category;
+
+                    document.getElementById('soft-skills-questions')
+                        .classList.toggle('hidden', category !== 'soft-skills');
+
+                    document.getElementById('tech-skills-questions')
+                        .classList.toggle('hidden', category !== 'tech-skills');
+                });
+            });
+        });
+
+        /* ================== SAFETY LOADER ================== */
+        setTimeout(() => {
+            if (globalLoader && !globalLoader.classList.contains('hidden')) {
+                globalLoader.classList.add('hidden');
+            }
+        }, 5000);
+    </script>
+
+</body>
+
+</html>

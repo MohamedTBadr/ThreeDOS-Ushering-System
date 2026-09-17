@@ -1,0 +1,947 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreeDOS Applicant Management System - Dashboard</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/ThreeDOS.jpg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* =========================
+            GLOBAL RESET
+        ========================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* =========================
+            THREEDOS BRAND PALETTE
+        ========================= */
+        :root {
+            --primary: #7F4797;
+            --primary-dark: #6A3A82;
+            --primary-light: #9A6BB2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg-dark: #19191C;
+            --bg-card: #252429;
+            --dark-lighter: #343338;
+            --text-main: #F4F4F4;
+            --text-secondary: #B0B0B0;
+            --border: #565657;
+            --shadow: rgba(0, 0, 0, 0.35);
+            --sidebar-width: 280px;
+        }
+
+        /* =========================
+            BODY & GLOBAL
+        ========================= */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* =========================
+            DASHBOARD LAYOUT (FIXED)
+        ========================= */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* =========================
+            SIDEBAR (FIXED STICKY)
+        ========================= */
+        .sidebar {
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .header-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .org-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .org-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(127, 71, 151, 0.15);
+            color: var(--primary-light);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(127, 71, 151, 0.25), rgba(106, 58, 130, 0.15));
+            color: var(--primary-light);
+            border-left: 3px solid var(--primary);
+        }
+
+        .nav-item .icon {
+            font-size: 1.25rem;
+        }
+
+        .stats-summary {
+            background: rgba(127, 71, 151, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: auto;
+        }
+
+        .stats-summary h3 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .close-sidebar-btn {
+            display: none;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 1002;
+        }
+
+        /* =========================
+            MAIN CONTENT (FIXED MIN-WIDTH)
+        ========================= */
+        .main-content {
+            padding: 2rem;
+            width: 100%;
+            min-width: 0;
+            /* Ensures grid item doesn't overflow */
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        button {
+            padding: 0.6rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-refresh,
+        .btn-clear-filters {
+            background: rgba(127, 71, 151, 0.15);
+            border: 1px solid var(--primary);
+            color: var(--primary-light);
+        }
+
+        .btn-refresh:hover,
+        .btn-clear-filters:hover {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(127, 71, 151, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--danger);
+            color: #fca5a5;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+
+        /* =========================
+            LOADER
+        ========================= */
+        #global-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+
+        #global-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .global-loader-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2), 0 0 40px rgba(127, 71, 151, 0.4);
+            overflow: hidden;
+            animation: logoPulse 2s infinite ease-in-out;
+        }
+
+        .global-loader-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes logoPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 4px rgba(127, 71, 151, 0.2);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(127, 71, 151, 0.3);
+            }
+        }
+
+        .global-loader-text {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            background: linear-gradient(90deg, #9A6BB2, #FF6B8B, #9A6BB2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: textShimmer 3s linear infinite;
+        }
+
+        .global-loader-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .global-loader-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 40%;
+            background: #7F4797;
+            border-radius: 4px;
+            box-shadow: 0 0 10px #7F4797;
+            animation: barLoading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes textShimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        @keyframes barLoading {
+            0% {
+                left: -40%;
+            }
+
+            50% {
+                left: 40%;
+                width: 60%;
+            }
+
+            100% {
+                left: 100%;
+                width: 40%;
+            }
+        }
+
+        /* ---------- NICE WELCOME DIV ---------- */
+        #welcome-message {
+            background: linear-gradient(145deg, rgba(127, 71, 151, 0.18) 0%, rgba(106, 58, 130, 0.08) 100%);
+            border: 1px solid rgba(127, 71, 151, 0.35);
+            border-radius: 24px;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .welcome-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+            flex-shrink: 0;
+        }
+
+        .welcome-info {
+            flex: 1;
+        }
+
+        .welcome-greeting {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .welcome-name {
+            font-size: 1.9rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.4rem;
+            color: white;
+            letter-spacing: -0.01em;
+        }
+
+        .welcome-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            font-size: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.3rem 0.9rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .detail-item i {
+            font-style: normal;
+            font-size: 1.2rem;
+        }
+
+        .detail-item span {
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+
+        /* filter & table remain same */
+        .filters-section {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 0.6rem 1rem;
+            flex: 1;
+            min-width: 250px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary-light);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            width: 100%;
+            margin-left: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .filter-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 0.75rem;
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            outline: none;
+            min-width: 140px;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary-light);
+        }
+
+        .applicants-table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        .applicants-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        .applicants-table thead {
+            background: var(--bg-card);
+        }
+
+        .applicants-table th,
+        .applicants-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .applicants-table th {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .applicants-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .rating-badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .rating-pending {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .rating-acceptance {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .rating-b {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .rating-rejection {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-page {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        .btn-page:hover:not(:disabled) {
+            background: var(--dark-lighter);
+            transform: translateY(-2px);
+        }
+
+        .btn-page:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .page-info {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* =========================
+            RESPONSIVE & MOBILE (FIXED SIDEBAR)
+        ========================= */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                transform: translateX(-100%);
+                z-index: 2000;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .close-sidebar-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .filters-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box,
+            .filter-select,
+            .btn-clear-filters {
+                width: 100%;
+            }
+
+            #welcome-message {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.25rem;
+            }
+
+            .welcome-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.7rem;
+            }
+
+            .welcome-name {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #fff;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="global-loader">
+        <div class="global-loader-logo">
+            <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="ThreeDOS Logo">
+        </div>
+        <div class="global-loader-text">ThreeDOS</div>
+        <div class="global-loader-bar"></div>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar" id="sidebar">
+            <button class="close-sidebar-btn" onclick="toggleSidebar()">âœ–</button>
+
+            <div class="header-logo">
+                <div class="logo-container">
+                    <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                </div>
+                <div class="org-title">
+                    <div class="org-name">ThreeDOS</div>
+                    <div class="org-subtitle">Academic Councils</div>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active"><span class="icon">ðŸ‘¥</span> <span>Applicants</span></a>
+                <a href="calendar.html" class="nav-item"><span class="icon">ðŸ“…</span> <span>Calendar</span></a>
+                <a href="statistics_page.html" class="nav-item"><span class="icon">ðŸ“Š</span> <span>Statistics</span></a>
+                <a href="RegistrationForm.html" class="nav-item"><span class="icon">âž•</span> <span>New
+                        Registration</span></a>
+            </nav>
+
+            <div class="stats-summary">
+                <h3>Quick Stats</h3>
+                <div class="stat-item"><span>Total</span><span class="stat-value" id="stat-total">0</span></div>
+                <div class="stat-item"><span>Accepted</span><span class="stat-value" id="stat-accepted">0</span></div>
+                <div class="stat-item"><span>Backup</span><span class="stat-value" id="stat-backup">0</span></div>
+                <div class="stat-item"><span>Rejected</span><span class="stat-value" id="stat-rejected">0</span></div>
+                <div class="stat-item"><span>Pending</span><span class="stat-value" id="stat-pending">0</span></div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- ===== NICE WELCOME DIV with Name, Council, Role ===== -->
+            <div id="welcome-message">
+                <div class="welcome-avatar" id="welcome-avatar"></div>
+                <div class="welcome-info">
+                    <div class="welcome-greeting">
+                        <span>ðŸ‘‹ WELCOME BACK</span>
+                    </div>
+                    <div class="welcome-name" id="welcome-name"></div>
+                    <div class="welcome-details">
+                        <div class="detail-item">
+                            <i>ðŸ›ï¸</i>
+                            <span id="welcome-council"></span>
+                        </div>
+                        <div class="detail-item">
+                            <i>ðŸ‘¤</i>
+                            <span id="welcome-role"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <header class="header">
+                <div style="display:flex; align-items:center;">
+                    <button class="menu-toggle" onclick="toggleSidebar()">â˜°</button>
+                    <h1>Applicant Management</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-refresh" onclick="loadApplicants()">ðŸ”„ Refresh</button>
+                    <button class="btn-logout" onclick="logout()">ðŸ”“ Logout</button>
+                </div>
+            </header>
+
+            <div class="filters-section">
+                <div class="search-box">
+                    <span>ðŸ”</span>
+                    <input type="text" id="search" placeholder="Search...">
+                </div>
+                <select id="level-filter" class="filter-select">
+                    <option value="">All Levels</option>
+                    <option value="Level 1">Level 1</option>
+                    <option value="Level 2">Level 2</option>
+                    <option value="Level 3">Level 3</option>
+                    <option value="Level 4">Level 4</option>
+                </select>
+                <select id="rating-filter" class="filter-select">
+                    <option value="">All Ratings</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Acceptance">Acceptance</option>
+                    <option value="B">B (Backup)</option>
+                    <option value="Rejection">Rejection</option>
+                </select>
+                <select id="event-type-filter" class="filter-select">
+                    <option value="">All Event Types</option>
+
+                    <option value="Innovation Area">Innovation Area</option>
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                </select>
+                <button class="btn-clear-filters" onclick="clearFilters()">Clear</button>
+            </div>
+
+            <div class="applicants-table-container">
+                <table class="applicants-table" id="applicants-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>College</th>
+                            <th>Level</th>
+                            <th>Preference</th>
+                            <th>Rating</th>
+                            <th>Ushered By</th>
+                            <th>Event Type</th>
+                            <th>Interviewer</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicants-tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="btn-page" id="btn-prev" onclick="previousPage()">Previous</button>
+                <span class="page-info" id="page-info">Page 1 of 1</span>
+                <button class="btn-page" id="btn-next" onclick="nextPage()">Next</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ asset('js/sidebar.js"></script>
+    <script src="{{ asset('js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // ===============================
+            // Sidebar
+            // ===============================
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+
+            window.toggleSidebar = toggleSidebar;
+            overlay.addEventListener('click', toggleSidebar);
+
+            // ===============================
+            // Welcome Message
+            // ===============================
+            function populateWelcomeMessage() {
+
+                let userName = localStorage.getItem('user_name') || 'User';
+                let userCouncil = localStorage.getItem('user_council');
+                let userRole = localStorage.getItem('user_role') || 'Member';
+
+                if (!userCouncil || userCouncil === "null") {
+                    userCouncil = "Academic Council";
+                }
+
+                // Safe initials generation
+                let userInitials = 'US';
+
+                if (userName && typeof userName === 'string') {
+                    const nameParts = userName.trim().split(' ');
+                    if (nameParts.length > 1) {
+                        userInitials = (
+                            nameParts[0][0] +
+                            nameParts[nameParts.length - 1][0]
+                        ).toUpperCase();
+                    } else {
+                        userInitials = nameParts[0].substring(0, 2).toUpperCase();
+                    }
+                }
+
+                document.getElementById('welcome-name').textContent = userName;
+                document.getElementById('welcome-council').textContent = userCouncil;
+                document.getElementById('welcome-role').textContent = userRole;
+                document.getElementById('welcome-avatar').textContent = userInitials;
+
+                // SPECIAL ACCESS: Logs for Backend Team
+                if (userCouncil === 'Backend Development') {
+                    const nav = document.querySelector('.nav-menu');
+                    // Check if link already exists
+                    if (!nav.querySelector('a[href="logs.html"]')) {
+                        const logsLink = document.createElement('a');
+                        logsLink.href = 'logs.html';
+                        logsLink.className = 'nav-item';
+                        logsLink.innerHTML = '<span class="icon">ðŸ“œ</span> <span>System Logs</span>';
+                        nav.appendChild(logsLink);
+                    }
+                }
+            }
+
+            populateWelcomeMessage();
+        });
+
+        // ===============================
+        // Logout
+        // ===============================
+        function logout() {
+            if (confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem('usher_token');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('user_council');
+                localStorage.removeItem('user_role');
+                window.location.href = 'register.html';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
