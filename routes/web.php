@@ -8,8 +8,10 @@ use App\Http\Controllers\Web\RegistrationWebController;
 use Illuminate\Support\Facades\Route;
 
 // Public
-Route::get('/', [RegistrationWebController::class, 'form'])->name('home');
-Route::get('/register-form', [RegistrationWebController::class, 'form'])->name('registration.form');
+Route::view('/', 'landing')->name('landing');
+Route::get('/home', fn() => redirect()->route('landing'));
+Route::get('/register', [RegistrationWebController::class, 'form'])->name('registration.form');
+Route::get('/register-form', [RegistrationWebController::class, 'form']);
 Route::post('/register-form', [RegistrationWebController::class, 'store'])->name('registration.store');
 
 Route::get('/login', [AuthWebController::class, 'loginForm'])->name('login');

@@ -470,7 +470,7 @@
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+                <input type="password" id="password" required placeholder="********">
             </div>
             <button type="submit" id="submitBtn">Sign In</button>
             <div id="errorMsg" class="error"></div>
