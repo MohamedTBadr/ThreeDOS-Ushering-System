@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -341,6 +341,13 @@
             transform: translateY(-2px);
         }
         .btn-secondary::before { display: none; }
+        /* === Global Scrollbar (ThreeDOS theme) === */
+        * { scrollbar-width: thin; scrollbar-color: #7F4797 #19191C; }
+        *::-webkit-scrollbar { width: 8px; height: 8px; }
+        *::-webkit-scrollbar-track { background: #19191C; border-radius: 8px; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #7F4797, #6A3A82); border-radius: 8px; border: 2px solid #19191C; }
+        *::-webkit-scrollbar-thumb:hover { background: #9A6BB2; }
+        *::-webkit-scrollbar-corner { background: #19191C; }
 
         /* ==================== FORM STYLES ==================== */
         .form-group {
@@ -776,23 +783,23 @@
 
         <!-- Steps Indicator -->
         <div class="steps-indicator" id="stepsIndicator">
-            <div class="step-dot active" data-step="1">1</div>
+            <div class="step-dot active" data-step="1"><i class="fas fa-user"></i></div>
             <div class="step-line" id="line1"></div>
-            <div class="step-dot" data-step="2">2</div>
+            <div class="step-dot" data-step="2"><i class="fas fa-graduation-cap"></i></div>
             <div class="step-line" id="line2"></div>
-            <div class="step-dot" data-step="3">3</div>
+            <div class="step-dot" data-step="3"><i class="fas fa-star"></i></div>
         </div>
         <div class="step-labels">
-            <span class="step-label active" data-label="1">Personal</span>
-            <span class="step-label" data-label="2">Academic</span>
-            <span class="step-label" data-label="3">Preference</span>
+            <span class="step-label active" data-label="1"><i class="fas fa-user"></i> Personal</span>
+            <span class="step-label" data-label="2"><i class="fas fa-graduation-cap"></i> Academic</span>
+            <span class="step-label" data-label="3"><i class="fas fa-star"></i> Preference</span>
         </div>
 
         <form id="registrationForm" novalidate>
             <!-- STEP 1: Personal Info -->
             <div class="form-step active" data-step="1">
                 <div class="form-group" style="animation-delay: 0.1s">
-                    <label for="name">Full Name</label>
+                    <label for="name"><i class="fas fa-user"></i> Full Name</label>
                     <div class="input-container">
                         <i class="fas fa-user"></i>
                         <input type="text" name="name" id="name" required placeholder="Enter your full name">
@@ -800,7 +807,7 @@
                     </div>
                 </div>
                 <div class="form-group" style="animation-delay: 0.2s">
-                    <label for="email">Email Address</label>
+                    <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
                     <div class="input-container">
                         <i class="fas fa-envelope"></i>
                         <input type="email" name="email" id="email" required placeholder="your.email@example.com">
@@ -808,7 +815,7 @@
                     </div>
                 </div>
                 <div class="form-group" style="animation-delay: 0.3s">
-                    <label for="phone">Phone Number</label>
+                    <label for="phone"><i class="fas fa-phone"></i> Phone Number</label>
                     <div class="input-container">
                         <i class="fas fa-phone"></i>
                         <input type="tel" name="phone" id="phone" required placeholder="01123986721">
@@ -823,7 +830,7 @@
             <!-- STEP 2: Academic Info -->
             <div class="form-step" data-step="2">
                 <div class="form-group" style="animation-delay: 0.1s">
-                    <label for="college">College/University</label>
+                    <label for="college"><i class="fas fa-university"></i> College/University</label>
                     <div class="input-container">
                         <i class="fas fa-university"></i>
                         <input type="text" name="college" id="college" required placeholder="Enter your college name">
@@ -831,7 +838,7 @@
                     </div>
                 </div>
                 <div class="form-group" style="animation-delay: 0.2s">
-                    <label for="level">Academic Level</label>
+                    <label for="level"><i class="fas fa-graduation-cap"></i> Academic Level</label>
                     <div class="input-container">
                         <i class="fas fa-graduation-cap"></i>
                         <select name="level" id="level" required>
@@ -853,7 +860,7 @@
             <!-- STEP 3: Preference -->
             <div class="form-step" data-step="3">
                 <div class="form-group" style="animation-delay: 0.1s">
-                    <label for="preferences">Position Preference</label>
+                    <label for="preferences"><i class="fas fa-star"></i> Position Preference</label>
                     <div class="input-container">
                         <i class="fas fa-star"></i>
                         <select name="preferences" id="preferences" required>
@@ -868,7 +875,7 @@
                     </div>
                 </div>
                 <div class="form-group" style="animation-delay: 0.2s">
-                    <label for="event_type">Event Type</label>
+                    <label for="event_type"><i class="fas fa-calendar-check"></i> Event Type</label>
                     <div class="input-container">
                         <i class="fas fa-calendar-alt"></i>
                         <select name="event_type" id="event_type" required>
@@ -879,7 +886,7 @@
                     </div>
                 </div>
                 <div class="form-group" style="animation-delay: 0.3s">
-                    <label for="ushered">Ushered By</label>
+                    <label for="ushered"><i class="fas fa-hands-helping"></i> Ushered By</label>
                     <div class="input-container">
                         <i class="fas fa-user"></i>
                         <input type="text" name="usher" id="ushered" required placeholder="Enter who Made Usher">
@@ -897,7 +904,7 @@
             <div class="success-icon">
                 <i class="fas fa-check"></i>
             </div>
-            <h3>Registration Successful! ðŸŽ‰</h3>
+            <h3>Registration Successful! 🎉</h3>
             <p>Your application to join ThreeDOS Student Council has been received successfully.<br>
                 Our team will review your submission and contact you soon.</p>
             <button onclick="window.location.reload();" style="max-width: 220px; margin: 0 auto;">
@@ -906,7 +913,7 @@
         </div>
 
         <footer>
-            Â© 2026 ThreeDOS Academic Councils | Empowering Student Leadership
+            © 2026 ThreeDOS Academic Councils | Empowering Student Leadership
         </footer>
     </div>
 
@@ -935,7 +942,6 @@
             document.getElementById('line2').classList.toggle('filled', step > 2);
             currentStep = step;
             clearStatus();
-            // re-animate groups in new step
             document.querySelectorAll(`.form-step[data-step="${step}"] .form-group`).forEach((g,i)=>{
                 g.style.animation='none'; void g.offsetWidth;
                 g.style.animation='formSlideUp 0.5s ease-out forwards';
@@ -1101,7 +1107,7 @@
 
             // REAL API CALL - No simulation
             try {
-                const response = await fetch('{{ url('api/registrations') }}', {
+                const response = await fetch('../backend/api.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

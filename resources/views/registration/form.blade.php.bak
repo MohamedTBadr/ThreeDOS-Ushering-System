@@ -1,0 +1,490 @@
+﻿<!DOCTYPE html>
+<html lang=en>
+
+<head>
+    <meta name=csrf-token content={{ csrf_token() }}>
+    <meta charset=UTF-8>
+    <title>ThreeDOS - Academic Councils Registration</title>
+    <meta name=viewport content=width=device-width, initial-scale=1.0>
+
+    <!-- Google Font -->
+    <link href=https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap
+        rel=stylesheet>
+
+    <!-- Font Awesome for icons -->
+    <link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css>
+
+    <link rel=icon type=image/png href={{ asset('img/ThreeDOS.jpg') }}>
+
+    <style>
+        :root {
+            /* THREEDOS Brand Colors */
+            --threedos-purple: #7F4797;
+            --threedos-purple-dark: #6A3A82;
+            --threedos-purple-light: #9A6BB2;
+            --threedos-purple-glow: rgba(127, 71, 151, 0.2);
+
+            --dark: #19191C;
+            --gray: #252429;
+            --light-gray: #9F9F9F;
+            --lighter-gray: #565657;
+            --white: #F4F4F4;
+
+            /* Gradients */
+            --bg-gradient: linear-gradient(135deg, #19191C, #252429);
+            --button-gradient: linear-gradient(135deg, var(--threedos-purple), var(--threedos-purple-dark));
+            --header-gradient: linear-gradient(135deg, var(--threedos-purple-dark), var(--threedos-purple));
+            --logo-gradient: linear-gradient(135deg, var(--threedos-purple), var(--threedos-purple-light));
+
+            /* Transitions */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Shadows */
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.65);
+            --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.4);
+            --shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.3);
+            --glow: 0 0 20px var(--threedos-purple-glow);
+            --logo-glow: 0 0 30px rgba(127, 71, 151, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        bo</style>
+</head>
+
+<bo<div class=container id=formContainer>
+        <!-- ThreeDOS Header with Logo -->
+        <div class=header-logo>
+            <div class=logo-container>
+                <!-- Logo Image with fallback -->
+                <img src={{ asset('img/ThreeDOS.jpg') }} alt=ThreeDOS Logo class=logo-img id=logoImage
+                    onerror=this.style.display='none'; document.getElementById('logoFallback').style.display='block';>
+                <div class=logo-fallback id=logoFallback style=display: none;>
+                    <i class=fas fa-users-crown></i>
+                </div>
+            </div>
+            <div class=org-title>
+                <div class=org-name>ThreeDOS</div>
+                <div class=org-subtitle>Academic Councils</div>
+            </div>
+        </div>
+
+        <h2>Student Council Registration</h2>
+
+        <p class=form-intro>
+            Join the ThreeDOS Student Council and be part of shaping campus life.
+            Fill out this form to apply for available leadership positions.
+        </p>
+
+        <!-- Status Messages Container -->
+        <div id=statusContainer></div>
+
+        <!-- Steps Indicator -->
+        <div class=steps-indicator id=stepsIndicator>
+            <div class=step-dot active data-step=1>1</div>
+            <div class=step-line id=line1></div>
+            <div class=step-dot data-step=2>2</div>
+            <div class=step-line id=line2></div>
+            <div class=step-dot data-step=3>3</div>
+        </div>
+        <div class=step-labels>
+            <span class=step-label active data-label=1>Personal</span>
+            <span class=step-label data-label=2>Academic</span>
+            <span class=step-label data-label=3>Preference</span>
+        </div>
+
+        <form id=registrationForm novalidate>
+            <!-- STEP 1: Personal Info -->
+            <div class=form-step active data-step=1>
+                <div class=form-group style=animation-delay: 0.1s>
+                    <label for=name>Full Name</label>
+                    <div class=input-container>
+                        <i class=fas fa-user></i>
+                        <input type=text name=name id=name required placeholder=Enter your full name>
+                        <div class=validation-message>Please enter your full name</div>
+                    </div>
+                </div>
+                <div class=form-group style=animation-delay: 0.2s>
+                    <label for=email>Email Address</label>
+                    <div class=input-container>
+                        <i class=fas fa-envelope></i>
+                        <input type=email name=email id=email required placeholder=your.email@example.com>
+                        <div class=validation-message>Please enter a valid email address</div>
+                    </div>
+                </div>
+                <div class=form-group style=animation-delay: 0.3s>
+                    <label for=phone>Phone Number</label>
+                    <div class=input-container>
+                        <i class=fas fa-phone></i>
+                        <input type=tel name=phone id=phone required placeholder=01123986721>
+                        <div class=validation-message>Please enter a valid phone number</div>
+                    </div>
+                </div>
+                <div class=step-actions>
+                    <button type=button class=btn-next onclick=nextStep()><i class=fas fa-arrow-right></i> Next</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Academic Info -->
+            <div class=form-step data-step=2>
+                <div class=form-group style=animation-delay: 0.1s>
+                    <label for=college>College/University</label>
+                    <div class=input-container>
+                        <i class=fas fa-university></i>
+                        <input type=text name=college id=college required placeholder=Enter your college name>
+                        <div class=validation-message>Please enter your college name</div>
+                    </div>
+                </div>
+                <div class=form-group style=animation-delay: 0.2s>
+                    <label for=level>Academic Level</label>
+                    <div class=input-container>
+                        <i class=fas fa-graduation-cap></i>
+                        <select name=level id=level required>
+                            <option value= selected disabled>Select your academic level</option>
+                            <option value=Level 1>Level 1 - Freshman</option>
+                            <option value=Level 2>Level 2 - Sophomore</option>
+                            <option value=Level 3>Level 3 - Junior</option>
+                            <option value=Level 4>Level 4 - Senior</option>
+                        </select>
+                        <div class=validation-message>Please select your academic level</div>
+                    </div>
+                </div>
+                <div class=step-actions>
+                    <button type=button class=btn-secondary onclick=prevStep()><i class=fas fa-arrow-left></i> Back</button>
+                    <button type=button class=btn-next onclick=nextStep()>Next <i class=fas fa-arrow-right></i></button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Preference -->
+            <div class=form-step data-step=3>
+                <div class=form-group style=animation-delay: 0.1s>
+                    <label for=preferences>Position Preference</label>
+                    <div class=input-container>
+                        <i class=fas fa-star></i>
+                        <select name=preferences id=preferences required>
+                            <option value= selected disabled>Select your preferred position</option>
+                            <option value=Backend Development>Backend Development</option>
+                            <option value=Frontend Development>Frontend Development</option>
+                            <option value=CEO>CEO</option>
+                            <option value=Marketing>Marketing</option>
+                            <option value=Stock Market>Stock Market</option>
+                        </select>
+                        <div class=validation-message>Please select your preferred position</div>
+                    </div>
+                </div>
+                <div class=form-group style=animation-delay: 0.2s>
+                    <label for=event_type>Event Type</label>
+                    <div class=input-container>
+                        <i class=fas fa-calendar-alt></i>
+                        <select name=event_type id=event_type required>
+                            <option value=Offline selected>Offline</option>
+                            <option value=Online>Online</option>
+                        </select>
+                        <div class=validation-message>Please select event type</div>
+                    </div>
+                </div>
+                <div class=form-group style=animation-delay: 0.3s>
+                    <label for=ushered>Ushered By</label>
+                    <div class=input-container>
+                        <i class=fas fa-user></i>
+                        <input type=text name=usher id=ushered required placeholder=Enter who Made Usher>
+                        <div class=validation-message>Please enter Person Name</div>
+                    </div>
+                </div>
+                <div class=step-actions>
+                    <button type=button class=btn-secondary onclick=prevStep()><i class=fas fa-arrow-left></i> Back</button>
+                    <button type=submit id=submitBtn><i class=fas fa-paper-plane></i> Submit Registration</button>
+                </div>
+            </div>
+        </form>
+
+        <div class=thank-you id=thankYou>
+            <div class=success-icon>
+                <i class=fas fa-check></i>
+            </div>
+            <h3>Registration Successful! </h3>
+            <p>Your application to join ThreeDOS Student Council has been received successfully.<br>
+                Our team will review your submission and contact you soon.</p>
+            <button onclick=window.location.reload(); style=max-width: 220px; margin: 0 auto;>
+                <i class=fas fa-redo></i> Register Another Student
+            </button>
+        </div>
+
+        <footer>
+            </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('registrationForm');
+        const thankYou = document.getElementById('thankYou');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusContainer = document.getElementById('statusContainer');
+        const logoImage = document.getElementById('logoImage');
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.querySelector(.form-step[data-step=${step}]).classList.add('active');
+            document.querySelectorAll('.step-dot').forEach(dot => {
+                const n = parseInt(dot.dataset.step);
+                dot.classList.remove('active','completed');
+                if (n === step) dot.classList.add('active');
+                else if (n < step) dot.classList.add('completed');
+            });
+            document.querySelectorAll('.step-label').forEach(lbl => {
+                lbl.classList.toggle('active', parseInt(lbl.dataset.label) === step);
+            });
+            document.getElementById('line1').classList.toggle('filled', step > 1);
+            document.getElementById('line2').classList.toggle('filled', step > 2);
+            currentStep = step;
+            clearStatus();
+            // re-animate groups in new step
+            document.querySelectorAll(.form-step[data-step=${step}] .form-group).forEach((g,i)=>{
+                g.style.animation='none'; void g.offsetWidth;
+                g.style.animation='formSlideUp 0.5s ease-out forwards';
+                g.style.animationDelay=${i*0.1}s;
+            });
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+        function validateStep(step) {
+            const stepEl = document.querySelector(.form-step[data-step=${step}]);
+            const fields = stepEl.querySelectorAll('input, select');
+            let valid = true;
+            fields.forEach(field => {
+                const container = field.closest('.input-container');
+                if (!validateField(field, container)) {
+                    valid = false;
+                }
+            });
+            if (!valid) showStatus('Please fill in all required fields correctly.', 'error');
+            return valid;
+        }
+        function nextStep() {
+            if (!validateStep(currentStep)) return;
+            if (currentStep < totalSteps) showStep(currentStep + 1);
+        }
+        function prevStep() {
+            if (currentStep > 1) showStep(currentStep - 1);
+        }
+
+        // Preload logo image to handle errors properly
+        window.addEventListener('load', function () {
+            const img = new Image();
+            img.src = '{{ asset('img/ThreeDOS.jpg') }}';
+            img.onerror = function () {
+                document.getElementById('logoFallback').style.display = 'block';
+            };
+            img.onload = function () {
+                // Image loaded successfully, ensure it's visible
+                logoImage.style.display = 'block';
+            };
+        });
+
+        // Show status message
+        function showStatus(message, type = 'error') {
+            statusContainer.innerHTML = 
+            <div class=status-message status-${type}>
+                <i class=fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}></i>
+                <span>${message}</span>
+            </div>
+        ;
+        }
+
+        // Clear status message
+        function clearStatus() {
+            statusContainer.innerHTML = '';
+        }
+
+        // Add validation to inputs
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            const container = input.closest('.input-container');
+
+            input.addEventListener('focus', function () {
+                container.classList.remove('invalid');
+                clearStatus();
+            });
+
+            input.addEventListener('blur', function () {
+                validateField(this, container);
+            });
+
+            // Real-time validation for email
+            if (input.type === 'email') {
+                input.addEventListener('input', function () {
+                    validateEmail(this, container);
+                });
+            }
+        });
+
+
+        function validateField(field, container) {
+            if (field.hasAttribute('required') && field.value.trim() === '') {
+                container.classList.add('invalid');
+                return false;
+            }
+
+            if (!field.hasAttribute('required') && field.value.trim() === '') {
+                container.classList.remove('invalid');
+                return true;
+            }
+
+            if (field.type === 'email') {
+                return validateEmail(field, container);
+            }
+
+            if (field.id === 'phone' && field.value.trim() !== '') {
+                const phoneDigits = field.value.replace(/\D/g, '');
+
+                if (phoneDigits.length !== 11 || !phoneDigits.startsWith('01')) {
+                    container.classList.add('invalid');
+                    container.querySelector('.validation-message').textContent =
+                        'Please enter a valid 11-digit mobile number (e.g. 01122968127)';
+                    return false;
+                }
+            }
+
+
+            container.classList.remove('invalid');
+            container.classList.add('valid');
+            return true;
+        }
+
+        function validateEmail(field, container) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(field.value)) {
+                container.classList.add('invalid');
+                return false;
+            }
+            container.classList.remove('invalid');
+            container.classList.add('valid');
+            return true;
+        }
+
+        function validateForm() {
+            let isValid = true;
+            inputs.forEach(input => {
+                const container = input.closest('.input-container');
+                if (!validateField(input, container)) {
+                    isValid = false;
+                    // Scroll to first invalid field
+                    if (isValid === false && !document.querySelector('.scrolled-to-invalid')) {
+                        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        container.classList.add('scrolled-to-invalid');
+                        setTimeout(() => container.classList.remove('scrolled-to-invalid'), 1000);
+                    }
+                }
+            });
+            return isValid;
+        }
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!validateForm()) {
+                showStatus('Please fill in all required fields correctly.', 'error');
+                return;
+            }
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class=fas fa-spinner fa-spin></i> Submitting...';
+
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value.replace(/\D/g, ''),
+                college: document.getElementById('college').value,
+                level: document.getElementById('level').value,
+                council: document.getElementById('preferences').value,
+                event_type: document.getElementById('event_type').value,
+                ushered_by: document.getElementById('ushered').value
+            };
+
+            // REAL API CALL - No simulation
+            try {
+                const response = await fetch('/api/registrations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    bo<i class=fas fa-paper-plane></i> Submit Registration';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('Failed to submit registration. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class=fas fa-paper-plane></i> Submit Registration';
+            }
+        });
+
+        function resetForm() {
+            form.style.display = 'block';
+            document.getElementById('stepsIndicator').style.display = 'flex';
+            document.querySelector('.step-labels').style.display = 'flex';
+            thankYou.style.display = 'none';
+            form.reset();
+            clearStatus();
+            document.querySelectorAll('.input-container').forEach(container => {
+                container.classList.remove('valid', 'invalid', 'scrolled-to-invalid');
+            });
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class=fas fa-paper-plane></i> Submit Registration';
+            showStep(1);
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+
+
+        // Init first step animation
+        document.addEventListener('DOMContentLoaded', function () {
+            showStep(1);
+        });
+
+        // Handle logo image load error
+        logoImage.addEventListener('error', function () {
+            this.style.display = 'none';
+            document.getElementById('logoFallback').style.display = 'block';
+        });
+
+        // Handle Event Type change
+        // Handle Event Type change
+        function toggleUsherRequirement() {
+            const eventType = document.getElementById('event_type');
+            const usherInput = document.getElementById('ushered');
+            const container = usherInput.closest('.input-container');
+
+            if (eventType.value === 'Online') {
+                usherInput.removeAttribute('required');
+                container.classList.remove('invalid');
+                container.classList.add('valid'); // Mark as valid so it doesn't block submission
+                usherInput.placeholder = Ushered By (Optional);
+            } else {
+                usherInput.setAttribute('required', 'required');
+                usherInput.placeholder = Enter who Made Usher;
+
+                // If value is empty, remove valid class
+                if (usherInput.value.trim() === '') {
+                    container.classList.remove('valid');
+                }
+            }
+        }
+
+        const eventTypeSelect = document.getElementById('event_type');
+        eventTypeSelect.addEventListener('change', toggleUsherRequirement);
+
+        // Run on load
+        toggleUsherRequirement();
+    </script>
+
+</bo</html>
+
+
+
+

@@ -202,4 +202,10 @@ footer {
     footer {
         font-size: 11px;
     }
-}
+}        /* === Global Scrollbar (ThreeDOS theme) === */
+        * { scrollbar-width: thin; scrollbar-color: #7F4797 #19191C; }
+        *::-webkit-scrollbar { width: 8px; height: 8px; }
+        *::-webkit-scrollbar-track { background: #19191C; border-radius: 8px; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #7F4797, #6A3A82); border-radius: 8px; border: 2px solid #19191C; }
+        *::-webkit-scrollbar-thumb:hover { background: #9A6BB2; }
+        *::-webkit-scrollbar-corner { background: #19191C; }

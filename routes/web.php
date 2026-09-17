@@ -25,9 +25,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::get('/calendar', [DashboardController::class, 'calendar'])->name('calendar');
 Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
 Route::get('/usher-stats', [DashboardController::class, 'usherStats'])->name('usher.stats');
+Route::get('/interviewer-stats', [DashboardController::class, 'interviewerStats'])->name('interviewer.stats');
 
 // Applicants
 Route::get('/applicants/{id}', [ApplicantWebController::class, 'show'])->name('applicants.show');
 
-// Logs (restricted to Backend Development in controller)
+// Logs view
 Route::get('/logs', [LogWebController::class, 'index'])->name('logs.index');
+
+// Applicants update (pure web MVC, no API)
+Route::patch('/applicants/{id}', [ApplicantWebController::class, 'update'])->name('applicants.update');
+Route::post('/applicants/{id}/rating', [ApplicantWebController::class, 'updateRating'])->name('applicants.rating');

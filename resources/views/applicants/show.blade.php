@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -151,7 +151,7 @@
 
         .org-subtitle::before,
         .org-subtitle::after {
-            content: 'â€¢';
+            content: '•';
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
@@ -938,7 +938,14 @@
         .hidden {
             display: none !important;
         }
-    </style>
+            /* === Global Scrollbar (ThreeDOS theme) === */
+        * { scrollbar-width: thin; scrollbar-color: #7F4797 #19191C; }
+        *::-webkit-scrollbar { width: 8px; height: 8px; }
+        *::-webkit-scrollbar-track { background: #19191C; border-radius: 8px; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #7F4797, #6A3A82); border-radius: 8px; border: 2px solid #19191C; }
+        *::-webkit-scrollbar-thumb:hover { background: #9A6BB2; }
+        *::-webkit-scrollbar-corner { background: #19191C; }
+        </style>
 </head>
 
 <body>
@@ -956,44 +963,14 @@
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <!-- ThreeDOS Header with Logo -->
-            <div class="header-logo">
-                <div class="logo-container">
-                    <!-- Logo Image with fallback -->
-                    <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="ThreeDOS Logo" class="logo-img" id="logoImage"
-                        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
-                    <div class="logo-fallback" id="logoFallback" style="display: none;">
-                        <i class="fas fa-users-crown"></i>
-                    </div>
-                </div>
-                <div class="org-title">
-                    <div class="org-name">ThreeDOS</div>
-                    <div class="org-subtitle">Academic Councils</div>
-                </div>
-            </div>
-            <nav class="nav-menu">
-                <a href="dashboard.html" class="nav-item active">
-                    <span class="icon">ðŸ‘¥</span> <span>Applicants</span>
-                </a>
-                <a href="calendar.html" class="nav-item">
-                    <span class="icon">ðŸ“…</span> <span>Calendar</span>
-                </a>
-                <a href="statistics_page.html" class="nav-item">
-                    <span class="icon">ðŸ“Š</span> <span>Statistics</span>
-                </a>
-                <a href="RegistrationForm.html" class="nav-item">
-                    <span class="icon">âž•</span> <span>New Registration</span>
-                </a>
-            </nav>
-        </aside>
+        @include('layouts.partials.sidebar')
 
         <main class="main-content">
             <header class="header">
                 <div class="header-top-row">
-                    <button class="menu-toggle" id="menuToggle">â˜°</button>
+                    <button class="menu-toggle" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
                     <div class="header-left">
-                        <h1>Applicant Details</h1>
+                        <h1><i class="fas fa-id-card"></i> Applicant Details</h1>
                         <p>View and manage applicant information</p>
                     </div>
                 </div>
@@ -1228,19 +1205,24 @@
         ===================================================== */
 
         /* ================== CONFIG ================== */
-        const API_URL = '{{ url('api/registrations') }}';
+        const API_URL = '/api/registrations';
         const TOKEN = localStorage.getItem('usher_token');
+        // Server-injected data (MVC fix for /applicants/58 path)
+        const SERVER_APPLICANT = @json($applicant);
+        const SERVER_QUESTIONS = @json($questions ?? []);
+        const SERVER_NOTES = @json($notes ?? []);
 
-        if (!TOKEN) {
-            window.location.href = 'login.html';
-        }
-
+        // Support both /applicants/58 path and ?id=58 query
         const urlParams = new URLSearchParams(window.location.search);
-        const applicantId = urlParams.get('id');
+        const pathId = window.location.pathname.split('/').filter(Boolean).pop();
+        const applicantId = urlParams.get('id') || (pathId && /^\d+$/.test(pathId) ? pathId : null) || (SERVER_APPLICANT ? SERVER_APPLICANT.id : null);
 
         if (!applicantId) {
-            alert('No applicant ID provided');
-            window.history.back();
+            console.error('No applicant ID resolved from path or query');
+        }
+        // Don't force login redirect if server data exists (web MVC can render without token)
+        if (!TOKEN && !SERVER_APPLICANT) {
+            console.warn('No token, but will try to use server data');
         }
 
         /* ================== DOM ELEMENTS ================== */
@@ -1439,57 +1421,70 @@
         }
 
         /* ================== LOAD APPLICANT ================== */
+        function populateFromApplicant(applicant) {
+            nameInput.value = applicant.name || '';
+            emailInput.value = applicant.email || '';
+            phoneInput.value = applicant.phone || '';
+            collegeInput.value = applicant.college || '';
+            councilSelect.value = applicant.council ? applicant.council + ' Council' : '';
+            // fallback if council value not in options
+            if (applicant.council && !councilSelect.value) {
+                councilSelect.value = applicant.council;
+            }
+            levelSelect.value = applicant.level || '';
+            ratingSelect.value = applicant.rating || 'Pending';
+            eventTypeSelect.value = applicant.event_type || 'Offline';
+            interviewerInput.value = applicant.interviewed_by || '';
+            interviewTimeInput.value = formatDateTimeForInput(applicant.interview_time);
+            notesInput.value = applicant.notes || '';
+            nameDisplay.textContent = applicant.name || 'Unnamed Applicant';
+            updateStatusBadge(applicant.rating || 'Pending');
+            if (applicant.interview_time && applicant.interview_time !== '0000-00-00 00:00:00') {
+                formattedTime.textContent = formatDateTime(applicant.interview_time);
+                timeDisplay.classList.remove('hidden');
+            } else {
+                formattedTime.textContent = 'Not scheduled';
+            }
+            const qs = applicant.interview_questions || SERVER_QUESTIONS || [];
+            renderInterviewQuestions(Array.isArray(qs) ? qs : []);
+        }
+
         async function loadApplicant() {
             if (globalLoader) {
                 globalLoader.classList.remove('hidden');
                 globalLoader.style.display = 'flex';
             }
 
+            // Prefer server-injected data for /applicants/58 direct load
+            if (SERVER_APPLICANT && SERVER_APPLICANT.id == applicantId) {
+                try {
+                    populateFromApplicant(SERVER_APPLICANT);
+                    if (globalLoader) { globalLoader.classList.add('hidden'); setTimeout(() => globalLoader.style.display = 'none', 500); }
+                    return;
+                } catch(e) { console.error('Server populate failed', e); }
+            }
+
             try {
                 const response = await fetch(`${API_URL}?id=${applicantId}`, {
-                    headers: { 'X-Token': TOKEN }
+                    headers: { 'X-Token': TOKEN, 'Accept': 'application/json' }
                 });
 
                 if (response.status === 401) {
-                    window.location.href = 'register.html';
+                    // If we have server data, use it as fallback
+                    if (SERVER_APPLICANT) { populateFromApplicant(SERVER_APPLICANT); return; }
+                    window.location.href = '/register';
                     return;
                 }
 
                 const data = await response.json();
 
                 if (data.status !== 'success' || !data.data.applicants.length) {
+                    if (SERVER_APPLICANT) { populateFromApplicant(SERVER_APPLICANT); return; }
                     throw new Error('Applicant not found');
                 }
 
                 const applicant = data.data.applicants[0];
-
-                // Update Form Inputs
-                nameInput.value = applicant.name || '';
-                emailInput.value = applicant.email || '';
-                phoneInput.value = applicant.phone || '';
-                collegeInput.value = applicant.college || '';
-                councilSelect.value = applicant.council
-                    ? applicant.council + ' Council'
-                    : '';
-                levelSelect.value = applicant.level || '';
-                ratingSelect.value = applicant.rating || 'Pending';
-                eventTypeSelect.value = applicant.event_type;
-                interviewerInput.value = applicant.interviewed_by || '';
-                interviewTimeInput.value = formatDateTimeForInput(applicant.interview_time);
-                notesInput.value = applicant.notes || '';
-
-                // Update Display Elements
-                nameDisplay.textContent = applicant.name || 'Unnamed Applicant';
-                updateStatusBadge(applicant.rating || 'Pending');
-
-                if (applicant.interview_time) {
-                    formattedTime.textContent = formatDateTime(applicant.interview_time);
-                    timeDisplay.classList.remove('hidden');
-                } else {
-                    formattedTime.textContent = 'Not scheduled';
-                }
-
-                renderInterviewQuestions(applicant.interview_questions || []);
+                populateFromApplicant(applicant);
 
             } catch (error) {
                 console.error('Load error:', error);
@@ -1523,14 +1518,29 @@
                     interview_questions: collectQuestionNotes()
                 };
 
-                const response = await fetch(API_URL, {
+                const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
+                let response = await fetch(`${API_URL}/${applicantId}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Token': TOKEN
+                        'X-Token': TOKEN,
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf || ''
                     },
                     body: JSON.stringify(payload)
                 });
+                if (!response.ok) {
+                    // fallback to web route
+                    response = await fetch(`/applicants/${applicantId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrf || '',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                }
 
                 const data = await response.json();
 
@@ -1600,7 +1610,12 @@
             }
         }, 5000);
     </script>
-
+    <script src="{{ asset('js/sidebar.js') }}"></script>
 </body>
 
 </html>
+
+
+
+
+

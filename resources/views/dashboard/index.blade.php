@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,6 +8,7 @@
     <title>ThreeDOS Applicant Management System - Dashboard</title>
     <link rel="icon" type="image/png" href="{{ asset('img/ThreeDOS.jpg') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* =========================
             GLOBAL RESET
@@ -58,15 +59,17 @@
             grid-template-columns: var(--sidebar-width) 1fr;
             min-height: 100vh;
             width: 100%;
+            width: 100%;
         }
+        .applicants-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         /* =========================
-            SIDEBAR (FIXED STICKY)
+            SIDEBAR (MODERN FIXED STICKY)
         ========================= */
         .sidebar {
-            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            background: linear-gradient(180deg, #252429 0%, #19191C 100%);
             border-right: 1px solid var(--border);
-            padding: 2rem 1.5rem;
+            padding: 2rem 1.25rem;
             display: flex;
             flex-direction: column;
             gap: 2rem;
@@ -83,19 +86,26 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            gap: 1rem;
+            gap: 0.85rem;
+            padding-bottom: 0.5rem;
         }
 
         .logo-container {
-            width: 80px;
-            height: 80px;
-            border-radius: 16px;
+            width: 76px;
+            height: 76px;
+            border-radius: 18px;
             overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(127, 71, 151, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(127, 71, 151, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.04);
+            border-color: var(--primary-light);
         }
 
         .logo-img {
@@ -105,20 +115,22 @@
         }
 
         .org-name {
-            font-size: 1.5rem;
+            font-size: 1.45rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #9A6BB2, #7F4797);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .org-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 4px;
+            letter-spacing: 1.2px;
+            margin-top: 3px;
+            font-weight: 600;
         }
 
         .nav-menu {
@@ -130,13 +142,14 @@
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.875rem 1rem;
-            border-radius: 0.75rem;
+            gap: 0.85rem;
+            padding: 0.85rem 1.15rem;
+            border-radius: 12px;
             color: var(--text-secondary);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 500;
+            font-size: 0.92rem;
         }
 
         .nav-item:hover {
@@ -146,13 +159,18 @@
         }
 
         .nav-item.active {
-            background: linear-gradient(135deg, rgba(127, 71, 151, 0.25), rgba(106, 58, 130, 0.15));
-            color: var(--primary-light);
-            border-left: 3px solid var(--primary);
+            background: linear-gradient(135deg, rgba(127, 71, 151, 0.35) 0%, rgba(106, 58, 130, 0.2) 100%);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 1px rgba(154, 107, 178, 0.35), 0 4px 12px rgba(127, 71, 151, 0.25);
+            border-left: 4px solid var(--primary);
         }
 
-        .nav-item .icon {
-            font-size: 1.25rem;
+        .nav-item .icon,
+        .nav-item i {
+            font-size: 1.15rem;
+            width: 20px;
+            text-align: center;
         }
 
         .stats-summary {
@@ -193,13 +211,24 @@
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-secondary);
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             cursor: pointer;
-            padding: 5px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
             z-index: 1002;
+        }
+
+        .close-sidebar-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.4);
         }
 
         /* =========================
@@ -223,9 +252,12 @@
         }
 
         .header h1 {
-            font-size: 2rem;
+            font-size: 1.85rem;
             font-weight: 700;
             color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .header-actions {
@@ -233,48 +265,120 @@
             gap: 0.75rem;
         }
 
-        button {
-            padding: 0.6rem 1rem;
-            border-radius: 0.75rem;
+        /* =========================
+            BUTTONS SYSTEM & SHAPES
+        ========================= */
+        button, .btn, .btn-primary, .btn-refresh, .btn-clear-filters, .btn-logout, .btn-page, .btn-action-view, .btn-action-edit {
+            padding: 0.65rem 1.25rem;
+            border-radius: 12px;
             font-weight: 600;
+            font-size: 0.9rem;
             cursor: pointer;
             border: none;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.55rem;
+            text-decoration: none;
+            line-height: 1.2;
+            outline: none;
         }
 
-        button:active {
-            transform: scale(0.98);
+        button:active, .btn:active, .btn-primary:active, .btn-action-view:active, .btn-action-edit:active {
+            transform: scale(0.97);
         }
 
-        .btn-refresh,
-        .btn-clear-filters {
+        /* Primary Action Button */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #ffffff;
+            border: 1px solid rgba(154, 107, 178, 0.35);
+            box-shadow: 0 4px 14px rgba(127, 71, 151, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(127, 71, 151, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Refresh Button */
+        .btn-refresh {
             background: rgba(127, 71, 151, 0.15);
-            border: 1px solid var(--primary);
+            border: 1px solid var(--primary-light);
             color: var(--primary-light);
         }
 
-        .btn-refresh:hover,
-        .btn-clear-filters:hover {
+        .btn-refresh:hover {
             background: var(--primary);
-            color: #fff;
+            color: #ffffff;
             box-shadow: 0 6px 18px rgba(127, 71, 151, 0.4);
             transform: translateY(-2px);
         }
 
+        /* Clear Filters Button */
+        .btn-clear-filters {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-clear-filters:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Logout Button */
         .btn-logout {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid var(--danger);
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
             color: #fca5a5;
         }
 
         .btn-logout:hover {
             background: var(--danger);
-            color: white;
+            color: #ffffff;
             box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+            border-color: var(--danger);
+            transform: translateY(-2px);
+        }
+
+        /* Action Buttons in Table */
+        .btn-action-view {
+            background: rgba(127, 71, 151, 0.18);
+            border: 1px solid rgba(154, 107, 178, 0.4);
+            color: #d8b4fe;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.8rem;
+            border-radius: 9px;
+        }
+
+        .btn-action-view:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 12px rgba(127, 71, 151, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-action-edit {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #93c5fd;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.8rem;
+            border-radius: 9px;
+        }
+
+        .btn-action-edit:hover {
+            background: var(--info);
+            color: #ffffff;
+            border-color: var(--info);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
             transform: translateY(-2px);
         }
 
@@ -472,29 +576,39 @@
             color: #e0e0e0;
         }
 
-        /* filter & table remain same */
+        /* filter & table layout */
         .filters-section {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 1rem;
+            gap: 0.85rem;
             margin-bottom: 2rem;
+            background: rgba(37, 36, 41, 0.6);
+            padding: 1.15rem 1.25rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
         }
 
         .search-box {
             display: flex;
             align-items: center;
-            background: var(--bg-card);
+            background: var(--bg-dark);
             border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            padding: 0.65rem 1rem;
             flex: 1;
             min-width: 250px;
-            transition: border-color 0.3s;
+            transition: all 0.25s ease;
         }
 
         .search-box:focus-within {
             border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(127, 71, 151, 0.25);
+        }
+
+        .search-box i {
+            color: var(--text-secondary);
         }
 
         .search-box input {
@@ -503,23 +617,26 @@
             outline: none;
             color: var(--text-main);
             width: 100%;
-            margin-left: 0.5rem;
-            font-size: 1rem;
+            margin-left: 0.6rem;
+            font-size: 0.92rem;
         }
 
         .filter-select {
-            background: var(--bg-card);
+            background: var(--bg-dark);
             border: 1px solid var(--border);
             color: var(--text-main);
-            border-radius: 0.75rem;
-            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            padding: 0.65rem 1rem;
             cursor: pointer;
             outline: none;
-            min-width: 140px;
+            min-width: 145px;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
         }
 
         .filter-select:focus {
             border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(127, 71, 151, 0.25);
         }
 
         .applicants-table-container {
@@ -592,38 +709,67 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
+        /* =========================
+            CUSTOM PAGINATION STYLING
+        ========================= */
         .pagination {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            margin-top: 1.5rem;
         }
 
-        .btn-page {
+        .custom-pagination .pagination-list {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-wrap: wrap;
+        }
+
+        .custom-pagination .page-item {
+            display: inline-flex;
+        }
+
+        .custom-pagination .page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 10px;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
             color: var(--text-main);
-            transition: all 0.3s ease;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
 
-        .btn-page:hover:not(:disabled) {
-            background: var(--dark-lighter);
+        .custom-pagination .page-link:hover {
+            background: rgba(127, 71, 151, 0.2);
+            border-color: var(--primary-light);
+            color: #ffffff;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(127, 71, 151, 0.25);
         }
 
-        .btn-page:disabled {
-            opacity: 0.5;
+        .custom-pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-color: var(--primary-light);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(127, 71, 151, 0.4);
+        }
+
+        .custom-pagination .page-item.disabled .page-link {
+            opacity: 0.4;
             cursor: not-allowed;
             transform: none;
-        }
-
-        .page-info {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
+            box-shadow: none;
         }
 
         /* =========================
@@ -723,7 +869,14 @@
                 color: #fff;
             }
         }
-    </style>
+            /* === Global Scrollbar (ThreeDOS theme) === */
+        * { scrollbar-width: thin; scrollbar-color: #7F4797 #19191C; }
+        *::-webkit-scrollbar { width: 8px; height: 8px; }
+        *::-webkit-scrollbar-track { background: #19191C; border-radius: 8px; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #7F4797, #6A3A82); border-radius: 8px; border: 2px solid #19191C; }
+        *::-webkit-scrollbar-thumb:hover { background: #9A6BB2; }
+        *::-webkit-scrollbar-corner { background: #19191C; }
+        </style>
 </head>
 
 <body>
@@ -737,36 +890,7 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="dashboard-container">
-        <aside class="sidebar" id="sidebar">
-            <button class="close-sidebar-btn" onclick="toggleSidebar()">âœ–</button>
-
-            <div class="header-logo">
-                <div class="logo-container">
-                    <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="Logo" class="logo-img" onerror="this.style.display='none'">
-                </div>
-                <div class="org-title">
-                    <div class="org-name">ThreeDOS</div>
-                    <div class="org-subtitle">Academic Councils</div>
-                </div>
-            </div>
-
-            <nav class="nav-menu">
-                <a href="#" class="nav-item active"><span class="icon">ðŸ‘¥</span> <span>Applicants</span></a>
-                <a href="calendar.html" class="nav-item"><span class="icon">ðŸ“…</span> <span>Calendar</span></a>
-                <a href="statistics_page.html" class="nav-item"><span class="icon">ðŸ“Š</span> <span>Statistics</span></a>
-                <a href="RegistrationForm.html" class="nav-item"><span class="icon">âž•</span> <span>New
-                        Registration</span></a>
-            </nav>
-
-            <div class="stats-summary">
-                <h3>Quick Stats</h3>
-                <div class="stat-item"><span>Total</span><span class="stat-value" id="stat-total">0</span></div>
-                <div class="stat-item"><span>Accepted</span><span class="stat-value" id="stat-accepted">0</span></div>
-                <div class="stat-item"><span>Backup</span><span class="stat-value" id="stat-backup">0</span></div>
-                <div class="stat-item"><span>Rejected</span><span class="stat-value" id="stat-rejected">0</span></div>
-                <div class="stat-item"><span>Pending</span><span class="stat-value" id="stat-pending">0</span></div>
-            </div>
-        </aside>
+        @include('layouts.partials.sidebar')
 
         <main class="main-content">
             <!-- ===== NICE WELCOME DIV with Name, Council, Role ===== -->
@@ -774,17 +898,15 @@
                 <div class="welcome-avatar" id="welcome-avatar"></div>
                 <div class="welcome-info">
                     <div class="welcome-greeting">
-                        <span>ðŸ‘‹ WELCOME BACK</span>
+                        <span><i class="fas fa-hand-sparkles"></i> WELCOME BACK</span>
                     </div>
                     <div class="welcome-name" id="welcome-name"></div>
                     <div class="welcome-details">
                         <div class="detail-item">
-                            <i>ðŸ›ï¸</i>
-                            <span id="welcome-council"></span>
+                            <i class="fas fa-university"></i> <span id="welcome-council"></span>
                         </div>
                         <div class="detail-item">
-                            <i>ðŸ‘¤</i>
-                            <span id="welcome-role"></span>
+                            <i class="fas fa-user-tag"></i> <span id="welcome-role"></span>
                         </div>
                     </div>
                 </div>
@@ -792,91 +914,98 @@
 
             <header class="header">
                 <div style="display:flex; align-items:center;">
-                    <button class="menu-toggle" onclick="toggleSidebar()">â˜°</button>
-                    <h1>Applicant Management</h1>
+                    <button class="menu-toggle" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+                    <h1><i class="fas fa-users-cog"></i> Applicant Management</h1>
                 </div>
                 <div class="header-actions">
-                    <button class="btn-refresh" onclick="loadApplicants()">ðŸ”„ Refresh</button>
-                    <button class="btn-logout" onclick="logout()">ðŸ”“ Logout</button>
+                    <button class="btn-refresh" onclick="loadApplicants()"><i class="fas fa-sync"></i> Refresh</button>
+                    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
             </header>
 
-            <div class="filters-section">
+            <form method="GET" action="{{ route('dashboard') }}" class="filters-section">
                 <div class="search-box">
-                    <span>ðŸ”</span>
-                    <input type="text" id="search" placeholder="Search...">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name or email...">
                 </div>
-                <select id="level-filter" class="filter-select">
+                <select name="level" class="filter-select">
                     <option value="">All Levels</option>
-                    <option value="Level 1">Level 1</option>
-                    <option value="Level 2">Level 2</option>
-                    <option value="Level 3">Level 3</option>
-                    <option value="Level 4">Level 4</option>
+                    <option value="Level 1" {{ request('level')=='Level 1' ? 'selected' : '' }}>Level 1</option>
+                    <option value="Level 2" {{ request('level')=='Level 2' ? 'selected' : '' }}>Level 2</option>
+                    <option value="Level 3" {{ request('level')=='Level 3' ? 'selected' : '' }}>Level 3</option>
+                    <option value="Level 4" {{ request('level')=='Level 4' ? 'selected' : '' }}>Level 4</option>
                 </select>
-                <select id="rating-filter" class="filter-select">
+                <select name="rating" class="filter-select">
                     <option value="">All Ratings</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Acceptance">Acceptance</option>
-                    <option value="B">B (Backup)</option>
-                    <option value="Rejection">Rejection</option>
+                    <option value="Pending" {{ request('rating')=='Pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="Acceptance" {{ request('rating')=='Acceptance' ? 'selected' : '' }}>Acceptance</option>
+                    <option value="B" {{ request('rating')=='B' ? 'selected' : '' }}>B (Backup)</option>
+                    <option value="Rejection" {{ request('rating')=='Rejection' ? 'selected' : '' }}>Rejection</option>
                 </select>
-                <select id="event-type-filter" class="filter-select">
+                <select name="event_type" class="filter-select">
                     <option value="">All Event Types</option>
-
-                    <option value="Innovation Area">Innovation Area</option>
-                    <option value="Online">Online</option>
-                    <option value="Offline">Offline</option>
+                    <option value="Online" {{ request('event_type')=='Online' ? 'selected' : '' }}>Online</option>
+                    <option value="Offline" {{ request('event_type')=='Offline' ? 'selected' : '' }}>Offline</option>
                 </select>
-                <button class="btn-clear-filters" onclick="clearFilters()">Clear</button>
-            </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                <a href="{{ route('dashboard') }}" class="btn-clear-filters"><i class="fas fa-eraser"></i> Clear</a>
+            </form>
 
             <div class="applicants-table-container">
                 <table class="applicants-table" id="applicants-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>College</th>
-                            <th>Level</th>
-                            <th>Preference</th>
-                            <th>Rating</th>
-                            <th>Ushered By</th>
-                            <th>Event Type</th>
-                            <th>Interviewer</th>
-                            <th>Actions</th>
+                            <th><i class="fas fa-user"></i> Name</th>
+                            <th><i class="fas fa-envelope"></i> Email</th>
+                            <th><i class="fas fa-phone"></i> Phone</th>
+                            <th><i class="fas fa-university"></i> College</th>
+                            <th><i class="fas fa-layer-group"></i> Level</th>
+                            <th><i class="fas fa-sitemap"></i> Preference</th>
+                            <th><i class="fas fa-star"></i> Rating</th>
+                            <th><i class="fas fa-hands-helping"></i> Ushered By</th>
+                            <th><i class="fas fa-calendar-check"></i> Event Type</th>
+                            <th><i class="fas fa-user-check"></i> Interviewer</th>
+                            <th><i class="fas fa-cogs"></i> Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="applicants-tbody"></tbody>
+                    <tbody id="applicants-tbody">
+                        @forelse($applicants as $app)
+                        <tr>
+                            <td>{{ $app->name }}</td>
+                            <td>{{ $app->email }}</td>
+                            <td>{{ $app->phone }}</td>
+                            <td>{{ $app->college }}</td>
+                            <td>{{ $app->level }}</td>
+                            <td>{{ $app->council ?? '' }}</td>
+                            <td><span class="rating-badge rating-{{ strtolower($app->rating ?? 'pending') }}">{{ $app->rating ?? 'Pending' }}</span></td>
+                            <td>{{ $app->ushered_by ?? 'NA' }}</td>
+                            <td>{{ $app->event_type ?? 'Interview' }}</td>
+                            <td>{{ $app->interviewed_by ?? 'NA' }}</td>
+                            <td>
+                                <div style="display:flex;gap:0.4rem;align-items:center;">
+                                    <a href="{{ route('applicants.show', $app->id) }}" class="btn-action-view"><i class="fas fa-eye"></i> View</a>
+                                    {{-- <a href="{{ route('applicants.show', $app->id) }}" class="btn-action-edit"><i class="fas fa-edit"></i> Edit</a> --}}
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr><td colspan="11" style="text-align:center;padding:2rem"><i class="fas fa-inbox"></i> No applicants found</td></tr>
+                        @endforelse
+                    </tbody>
                 </table>
             </div>
 
             <div class="pagination">
-                <button class="btn-page" id="btn-prev" onclick="previousPage()">Previous</button>
-                <span class="page-info" id="page-info">Page 1 of 1</span>
-                <button class="btn-page" id="btn-next" onclick="nextPage()">Next</button>
+                {{ $applicants->links('vendor.pagination.custom') }}
             </div>
         </main>
     </div>
 
-    <script src="{{ asset('js/sidebar.js"></script>
-    <script src="{{ asset('js/dashboard.js"></script>
+    <script src="{{ asset('js/sidebar.js') }}"></script>
+    <!-- Dashboard data now server-side via Blade, no API fetch -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-
-            // ===============================
-            // Sidebar
-            // ===============================
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-
-            function toggleSidebar() {
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-            }
-
-            window.toggleSidebar = toggleSidebar;
-            overlay.addEventListener('click', toggleSidebar);
+            // Sidebar handled by public/js/sidebar.js (toggle/overlay/ESC/close) — no duplicate here
 
             // ===============================
             // Welcome Message
@@ -915,17 +1044,101 @@
                 if (userCouncil === 'Backend Development') {
                     const nav = document.querySelector('.nav-menu');
                     // Check if link already exists
-                    if (!nav.querySelector('a[href="logs.html"]')) {
+                    if (!nav.querySelector('a[href="/logs"]')) {
                         const logsLink = document.createElement('a');
-                        logsLink.href = 'logs.html';
+                        logsLink.href = '/logs';
                         logsLink.className = 'nav-item';
-                        logsLink.innerHTML = '<span class="icon">ðŸ“œ</span> <span>System Logs</span>';
+                        logsLink.innerHTML = '<i class="fas fa-file-alt"></i> <span>System Logs</span>';
                         nav.appendChild(logsLink);
                     }
                 }
             }
 
             populateWelcomeMessage();
+            setTimeout(() => {
+                const loader = document.getElementById('global-loader');
+                if (loader && !loader.classList.contains('hidden')) {
+                    loader.classList.add('hidden');
+                    setTimeout(() => loader.style.display = 'none', 500);
+                }
+            }, 1500);
+
+            // ===============================================
+            // REAL-TIME ASYNC SEARCH & FILTERS (NO SUBMIT BTN NEEDED)
+            // ===============================================
+            const filterForm = document.querySelector('.filters-section');
+            const searchInput = filterForm ? filterForm.querySelector('input[name="search"]') : null;
+            const filterSelects = filterForm ? filterForm.querySelectorAll('.filter-select') : [];
+            const tbody = document.getElementById('applicants-tbody');
+            const paginationContainer = document.querySelector('.pagination');
+
+            let debounceTimer = null;
+
+            function performAsyncFilter() {
+                if (!filterForm) return;
+
+                const formData = new FormData(filterForm);
+                const params = new URLSearchParams(formData);
+                
+                // Remove empty values for clean URL
+                for (const [key, value] of Array.from(params.entries())) {
+                    if (!value) params.delete(key);
+                }
+
+                const fetchUrl = filterForm.action + (params.toString() ? '?' + params.toString() : '');
+
+                if (tbody) {
+                    tbody.style.opacity = '0.5';
+                    tbody.style.transition = 'opacity 0.2s ease';
+                }
+
+                fetch(fetchUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const newTbody = doc.getElementById('applicants-tbody');
+                    const newPagination = doc.querySelector('.pagination');
+
+                    if (newTbody && tbody) {
+                        tbody.innerHTML = newTbody.innerHTML;
+                        tbody.style.opacity = '1';
+                    }
+
+                    if (newPagination && paginationContainer) {
+                        paginationContainer.innerHTML = newPagination.innerHTML;
+                    }
+
+                    window.history.pushState(null, '', fetchUrl);
+                })
+                .catch(err => {
+                    console.error('[ThreeDOS] Async search error:', err);
+                    if (tbody) tbody.style.opacity = '1';
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(performAsyncFilter, 250);
+                });
+            }
+
+            filterSelects.forEach(select => {
+                select.addEventListener('change', performAsyncFilter);
+            });
+
+            if (filterForm) {
+                filterForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    performAsyncFilter();
+                });
+            }
         });
 
         // ===============================
@@ -937,7 +1150,7 @@
                 localStorage.removeItem('user_name');
                 localStorage.removeItem('user_council');
                 localStorage.removeItem('user_role');
-                window.location.href = 'register.html';
+                window.location.href = '/register';
             }
         }
     </script>
@@ -945,3 +1158,12 @@
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+

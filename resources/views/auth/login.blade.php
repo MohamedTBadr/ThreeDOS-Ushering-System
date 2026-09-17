@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | ThreeDOS Ushering System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('img/ThreeDOS.jpg') }}">
 
@@ -333,7 +334,7 @@
         
         .org-subtitle::before,
         .org-subtitle::after {
-            content: 'â€¢';
+            content: '•';
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
@@ -470,9 +471,9 @@
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" required placeholder="********">
+                <input type="password" id="password" required placeholder="••••••••">
             </div>
-            <button type="submit" id="submitBtn">Sign In</button>
+            <button type="submit" id="submitBtn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
             <div id="errorMsg" class="error"></div>
         </form>
         <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: #94a3b8;">
@@ -508,7 +509,7 @@
             error.style.display = 'none';
 
             try {
-                const res = await fetch('../{{ url('api/auth/login') }}', {
+                const res = await fetch('../api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

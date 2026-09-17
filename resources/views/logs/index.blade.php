@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -580,7 +580,14 @@
                 height: 500px;
             }
         }
-    </style>
+            /* === Global Scrollbar (ThreeDOS theme) === */
+        * { scrollbar-width: thin; scrollbar-color: #7F4797 #19191C; }
+        *::-webkit-scrollbar { width: 8px; height: 8px; }
+        *::-webkit-scrollbar-track { background: #19191C; border-radius: 8px; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #7F4797, #6A3A82); border-radius: 8px; border: 2px solid #19191C; }
+        *::-webkit-scrollbar-thumb:hover { background: #9A6BB2; }
+        *::-webkit-scrollbar-corner { background: #19191C; }
+        </style>
 </head>
 
 <body>
@@ -588,52 +595,13 @@
 
     <div class="dashboard-container">
         <!-- SIDEBAR (Matches Dashboard with Stats) -->
-        <aside class="sidebar" id="sidebar">
-            <button class="close-sidebar-btn" onclick="toggleSidebar()">âœ–</button>
-
-            <div class="header-logo">
-                <div class="logo-container">
-                    <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="Logo" class="logo-img" onerror="this.style.display='none'">
-                </div>
-                <div class="org-title">
-                    <div class="org-name">ThreeDOS</div>
-                    <div class="org-subtitle">Academic Log Viewer</div>
-                </div>
-            </div>
-
-            <nav class="nav-menu">
-                <a href="dashboard.html" class="nav-item"><span class="icon">ðŸ‘¥</span> <span>Applicants</span></a>
-                <a href="calendar.html" class="nav-item"><span class="icon">ðŸ“…</span> <span>Calendar</span></a>
-                <a href="statistics_page.html" class="nav-item"><span class="icon">ðŸ“Š</span> <span>Statistics</span></a>
-                <a href="#" class="nav-item active"><span class="icon">ðŸ“œ</span> <span>System Logs</span></a>
-                <a href="RegistrationForm.html" class="nav-item"><span class="icon">âž•</span> <span>New
-                        Registration</span></a>
-            </nav>
-		
-            <div style="margin-top: 1rem; text-align: center; color: var(--text-secondary); font-size: 0.75rem;">
-                <p>Backend Development  Access Only</p>
-            </div>
-            
-            <div class="stats-summary" id="logs-stats">
-                <h3>Quick Stats</h3>
-                <div class="stat-item">
-                    <span>Total Logs</span>
-                    <span class="stat-value" id="total-logs">0</span>
-                </div>
-                <div class="stat-item">
-                    <span>Errors</span>
-                    <span class="stat-value" id="error-count" style="color: var(--danger);">0</span>
-                </div>
-            </div>
-
-            
-        </aside>
+        @include('layouts.partials.sidebar')
 
         <!-- MAIN CONTENT (User Custom Logs Layout) -->
         <main class="main-content">
             <div class="header">
                 <div class="header-left">
-                    <button class="menu-toggle" onclick="toggleSidebar()">â˜°</button>
+                    <button class="menu-toggle" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
                     <div class="header-icon">
                         <i class="fas fa-history"></i>
                     </div>
@@ -673,31 +641,18 @@
         </main>
     </div>
 
+    <script src="{{ asset('js/sidebar.js') }}"></script>
     <script>
-        // Sidebar Toggle
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-
-        function toggleSidebar() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        }
-        window.onclick = function (event) {
-            if (event.target == overlay) {
-                toggleSidebar();
-            }
-        }
-
         // ==========================================
         // LOGS LOGIC
         // ==========================================
-        const API_LOGS = '../{{ url('api/logs') }}';
+        const API_LOGS = '..//api/logs-data';
         const token = localStorage.getItem('usher_token');
         const userCouncil = localStorage.getItem('user_council');
 
         // Check Auth
         if (!token) {
-            window.location.href = 'register.html';
+            window.location.href = '/register';
         }
         if (userCouncil !== 'Backend Development') {
             alert('Access Denied. Only Backend Development council members can view logs.');
@@ -809,7 +764,7 @@ entryDiv.innerHTML = `
     </div>
     <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
         <div style="font-size:13px; color:#d1d5db; background:#1f2937; padding:4px 10px; border-radius:20px; font-family:'SF Mono',Monaco,monospace; letter-spacing:0.2px; border:1px solid #374151;">
-            <span style="font-weight:500; color:#9ca3af; margin-right:4px;">ðŸ“</span> ${ip}
+            <span style="font-weight:500; color:#9ca3af; margin-right:4px;">??</span> ${ip}
         </div>
 <div class="log-level" style="
     font-weight: 700;
@@ -863,24 +818,24 @@ entryDiv.innerHTML = `
         'outline: 2px solid rgba(249, 115, 22, 0.3);' : ''}
     ">
     
-    ${level.toLowerCase() === 'error' ? 'ðŸš¨ ' : 
-      level.toLowerCase() === 'critical' ? 'ðŸ”¥ ' : 
-      level.toLowerCase() === 'warn' ? 'âš ï¸ ' : ''}${level.toUpperCase()}
+    ${level.toLowerCase() === 'error' ? '?? ' : 
+      level.toLowerCase() === 'critical' ? '?? ' : 
+      level.toLowerCase() === 'warn' ? '?? ' : ''}${level.toUpperCase()}
     
     ${level.toLowerCase() === 'error' ? 
-        '<span style="margin-left: 4px; font-size: 14px;">â€¼ï¸</span>' : 
+        '<span style="margin-left: 4px; font-size: 14px;">??</span>' : 
       level.toLowerCase() === 'critical' ? 
-        '<span style="margin-left: 4px; font-size: 14px;">â—</span>' : ''}
+        '<span style="margin-left: 4px; font-size: 14px;">?</span>' : ''}
 </div>
 
 
     </div>
     <div style="flex:1;">
         <div class="log-message" style="font-size:14px; color:#e5e7eb; line-height:1.6; margin-bottom:10px; padding:10px 12px; background:#111827; border-radius:8px; border-left:3px solid ${level === 'error' ? '#ef4444' : level === 'warn' ? '#f97316' : '#10b981'}; font-family:'Inter',system-ui,-apple-system,sans-serif; border:1px solid #1f2937; border-left-width:3px;">
-            <span style="font-weight:500; color:#9ca3af; margin-right:6px;">ðŸ“</span> ${message}
+            <span style="font-weight:500; color:#9ca3af; margin-right:6px;">??</span> ${message}
         </div>
         ${contextHtml ? `<div style="margin-top:8px; padding:8px 12px; background:#111827; border-radius:6px; font-size:13px; color:#d1d5db; border:1px solid #1f2937;">
-            <span style="font-weight:500; color:#9ca3af; margin-right:6px;">ðŸ”</span> ${contextHtml}
+            <span style="font-weight:500; color:#9ca3af; margin-right:6px;">??</span> ${contextHtml}
         </div>` : ''}
     </div>
 `;
@@ -920,3 +875,11 @@ entryDiv.innerHTML = `
 </body>
 
 </html>
+
+
+
+
+
+
+
+

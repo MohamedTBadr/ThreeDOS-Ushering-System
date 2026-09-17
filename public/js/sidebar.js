@@ -1,36 +1,91 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Create and Inject Overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    document.body.appendChild(overlay);
-
-    // 2. Find Elements
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        overlay.id = 'sidebarOverlay';
+        document.body.appendChild(overlay);
+    }
     const sidebar = document.querySelector('.sidebar');
-    const toggleBtn = document.querySelector('.menu-toggle');
-    
-    if (!sidebar || !toggleBtn) return;
+    const container = document.querySelector('.dashboard-container');
+    if (!sidebar) return;
 
-    // 3. Toggle Function
-    function toggleSidebar() {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+    function isMobile() { return window.innerWidth <= 1024; }
+
+    function openSidebar() {
+        if (isMobile()) {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sidebar.classList.remove('closed');
+            sidebar.classList.remove('active');
+            if (container) container.classList.remove('sidebar-closed');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     }
 
-    // 4. Event Listeners
-    toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleSidebar();
+    function closeSidebar() {
+        if (isMobile()) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        } else {
+            sidebar.classList.add('closed');
+            if (container) container.classList.add('sidebar-closed');
+        }
+    }
+
+    window.toggleSidebar = function() {
+        if (isMobile()) {
+            if (sidebar.classList.contains('active')) closeSidebar();
+            else openSidebar();
+        } else {
+            if (sidebar.classList.contains('closed')) openSidebar();
+            else closeSidebar();
+        }
+    };
+    window.openSidebar = openSidebar;
+    window.closeSidebar = closeSidebar;
+
+    // Delegated click for any current/future menu-toggle or close button
+    document.addEventListener('click', (e) => {
+        const toggle = e.target.closest('.menu-toggle');
+        if (toggle) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.toggleSidebar();
+            return;
+        }
+        const closer = e.target.closest('.close-sidebar-btn');
+        if (closer) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeSidebar();
+        }
     });
 
-    overlay.addEventListener('click', toggleSidebar);
-
-    // Close when clicking a nav item on mobile
+    overlay.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
     sidebar.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            if (window.innerWidth <= 1024) {
-                toggleSidebar();
+        item.addEventListener('click', () => { if (isMobile()) closeSidebar(); });
+    });
+    // Handle resize: clear mobile overlay when going to desktop
+    window.addEventListener('resize', () => {
+        if (!isMobile()) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            // keep closed state if user closed on desktop, otherwise ensure visible
+            if (!sidebar.classList.contains('closed')) {
+                sidebar.classList.remove('active');
             }
-        });
+        } else {
+            // on mobile, remove desktop closed state
+            if (sidebar.classList.contains('closed')) {
+                sidebar.classList.remove('closed');
+                if (container) container.classList.remove('sidebar-closed');
+            }
+        }
     });
 });

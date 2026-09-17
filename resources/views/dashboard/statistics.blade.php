@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThreeDOS Applicant Management System - Statistics</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="{{ asset('img/ThreeDOS.jpg') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -37,189 +38,14 @@
             overflow-x: hidden;
         }
 
-        /* =========================
-            DASHBOARD LAYOUT
-        ========================= */
-        .dashboard-container {
-            display: flex;
-            min-height: 100vh;
-            position: relative;
-        }
+        .dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; width: 100%; transition: grid-template-columns .3s ease; }
+        .dashboard-container.sidebar-closed { grid-template-columns: 0 1fr; }
+        .main-content { padding: 2rem; min-width: 0; width: 100%; overflow-x: hidden; }
 
-        /* =========================
-            SIDEBAR - (ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù€ position Ù‡Ù†Ø§)
-        ========================= */
-        .sidebar {
-            width: 280px;
-            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
-            border-right: 1px solid var(--border-color);
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            position: fixed;
-            /* ØªÙ… Ø§Ù„ØªØºÙŠÙŠØ± Ù…Ù† sticky Ù„Ù€ fixed Ù„Ø«Ø¨Ø§Øª Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© */
-            left: 0;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto;
-            flex-shrink: 0;
-            z-index: 1100;
-            /* Ø£Ø¹Ù„Ù‰ Ù…Ù† Ø§Ù„Ù€ overlay */
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .logo h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--threedos-purple-light), var(--threedos-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.875rem 1rem;
-            border-radius: 0.75rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .nav-item:hover {
-            background: rgba(127, 71, 151, 0.15);
-            color: var(--threedos-purple-light);
-            transform: translateX(4px);
-        }
-
-        .nav-item.active {
-            background: rgba(127, 71, 151, 0.25);
-            color: var(--threedos-purple-light);
-            border-left: 3px solid var(--threedos-purple);
-        }
-
-        .nav-item .icon {
-            font-size: 1.25rem;
-        }
-
-        /* ==================== HEADER & LOGO ==================== */
-        .header-logo {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1.2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .logo-container {
-            width: 120px;
-            height: 120px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            animation: logoFloat 3s ease-in-out infinite;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-        }
-
-        @keyframes logoFloat {
-
-            0%,
-            100% {
-                transform: translateY(0) rotate(0deg);
-            }
-
-            50% {
-                transform: translateY(-10px) rotate(1deg);
-            }
-        }
-
-        .logo-img {
-            width: 85%;
-            height: 85%;
-            object-fit: contain;
-            border-radius: 12px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .logo-fallback {
-            font-size: 3rem;
-            color: white;
-            position: relative;
-            z-index: 2;
-        }
-
-        .org-title {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .org-name {
-            font-size: 2.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, var(--threedos-purple-light) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            line-height: 1;
-        }
-
-        .org-subtitle {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-weight: 400;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            position: relative;
-            padding: 0 10px;
-        }
-
-        /* =========================
-            MAIN CONTENT - (ØªÙ… Ø¥Ø¶Ø§ÙØ© margin Ù„ØªØ¹ÙˆÙŠØ¶ Ø§Ù„Ù€ sidebar Ø§Ù„Ù€ fixed)
-        ========================= */
-        .main-content {
-            padding: 2rem;
-            flex-grow: 1;
-            width: 100%;
-            min-width: 0;
-            margin-left: 280px;
-            /* Ù„ØªØ±Ùƒ Ù…Ø³Ø§Ø­Ø© Ù„Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø¬Ø§Ù†Ø¨ÙŠØ© */
-        }
-
-        /* =========================
-            HEADER
-        ========================= */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-            gap: 1rem;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-main);
-            line-height: 1.2;
-        }
+        .header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1.75rem; gap:1rem; }
+        .header h1 { font-size:1.75rem; font-weight:700; color:var(--text-main); line-height:1.2; display:flex; align-items:center; gap:.6rem; }
+        .header-left { display:flex; align-items:center; gap:.75rem; }
+        .header-actions { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; }
 
         /* =========================
             STATS CARDS
@@ -377,33 +203,10 @@
             transform: translateY(-2px);
         }
 
-        /* =========================
-            SIDEBAR TOGGLE & OVERLAY
-        ========================= */
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-main);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            margin-right: 1rem;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1050;
-            /* ØªØ­Øª Ø§Ù„Ù€ sidebar */
-            backdrop-filter: blur(2px);
-        }
-
-        .sidebar-overlay.active {
-            display: block;
-        }
+        .menu-toggle { display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:12px; background:rgba(127,71,151,.14); border:1px solid rgba(127,71,151,.35); color:var(--text-main); font-size:1.2rem; cursor:pointer; transition:all .2s; flex-shrink:0; }
+        .menu-toggle:hover { background: var(--threedos-purple); color:#fff; transform:translateY(-1px); box-shadow:0 6px 18px rgba(127,71,151,.35); }
+        .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1500; backdrop-filter:blur(4px); }
+        .sidebar-overlay.active{ display:block; }
 
         /* =========================
             LOADER
@@ -517,26 +320,8 @@
             RESPONSIVE BREAKPOINTS
         ========================= */
         @media (max-width: 1024px) {
-            .menu-toggle {
-                display: block;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                /* Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ù€ margin ÙÙŠ Ø§Ù„Ù…ÙˆØ¨Ø§ÙŠÙ„ */
-            }
-
-            .chart-card {
-                flex: 1 1 100%;
-            }
+            .dashboard-container{ grid-template-columns:1fr; }
+            .chart-card { flex: 1 1 100%; }
         }
 
         @media (max-width: 768px) {
@@ -594,7 +379,14 @@
                 min-height: auto;
             }
         }
-    </style>
+            /* === Global Scrollbar (ThreeDOS theme) === */
+        * { scrollbar-width: thin; scrollbar-color: #7F4797 #19191C; }
+        *::-webkit-scrollbar { width: 8px; height: 8px; }
+        *::-webkit-scrollbar-track { background: #19191C; border-radius: 8px; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #7F4797, #6A3A82); border-radius: 8px; border: 2px solid #19191C; }
+        *::-webkit-scrollbar-thumb:hover { background: #9A6BB2; }
+        *::-webkit-scrollbar-corner { background: #19191C; }
+        </style>
 </head>
 
 <body>
@@ -609,49 +401,17 @@
     <div class="dashboard-container">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <aside class="sidebar" id="sidebar">
-            <div class="header-logo">
-                <div class="logo-container">
-                    <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="ThreeDOS Logo" class="logo-img" id="logoImage"
-                        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
-                    <div class="logo-fallback" id="logoFallback" style="display: none;">
-                        <i class="fas fa-users-crown"></i>
-                    </div>
-                </div>
-                <div class="org-title">
-                    <div class="org-name">ThreeDOS</div>
-                    <div class="org-subtitle">Academic Councils</div>
-                </div>
-            </div>
-            <nav class="nav-menu">
-                <a href="dashboard.html" class="nav-item" data-view="applicants">
-                    <span class="icon">ðŸ‘¥</span>
-                    <span>Applicants</span>
-                </a>
-                <a href="calendar.html" class="nav-item">
-                    <span class="icon">ðŸ“…</span>
-                    <span>Calendar</span>
-                </a>
-                <a href="statistics_page.html" class="nav-item active" data-view="statistics">
-                    <span class="icon">ðŸ“Š</span>
-                    <span>Statistics</span>
-                </a>
-                <a href="RegistrationForm.html" class="nav-item">
-                    <span class="icon">âž•</span>
-                    <span>New Registration</span>
-                </a>
-            </nav>
-        </aside>
+        @include('layouts.partials.sidebar')
 
         <main class="main-content">
             <header class="header">
-                <div style="display:flex; align-items:center;">
-                    <button class="menu-toggle" id="menuToggle">â˜°</button>
-                    <h1>Statistics Overview</h1>
+                <div class="header-left">
+                    <button class="menu-toggle" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+                    <h1><i class="fas fa-chart-line" style="color:var(--threedos-purple-light)"></i> Statistics Overview</h1>
                 </div>
-                <div>
-                    <button class="btn-refresh" onclick="loadStatistics()">ðŸ”„ Refresh</button>
-                    <button class="btn-export" onclick="exportCSV()">ðŸ“¥ Export CSV</button>
+                <div class="header-actions">
+                    <button class="btn-refresh" onclick="loadStatistics()"><i class="fas fa-sync"></i> Refresh</button>
+                    <button class="btn-export" onclick="exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
                 </div>
             </header>
 
@@ -689,7 +449,7 @@
                 <table id="stats-table">
                     <thead>
                         <tr>
-                            <th>Level</th>
+                            <th><i class="fas fa-layer-group"></i> Level</th>
                             <th>Council</th>
                             <th>Total Applicants</th>
                             <th>Pending</th>
@@ -704,38 +464,18 @@
         </main>
     </div>
 
+    <script src="{{ asset('js/sidebar.js') }}"></script>
     <script>
-        // ==========================================
-        // MOBILE SIDEBAR TOGGLE
-        // ==========================================
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        const menuToggle = document.getElementById('menuToggle');
-
-        function openSidebar() {
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebar() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        if (menuToggle) menuToggle.addEventListener('click', openSidebar);
-        if (overlay) overlay.addEventListener('click', closeSidebar);
 
         // ==========================================
         // STATISTICS LOGIC (UNCHANGED)
         // ==========================================
-        const API_URL = '{{ url('api/registrations') }}';
+        const API_URL = '/api/registrations';
         const TOKEN = localStorage.getItem('usher_token');
-        if (!TOKEN) window.location.href = 'register.html';
+        if (!TOKEN) window.location.href = '/register';
 
         let ratingChart, levelChart, councilChart, eventTypeChart;
-        let allApplicants = [];
+        let allApplicants = @json($applicants);
 
         async function loadStatistics() {
             const grid = document.getElementById('stats-grid');
@@ -755,7 +495,7 @@
                     if (cursor) url += `&cursor=${cursor}`;
 
                     const res = await fetch(url, { headers: { 'X-Token': TOKEN } });
-                    if (res.status === 401) window.location.href = 'register.html';
+                    if (res.status === 401) window.location.href = '/register';
 
                     const data = await res.json();
                     if (data.status !== 'success') {
@@ -929,3 +669,8 @@
 </body>
 
 </html>
+
+
+
+
+

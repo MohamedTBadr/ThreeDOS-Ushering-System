@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -190,10 +190,15 @@
         }
 
         .dashboard-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
             width: 100%;
             min-height: 100vh;
             position: relative;
+            transition: grid-template-columns 0.3s ease;
+        }
+        .dashboard-container.sidebar-closed {
+            grid-template-columns: 0 1fr;
         }
 
         /* ---------------- SIDEBAR ---------------- */
@@ -338,11 +343,16 @@
         }
 
         .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 1.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(127,71,151,0.14);
+            border: 1px solid rgba(127,71,151,0.35);
+            color: var(--text-main);
+            font-size: 1.2rem;
             cursor: pointer;
             margin-right: 0.5rem;
         }
@@ -747,7 +757,14 @@
                 display: none;
             }
         }
-    </style>
+            /* === Global Scrollbar (ThreeDOS theme) === */
+        * { scrollbar-width: thin; scrollbar-color: #7F4797 #19191C; }
+        *::-webkit-scrollbar { width: 8px; height: 8px; }
+        *::-webkit-scrollbar-track { background: #19191C; border-radius: 8px; }
+        *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #7F4797, #6A3A82); border-radius: 8px; border: 2px solid #19191C; }
+        *::-webkit-scrollbar-thumb:hover { background: #9A6BB2; }
+        *::-webkit-scrollbar-corner { background: #19191C; }
+        </style>
 </head>
 
 <body>
@@ -764,45 +781,21 @@
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <button class="close-sidebar-btn" onclick="closeSidebar()">âœ–</button>
-
-            <div class="header-logo">
-                <div class="logo-container">
-                    <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="Logo" class="logo-img">
-                </div>
-                <div class="org-name">ThreeDOS</div>
-                <div class="org-subtitle">Academic Councils</div>
-            </div>
-
-            <nav class="nav-menu">
-                <a href="dashboard.html" class="nav-item"><span class="icon">ðŸ‘¥</span> Applicants</a>
-                <a href="calendar.html" class="nav-item active"><span class="icon">ðŸ“…</span> Calendar</a>
-                <a href="statistics_page.html" class="nav-item"><span class="icon">ðŸ“Š</span> Statistics</a>
-                <a href="RegistrationForm.html" class="nav-item"><span class="icon">âž•</span> New Registration</a>
-            </nav>
-
-            <div class="stats-summary">
-                <div class="stat-item">
-                    <span>Scheduled Today</span>
-                    <span class="stat-value" id="today-count">0</span>
-                </div>
-            </div>
-        </aside>
+        @include('layouts.partials.sidebar')
 
         <!-- Main -->
         <main class="main-content">
             <header class="header">
                 <div style="display:flex; align-items:center;">
-                    <button class="menu-toggle" onclick="openSidebar()">â˜°</button>
-                    <h1>Interview Calendar</h1>
+                    <button class="menu-toggle" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+                    <h1><i class="fas fa-calendar-alt"></i> Interview Calendar</h1>
                 </div>
                 <div class="header-actions">
                     <div class="view-switcher">
-                        <button class="view-btn active" onclick="switchView('weekly')">Weekly</button>
-                        <button class="view-btn" onclick="switchView('daily')">Daily</button>
+                        <button class="view-btn active" onclick="switchView('weekly')"><i class="fas fa-calendar-week"></i> Weekly</button>
+                        <button class="view-btn" onclick="switchView('daily')"><i class="fas fa-calendar-day"></i> Daily</button>
                     </div>
-                    <button class="btn-refresh" onclick="fetchInterviews()">ðŸ”„ Refresh</button>
+                    <button class="btn-refresh" onclick="fetchInterviews()"><i class="fas fa-sync"></i> Refresh</button>
                 </div>
             </header>
 
@@ -813,7 +806,7 @@
                         <div class="current-period" id="current-period">Loading...</div>
                         <button class="btn-icon" onclick="changePeriod(1)"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <button class="btn-secondary" onclick="goToToday()">Today</button>
+                    <button class="btn-secondary" onclick="goToToday()"><i class="fas fa-crosshairs"></i> Today</button>
                 </div>
                 <div class="calendar-body" id="calendar-body"></div>
             </div>
@@ -826,34 +819,28 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modal-title">Interview Details</h2>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
+                <button class="close-modal" onclick="closeModal()" aria-label="Close"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="modal-body">
                 <!-- Data injected by JS -->
             </div>
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                <button class="btn-primary" id="view-details-btn" style="flex: 1;">View Full Profile</button>
-                <button class="btn-secondary" onclick="closeModal()">Close</button>
+                <button class="btn-primary" id="view-details-btn" style="flex: 1;"><i class="fas fa-eye"></i> View Full Profile</button>
+                <button class="btn-secondary" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
             </div>
         </div>
     </div>
 
+    <script src="{{ asset('js/sidebar.js') }}"></script>
     <script>
-        // ================= SIDEBAR =================
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        function openSidebar() { sidebar.classList.add('active'); overlay.classList.add('active'); }
-        function closeSidebar() { sidebar.classList.remove('active'); overlay.classList.remove('active'); }
-        overlay.addEventListener('click', closeSidebar);
-
         // ================= CALENDAR =================
-        const API_URL = '{{ url('api/registrations') }}';
+        const API_URL = '/api/registrations';
         const TOKEN = localStorage.getItem('usher_token');
-        if (!TOKEN) window.location.href = 'register.html';
+        if (!TOKEN) window.location.href = '/register';
 
         let currentView = 'weekly';
         let currentDate = new Date();
-        let interviews = [];
+        let interviews = @json($interviews);
         const CONFIG = { startHour: 8, endHour: 22, slotMinutes: 15, slotHeight: 75 };
 
         function formatTime(h, m) { const ampm = h >= 12 ? 'PM' : 'AM'; const h12 = h % 12 || 12; return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`; }
@@ -862,7 +849,7 @@
         async function fetchInterviews() {
             try {
                 const res = await fetch(`${API_URL}?interviews=1`, { headers: { 'X-Token': TOKEN } });
-                if (res.status === 401) window.location.href = 'register.html';
+                if (res.status === 401) window.location.href = '/register';
                 const data = await res.json();
                 if (data.status === 'success') {
                     interviews = data.data.interviews.map(i => {
@@ -974,3 +961,8 @@
 </body>
 
 </html>
+
+
+
+
+

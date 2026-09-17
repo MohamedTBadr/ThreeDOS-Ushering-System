@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -7,6 +7,7 @@
     <title>Sign Up | ThreeDOS Ushering System</title>
             <link rel="icon" type="image/png" href="{{ asset('img/ThreeDOS.jpg') }}">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
 :root {
@@ -245,7 +246,7 @@ button:disabled {
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+                <input type="password" id="password" required placeholder="••••••••">
             </div>
             <div class="form-group">
                 <label>Role</label>
@@ -270,7 +271,7 @@ button:disabled {
                     <option value="Stock Market">Stock Market</option>
                 </select>
             </div>
-            <button type="submit" id="submitBtn">Sign Up</button>
+            <button type="submit" id="submitBtn"><i class="fas fa-user-plus"></i> Sign Up</button>
             <div id="statusMsg" class="status-msg"></div>
         </form>
         <div class="links">
@@ -282,7 +283,7 @@ button:disabled {
         // Fetch Councils on Load
         // async function fetchCouncils() {
         //     try {
-        //         const res = await fetch('../{{ url('api/councils') }}');
+        //         const res = await fetch('..//api/councils');
         //         const result = await res.json();
         //         const select = document.getElementById('council');
                 
@@ -320,7 +321,7 @@ button:disabled {
             };
 
             try {
-                const res = await fetch('../{{ url('api/signup') }}', {
+                const res = await fetch('..//api/signup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -353,4 +354,3 @@ button:disabled {
     </script>
 </body>
 </html>
-

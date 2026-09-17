@@ -25,6 +25,10 @@ class AuthenticateToken
         }
 
         if (!$token) {
+            $token = $request->session()->get('usher_token');
+        }
+
+        if (!$token) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized. No token provided.', 'data' => null], 401);
         }
 

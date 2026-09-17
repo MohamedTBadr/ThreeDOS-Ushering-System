@@ -3,7 +3,7 @@ const API_URL = '/api/registrations';
 const TOKEN = localStorage.getItem('usher_token');
 
 // Redirect if not logged in
-if (!TOKEN) window.location.href = 'register.html';
+if (!TOKEN) window.location.href = '/register';
 
 // State
 let currentCursor = null;
@@ -75,7 +75,7 @@ function setupEventListeners() {
 // Load Applicants
 async function loadApplicants(usePrevCursor = false) {
     const tbody = document.getElementById('applicants-tbody');
-    tbody.innerHTML = '<tr><td colspan="9">Loading applicants...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11"><i class="fas fa-spinner fa-spin"></i> Loading applicants...</td></tr>';
 
     try {
         let url = `${API_URL}?limit=25`;
@@ -108,13 +108,13 @@ async function loadApplicants(usePrevCursor = false) {
             updatePaginationButtons();
             
         } else {
-            if (response.status === 401) window.location.href = 'login.html';
+            if (response.status === 401) window.location.href = '/login';
             showToast(result.message, 'error');
-            tbody.innerHTML = '<tr><td colspan="9">No data</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11"><i class="fas fa-inbox"></i> No data</td></tr>';
         }
     } catch (error) {
         showToast('Failed to load data', 'error');
-        tbody.innerHTML = '<tr><td colspan="9">Error loading data</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11"><i class="fas fa-exclamation-triangle"></i> Error loading data</td></tr>';
     }
 }
 
@@ -123,7 +123,7 @@ function displayApplicants(applicants) {
     const tbody = document.getElementById('applicants-tbody');
 
     if (!applicants || applicants.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9">No applicants found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11">No applicants found</td></tr>';
         return;
     }
 
@@ -140,7 +140,7 @@ function displayApplicants(applicants) {
             <td>${escapeHtml(app.event_type || 'Interview')}</td>
             <td>${escapeHtml(app.interviewed_by || 'NA')}</td>
             <td>
-                <button class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="redirectEdit(${app.id})">âœï¸ Edit</button>
+                <button class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="redirectEdit(${app.id})"><i class="fas fa-edit"></i> Edit</button>
             </td>
         </tr>
     `).join('');
@@ -148,7 +148,7 @@ function displayApplicants(applicants) {
 
 // Redirect to edit page
 function redirectEdit(id) {
-    window.location.href = `applicant_details_page.html?id=${id}`;
+    window.location.href = '/applicants/' + id;
 }
 
 // Update Statistics (Quick Stats from backend)
@@ -157,7 +157,7 @@ async function updateStatistics() {
         const response = await fetch(`${API_URL}?quickstats=1`, {
             headers: { 'X-Token': TOKEN }
         });
-        if (response.status === 401) window.location.href = 'register.html';
+        if (response.status === 401) window.location.href = '/register';
         
         const result = await response.json();
 
@@ -238,6 +238,8 @@ function showToast(message, type='info') {
     toast.style.display = 'block';
     setTimeout(() => toast.style.display = 'none', 3000);
 }
+
+
 
 
 
