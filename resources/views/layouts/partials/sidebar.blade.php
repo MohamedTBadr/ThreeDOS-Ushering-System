@@ -231,7 +231,11 @@
         <a href="{{ route('registration.form') }}" class="nav-item {{ request()->routeIs('registration.form') ? 'active' : '' }}">
             <i class="fas fa-user-plus icon"></i> <span>New Registration</span>
         </a>
-        {{-- <a href="{{ route('logs.index') }}" class="nav-item {{ request()->routeIs('logs.*') ? 'active' : '' }}" id="sidebar-logs-link" style="display:none">
+        {{-- @php
+            $sbUser = session('user');
+            $sbCouncil = $sbUser ? ($sbUser->council ?? $sbUser['council'] ?? null) : null;
+        @endphp
+        <a href="{{ route('logs.index') }}" class="nav-item {{ request()->routeIs('logs.*') ? 'active' : '' }}" id="sidebar-logs-link" style="{{ $sbCouncil === 'Backend Development' ? 'display:flex' : 'display:none' }}">
             <i class="fas fa-file-alt icon"></i> <span>System Logs</span>
         </a> --}}
         <a href="#" onclick="event.preventDefault(); localStorage.clear(); sessionStorage.clear(); window.location='{{ route('login') }}'" class="nav-item nav-item-logout">

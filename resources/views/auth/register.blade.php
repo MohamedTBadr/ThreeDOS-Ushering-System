@@ -235,122 +235,68 @@ button:disabled {
     <div class="signup-card">
         <h1>Create Account</h1>
         <p>Register as a council member or administrator.</p>
-        <form id="signupForm">
+        <form id="signupForm" method="POST" action="{{ route('signup.post') }}">
+            @csrf
+
+            @if ($errors->any())
+                <div class="status-msg error" style="display: block;">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div class="status-msg success" style="display: block;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" id="username" required placeholder="johndoe">
+                <input type="text" name="username" id="username" value="{{ old('username') }}" required placeholder="johndoe">
             </div>
             <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" id="email" required placeholder="john@example.com">
+                <input type="email" name="email" id="email" value="{{ old('email') }}" required placeholder="john@example.com">
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" required placeholder="••••••••">
+                <input type="password" name="password" id="password" required placeholder="••••••••">
             </div>
             <div class="form-group">
                 <label>Role</label>
-                <select id="role" required>
-                    <option value="" disabled selected>Select your role</option>
-                    <option value="VP">VP (Vice President)</option>
-                    <option value="Head">Head</option>
-                    <option value="Instructor">Instructor / Interviewer</option>
-                    <option value="President">President</option>
-                    <option value="OR">OR</option>
-
+                <select name="role" id="role" required>
+                    <option value="" disabled {{ old('role') ? '' : 'selected' }}>Select your role</option>
+                    <option value="VP" {{ old('role') == 'VP' ? 'selected' : '' }}>VP (Vice President)</option>
+                    <option value="Head" {{ old('role') == 'Head' ? 'selected' : '' }}>Head</option>
+                    <option value="Instructor" {{ old('role') == 'Instructor' ? 'selected' : '' }}>Instructor / Interviewer</option>
+                    <option value="President" {{ old('role') == 'President' ? 'selected' : '' }}>President</option>
+                    <option value="OR" {{ old('role') == 'OR' ? 'selected' : '' }}>OR</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Council</label>
-                <select id="council" >
-                    <option value="" disabled selected>Select your council</option>
-                    <option value="Backend Development">Backend Development</option>
-                    <option value="Frontend Development">Frontend Development</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="CEO">CEO</option>
-                    <option value="Stock Market">Stock Market</option>
+                <select name="council" id="council">
+                    <option value="" disabled {{ old('council') ? '' : 'selected' }}>Select your council</option>
+                    <option value="Backend Development" {{ old('council') == 'Backend Development' ? 'selected' : '' }}>Backend Development</option>
+                    <option value="Frontend Development" {{ old('council') == 'Frontend Development' ? 'selected' : '' }}>Frontend Development</option>
+                    <option value="Marketing" {{ old('council') == 'Marketing' ? 'selected' : '' }}>Marketing</option>
+                    <option value="CEO" {{ old('council') == 'CEO' ? 'selected' : '' }}>CEO</option>
+                    <option value="Stock Market" {{ old('council') == 'Stock Market' ? 'selected' : '' }}>Stock Market</option>
                 </select>
             </div>
             <button type="submit" id="submitBtn"><i class="fas fa-user-plus"></i> Sign Up</button>
-            <div id="statusMsg" class="status-msg"></div>
         </form>
         <div class="links">
-            Already have an account? <a href="register.html">Sign In</a>
+            Already have an account? <a href="{{ route('login') }}">Sign In</a>
         </div>
     </div>
 
     <script>
-        // Fetch Councils on Load
-        // async function fetchCouncils() {
-        //     try {
-        //         const res = await fetch('..//api/councils');
-        //         const result = await res.json();
-        //         const select = document.getElementById('council');
-                
-        //         if (result.status === 'success') {
-        //             select.innerHTML = '<option value="" disabled selected>Select your council</option>';
-        //             result.data.forEach(c => {
-        //                 const opt = document.createElement('option');
-        //                 opt.value = c.id;
-        //                 opt.textContent = c.name;
-        //                 select.appendChild(opt);
-        //             });
-        //         } else {
-        //             select.innerHTML = '<option value="" disabled>Error loading councils</option>';
-        //         }
-        //     } catch (err) {
-        //         document.getElementById('council').innerHTML = '<option value="" disabled>Connection error</option>';
-        //     }
-        // }
-
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('signupForm').addEventListener('submit', () => {
             const btn = document.getElementById('submitBtn');
-            const msg = document.getElementById('statusMsg');
-            
             btn.disabled = true;
-            btn.innerText = 'Creating account...';
-            msg.style.display = 'none';
-
-            const payload = {
-                username: document.getElementById('username').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                role: document.getElementById('role').value,
-                council: document.getElementById('council').value
-            };
-
-            try {
-                const res = await fetch('..//api/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-
-                if (data.status === 'success') {
-                    msg.innerText = 'Account created! Redirecting to login...';
-                    msg.className = 'status-msg success';
-                    msg.style.display = 'block';
-                    setTimeout(() => window.location.href = 'register.html', 2000);
-                } else {
-                    msg.innerText = data.message;
-                    msg.className = 'status-msg error';
-                    msg.style.display = 'block';
-                    btn.disabled = false;
-                    btn.innerText = 'Sign Up';
-                }
-            } catch (err) {
-                msg.innerText = 'Connection error. Try again.';
-                msg.className = 'status-msg error';
-                msg.style.display = 'block';
-                btn.disabled = false;
-                btn.innerText = 'Sign Up';
-            }
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
         });
-
-        // // Initialize
-        // fetchCouncils();
     </script>
 </body>
 </html>

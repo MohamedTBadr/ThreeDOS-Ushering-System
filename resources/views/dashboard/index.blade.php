@@ -893,20 +893,39 @@
         @include('layouts.partials.sidebar')
 
         <main class="main-content">
+            @php
+                $currentUser = session('user');
+                $userName = $currentUser ? ($currentUser->username ?? $currentUser['username'] ?? 'User') : 'User';
+                $userCouncil = $currentUser ? ($currentUser->council ?? $currentUser['council'] ?? 'Academic Council') : 'Academic Council';
+                if (empty($userCouncil) || $userCouncil === 'null') {
+                    $userCouncil = 'Academic Council';
+                }
+                $userRole = $currentUser ? ($currentUser->role ?? $currentUser['role'] ?? 'Member') : 'Member';
+
+                $userInitials = 'US';
+                if ($userName && is_string($userName)) {
+                    $nameParts = explode(' ', trim($userName));
+                    if (count($nameParts) > 1) {
+                        $userInitials = strtoupper(mb_substr($nameParts[0], 0, 1) . mb_substr(end($nameParts), 0, 1));
+                    } else {
+                        $userInitials = strtoupper(mb_substr($userName, 0, 2));
+                    }
+                }
+            @endphp
             <!-- ===== NICE WELCOME DIV with Name, Council, Role ===== -->
             <div id="welcome-message">
-                <div class="welcome-avatar" id="welcome-avatar"></div>
+                <div class="welcome-avatar" id="welcome-avatar">{{ $userInitials }}</div>
                 <div class="welcome-info">
                     <div class="welcome-greeting">
                         <span><i class="fas fa-hand-sparkles"></i> WELCOME BACK</span>
                     </div>
-                    <div class="welcome-name" id="welcome-name"></div>
+                    <div class="welcome-name" id="welcome-name">{{ $userName }}</div>
                     <div class="welcome-details">
                         <div class="detail-item">
-                            <i class="fas fa-university"></i> <span id="welcome-council"></span>
+                            <i class="fas fa-university"></i> <span id="welcome-council">{{ $userCouncil }}</span>
                         </div>
                         <div class="detail-item">
-                            <i class="fas fa-user-tag"></i> <span id="welcome-role"></span>
+                            <i class="fas fa-user-tag"></i> <span id="welcome-role">{{ $userRole }}</span>
                         </div>
                     </div>
                 </div>
@@ -1011,44 +1030,31 @@
             // Welcome Message
             // ===============================
             function populateWelcomeMessage() {
+                const nameEl = document.getElementById('welcome-name');
+                const councilEl = document.getElementById('welcome-council');
+                const roleEl = document.getElementById('welcome-role');
+                const avatarEl = document.getElementById('welcome-avatar');
 
-                let userName = localStorage.getItem('user_name') || 'User';
-                let userCouncil = localStorage.getItem('user_council');
-                let userRole = localStorage.getItem('user_role') || 'Member';
+                let userName = (nameEl && nameEl.textContent.trim()) ? nameEl.textContent.trim() : (localStorage.getItem('user_name') || 'User');
+                let userCouncil = (councilEl && councilEl.textContent.trim()) ? councilEl.textContent.trim() : (localStorage.getItem('user_council') || 'Academic Council');
+                let userRole = (roleEl && roleEl.textContent.trim()) ? roleEl.textContent.trim() : (localStorage.getItem('user_role') || 'Member');
 
                 if (!userCouncil || userCouncil === "null") {
                     userCouncil = "Academic Council";
                 }
 
-                // Safe initials generation
-                let userInitials = 'US';
-
-                if (userName && typeof userName === 'string') {
-                    const nameParts = userName.trim().split(' ');
-                    if (nameParts.length > 1) {
-                        userInitials = (
-                            nameParts[0][0] +
-                            nameParts[nameParts.length - 1][0]
-                        ).toUpperCase();
-                    } else {
-                        userInitials = nameParts[0].substring(0, 2).toUpperCase();
-                    }
-                }
-
-                document.getElementById('welcome-name').textContent = userName;
-                document.getElementById('welcome-council').textContent = userCouncil;
-                document.getElementById('welcome-role').textContent = userRole;
-                document.getElementById('welcome-avatar').textContent = userInitials;
+                if (nameEl) nameEl.textContent = userName;
+                if (councilEl) councilEl.textContent = userCouncil;
+                if (roleEl) roleEl.textContent = userRole;
 
                 // SPECIAL ACCESS: Logs for Backend Team
                 if (userCouncil === 'Backend Development') {
                     const nav = document.querySelector('.nav-menu');
-                    // Check if link already exists
-                    if (!nav.querySelector('a[href="/logs"]')) {
+                    if (nav && !nav.querySelector('a[href="/logs"]')) {
                         const logsLink = document.createElement('a');
                         logsLink.href = '/logs';
                         logsLink.className = 'nav-item';
-                        logsLink.innerHTML = '<i class="fas fa-file-alt"></i> <span>System Logs</span>';
+                        logsLink.innerHTML = '<i class="fas fa-file-alt icon"></i> <span>System Logs</span>';
                         nav.appendChild(logsLink);
                     }
                 }

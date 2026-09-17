@@ -229,7 +229,7 @@
             display: none;
         }
 
-            
+
         /* ==================== HEADER & LOGO ==================== */
         .header-logo {
             display: flex;
@@ -240,7 +240,7 @@
             margin-bottom: 2rem;
             text-align: center;
         }
-        
+
         .logo-container {
             width: 120px;
             height: 120px;
@@ -255,18 +255,21 @@
             animation: logoFloat 3s ease-in-out infinite;
             border: 3px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         @keyframes logoFloat {
-            0%, 100% { 
-                transform: translateY(0) rotate(0deg); 
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
                 box-shadow: var(--shadow-md), var(--logo-glow);
             }
-            50% { 
-                transform: translateY(-10px) rotate(1deg); 
+
+            50% {
+                transform: translateY(-10px) rotate(1deg);
                 box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(127, 71, 151, 0.6);
             }
         }
-        
+
         .logo-container::before {
             content: '';
             position: absolute;
@@ -277,12 +280,17 @@
             background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
             animation: shine 3s infinite linear;
         }
-        
+
         @keyframes shine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
-        
+
         .logo-img {
             width: 85%;
             height: 85%;
@@ -292,25 +300,25 @@
             z-index: 2;
             transition: var(--transition);
         }
-        
+
         .logo-container:hover .logo-img {
             transform: scale(1.05);
         }
-        
+
         .logo-fallback {
             font-size: 3rem;
             color: white;
             position: relative;
             z-index: 2;
         }
-        
+
         .org-title {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .org-name {
             font-size: 2.8rem;
             font-weight: 800;
@@ -321,7 +329,7 @@
             text-shadow: 0 2px 10px rgba(127, 71, 151, 0.3);
             line-height: 1;
         }
-        
+
         .org-subtitle {
             font-size: 0.9rem;
             color: var(--light-gray);
@@ -331,7 +339,7 @@
             position: relative;
             padding: 0 10px;
         }
-        
+
         .org-subtitle::before,
         .org-subtitle::after {
             content: '•';
@@ -340,15 +348,15 @@
             transform: translateY(-50%);
             color: var(--threedos-purple);
         }
-        
+
         .org-subtitle::before {
             left: 0;
         }
-        
+
         .org-subtitle::after {
             right: 0;
         }
-        
+
         h2 {
             text-align: center;
             margin-bottom: 1.8rem;
@@ -359,7 +367,7 @@
             padding-bottom: 1rem;
             line-height: 1.3;
         }
-        
+
         h2::after {
             content: '';
             position: absolute;
@@ -372,7 +380,7 @@
             border-radius: 2px;
             background: linear-gradient(to right, transparent, var(--threedos-purple), transparent);
         }
-        
+
         .form-intro {
             text-align: center;
             color: var(--light-gray);
@@ -381,7 +389,7 @@
             line-height: 1.6;
             padding: 0 10px;
         }
-    
+
         /* =========================
    RESPONSIVE DESIGN
 ========================= */
@@ -447,37 +455,51 @@
         <div class="global-loader-bar"></div>
     </div>
     <div class="login-card">
-         <!-- ThreeDOS Header with Logo -->
-    <div class="header-logo">
-        <div class="logo-container">
-            <!-- Logo Image with fallback -->
-            <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="ThreeDOS Logo" class="logo-img" id="logoImage" 
-                 onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
-            <div class="logo-fallback" id="logoFallback" style="display: none;">
-                <i class="fas fa-users-crown"></i>
+        <!-- ThreeDOS Header with Logo -->
+        <div class="header-logo">
+            <div class="logo-container">
+                <!-- Logo Image with fallback -->
+                <img src="{{ asset('img/ThreeDOS.jpg') }}" alt="ThreeDOS Logo" class="logo-img" id="logoImage"
+                    onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+                <div class="logo-fallback" id="logoFallback" style="display: none;">
+                    <i class="fas fa-users-crown"></i>
+                </div>
+            </div>
+            <div class="org-title">
+                <div class="org-name">ThreeDOS</div>
+                <div class="org-subtitle">Academic Councils</div>
             </div>
         </div>
-        <div class="org-title">
-            <div class="org-name">ThreeDOS</div>
-            <div class="org-subtitle">Academic Councils</div>
-        </div>
-    </div>
         <h1>Welcome Back</h1>
         <p>Enter your credentials to manage applicants.</p>
-        <form id="loginForm">
+        <form id="loginForm" method="POST" action="{{ route('login.post') }}">
+            @csrf
+
+            @if ($errors->any())
+                <div class="error" style="display: block; margin-bottom: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.5rem; text-align: center;">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div style="display: block; color: #10b981; font-size: 0.85rem; margin-bottom: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 0.5rem; text-align: center;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" id="email" required placeholder="name@council.com">
+                <input type="email" name="email" id="email" value="{{ old('email') }}" required placeholder="name@council.com">
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="password" required placeholder="••••••••">
+                <input type="password" name="password" id="password" required placeholder="••••••••">
             </div>
             <button type="submit" id="submitBtn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
             <div id="errorMsg" class="error"></div>
         </form>
         <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: #94a3b8;">
-            Don't have an account? <a href="signuppp.html"
+            Don't have an account? <a href="{{ route('signup') }}"
                 style="color: #6366f1; text-decoration: none; font-weight: 600;">Sign Up</a>
         </div>
     </div>
@@ -499,43 +521,10 @@
             }
         });
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('loginForm').addEventListener('submit', () => {
             const btn = document.getElementById('submitBtn');
-            const error = document.getElementById('errorMsg');
-
             btn.disabled = true;
-            btn.innerText = 'Authenticating...';
-            error.style.display = 'none';
-
-            try {
-                const res = await fetch('../api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: document.getElementById('email').value,
-                        password: document.getElementById('password').value
-                    })
-                });
-                const data = await res.json();
-
-                if (data.status === 'success') {
-                    localStorage.setItem('usher_token', data.data.token);
-                    localStorage.setItem('user_role', data.data.role);
-                    localStorage.setItem('user_council', data.data.council);
-                    localStorage.setItem('user_name',data.data.username);
-                    window.location.href = 'dashboard.html';
-                } else {
-                    error.innerText = data.message;
-                    error.style.display = 'block';
-                }
-            } catch (err) {
-                error.innerText = 'Connection error. Try again.';
-                error.style.display = 'block';
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Sign In';
-            }
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
         });
     </script>
 </body>

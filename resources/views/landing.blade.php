@@ -650,7 +650,7 @@
         <p class="lead">Multi-council collaboration, real projects &amp; deadlines, internal systems, and continuous skill development. Not just an activity.</p>
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:24px;">
             <span class="pill"><i class="fas fa-bullseye" style="color:var(--purple2)"></i> Mission: real experience, real work, real opportunities</span>
-            <span class="pill"><i class="fas fa-users"></i> For beginners</span>
+            <span class="pill"><i class="fas fa-users"></i> For Enthusiasts</span>
         </div>
     </section>
 
