@@ -919,7 +919,7 @@
                 </div>
                 <div class="header-actions">
                     <button class="btn-refresh" onclick="loadApplicants()"><i class="fas fa-sync"></i> Refresh</button>
-                    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    {{-- <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button> --}}
                 </div>
             </header>
 
