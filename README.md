@@ -18,11 +18,12 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License"></a>
 </p>
 
+
 ---
 
 ## 📌 Executive Summary
 
-The **3DOS Ushering & Candidate Management System** is a robust, full-stack web application and RESTful API platform engineered to streamline member recruitment, event ushering attribution, interview evaluations, candidate decision pipelines, and executive performance analytics across all 3DOS academic and organizational councils.
+The **ThreeDOS Ushering & Candidate Management System** is a robust, full-stack web application and RESTful API platform engineered to streamline member recruitment, event ushering attribution, interview evaluations, candidate decision pipelines, and executive performance analytics across all 3DOS academic and organizational councils.
 
 Built with **Laravel 11**, **Blade MVC**, **Tailwind CSS**, and **MySQL**, the system provides a seamless experience for applicants, field ushers, interviewers, council heads, and executive VPs/Presidents.
 
