@@ -21,6 +21,7 @@
 
 ---
 
+
 ## 📌 Executive Summary
 
 The **ThreeDOS Ushering & Candidate Management System** is a robust, full-stack web application and RESTful API platform engineered to streamline member recruitment, event ushering attribution, interview evaluations, candidate decision pipelines, and executive performance analytics across all 3DOS academic and organizational councils.
