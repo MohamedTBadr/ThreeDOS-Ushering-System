@@ -472,107 +472,107 @@
         // ==========================================
         const API_URL = '/api/registrations';
         let ratingChart, levelChart, councilChart, eventTypeChart;
-        let allApplicants = @json($applicants);
+        let allApplicants = @json($applicants ?? []);
+        const TOKEN = localStorage.getItem('usher_token');
 
-        async function loadStatistics() {
+        function renderStats(applicants) {
             const grid = document.getElementById('stats-grid');
             const tableBody = document.querySelector('#stats-table tbody');
 
-            grid.innerHTML = '<div>Loading statistics...</div>';
+            // Quick stats cards
+            const ratingMap = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
+            const eventTypeMap = {};
+
+            applicants.forEach(a => {
+                const r = a.rating || 'Pending';
+                ratingMap[r] = (ratingMap[r] || 0) + 1;
+                const et = a.event_type || 'Interview';
+                eventTypeMap[et] = (eventTypeMap[et] || 0) + 1;
+            });
+
+            grid.innerHTML = `
+                <div class="stat-card"><h2>${applicants.length}</h2><p>Total Applicants</p></div>
+                <div class="stat-card"><h2>${ratingMap.Acceptance || 0}</h2><p>Accepted</p></div>
+                <div class="stat-card"><h2>${ratingMap.B || 0}</h2><p>Backup (B)</p></div>
+                <div class="stat-card"><h2>${ratingMap.Rejection || 0}</h2><p>Rejected</p></div>
+                <div class="stat-card"><h2>${ratingMap.Pending || 0}</h2><p>Pending</p></div>
+            `;
+
+            // Aggregations
+            const tableMap = {};
+            const levelMap = {};
+            const councilMap = {};
+
+            applicants.forEach(a => {
+                const lvl = a.level || 'Unknown';
+                const c = a.council || 'None';
+                const r = a.rating || 'Pending';
+
+                const key = `${lvl}_${c}`;
+                if (!tableMap[key]) {
+                    tableMap[key] = { total: 0, Pending: 0, Acceptance: 0, B: 0, Rejection: 0, level: lvl, council: c };
+                }
+                tableMap[key].total++;
+                tableMap[key][r] = (tableMap[key][r] || 0) + 1;
+
+                if (!levelMap[lvl]) levelMap[lvl] = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
+                levelMap[lvl][r] = (levelMap[lvl][r] || 0) + 1;
+
+                if (!councilMap[c]) councilMap[c] = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
+                councilMap[c][r] = (councilMap[c][r] || 0) + 1;
+            });
+
+            // Table
             tableBody.innerHTML = '';
+            Object.values(tableMap).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.level}</td>
+                    <td>${row.council}</td>
+                    <td>${row.total}</td>
+                    <td>${row.Pending}</td>
+                    <td>${row.Acceptance}</td>
+                    <td>${row.B}</td>
+                    <td>${row.Rejection}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
 
+            // Charts
+            renderCharts(ratingMap, levelMap, councilMap, eventTypeMap);
+        }
+
+        async function loadStatistics() {
             try {
-                // Fetch ALL applicants
-                allApplicants = [];
-                let cursor = null;
-                let hasMore = true;
-
-                while (hasMore) {
-                    let url = `${API_URL}?limit=500`;
-                    if (cursor) url += `&cursor=${cursor}`;
-
-                    const res = await fetch(url, { headers: { 'X-Token': TOKEN } });
-                    if (res.status === 401) window.location.href = '/register';
-
-                    const data = await res.json();
-                    if (data.status !== 'success') {
-                        alert(data.message);
-                        return;
-                    }
-
-                    allApplicants = allApplicants.concat(data.data.applicants);
-                    hasMore = data.data.has_more;
-                    cursor = data.data.next_cursor;
-
-                    grid.innerHTML = `<div>Loading... (${allApplicants.length} records)</div>`;
+                // If controller already passed data via Blade MVC, use it immediately
+                if (allApplicants && allApplicants.length > 0) {
+                    renderStats(allApplicants);
+                    return;
                 }
 
-                const applicants = allApplicants;
-
-                // Quick stats cards
-                const ratingMap = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
-                const eventTypeMap = {};
-
-                applicants.forEach(a => {
-                    ratingMap[a.rating || 'Pending'] = (ratingMap[a.rating || 'Pending'] || 0) + 1;
-                    const et = a.event_type || 'Interview';
-                    eventTypeMap[et] = (eventTypeMap[et] || 0) + 1;
-                });
-
-                grid.innerHTML = `
-                    <div class="stat-card"><h2>${applicants.length}</h2><p>Total Applicants</p></div>
-                    <div class="stat-card"><h2>${ratingMap.Acceptance}</h2><p>Accepted</p></div>
-                    <div class="stat-card"><h2>${ratingMap.B}</h2><p>Backup (B)</p></div>
-                    <div class="stat-card"><h2>${ratingMap.Rejection}</h2><p>Rejected</p></div>
-                    <div class="stat-card"><h2>${ratingMap.Pending}</h2><p>Pending</p></div>
-                `;
-
-                // Aggregations
-                const tableMap = {};
-                const levelMap = {};
-                const councilMap = {};
-
-                applicants.forEach(a => {
-                    const lvl = a.level || 'Unknown';
-                    const c = a.council || 'None';
-                    const r = a.rating || 'Pending';
-
-                    const key = `${lvl}_${c}`;
-                    if (!tableMap[key]) {
-                        tableMap[key] = { total: 0, Pending: 0, Acceptance: 0, B: 0, Rejection: 0, level: lvl, council: c };
+                // Fallback to API if empty
+                if (TOKEN) {
+                    const res = await fetch(`${API_URL}?limit=500`, { 
+                        headers: { 'X-Token': TOKEN, 'Accept': 'application/json' } 
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.status === 'success' && data.data?.applicants) {
+                            allApplicants = data.data.applicants;
+                            renderStats(allApplicants);
+                            return;
+                        }
                     }
-                    tableMap[key].total++;
-                    tableMap[key][r]++;
+                }
 
-                    if (!levelMap[lvl]) levelMap[lvl] = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
-                    levelMap[lvl][r]++;
-
-                    if (!councilMap[c]) councilMap[c] = { Pending: 0, Acceptance: 0, B: 0, Rejection: 0 };
-                    councilMap[c][r]++;
-                });
-
-                // Table
-                tableBody.innerHTML = '';
-                Object.values(tableMap).forEach(row => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${row.level}</td>
-                        <td>${row.council}</td>
-                        <td>${row.total}</td>
-                        <td>${row.Pending}</td>
-                        <td>${row.Acceptance}</td>
-                        <td>${row.B}</td>
-                        <td>${row.Rejection}</td>
-                    `;
-                    tableBody.appendChild(tr);
-                });
-
-                // Charts
-                renderCharts(ratingMap, levelMap, councilMap, eventTypeMap);
-
+                renderStats(allApplicants || []);
             } catch (err) {
                 console.error(err);
-                alert('Failed to load statistics');
+                if (allApplicants && allApplicants.length > 0) {
+                    renderStats(allApplicants);
+                } else {
+                    alert('Failed to load statistics');
+                }
             } finally {
                 hideLoader();
             }
