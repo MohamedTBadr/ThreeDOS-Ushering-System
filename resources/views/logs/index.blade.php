@@ -647,17 +647,6 @@
         // LOGS LOGIC
         // ==========================================
         const API_LOGS = '..//api/logs-data';
-        const token = localStorage.getItem('usher_token');
-        const userCouncil = localStorage.getItem('user_council');
-
-        // Check Auth
-        if (!token) {
-            window.location.href = '/register';
-        }
-        if (userCouncil !== 'Backend Development') {
-            alert('Access Denied. Only Backend Development council members can view logs.');
-            window.location.href = 'dashboard.html';
-        }
 
         let currentFiles = [];
         let currentLogs = [];
