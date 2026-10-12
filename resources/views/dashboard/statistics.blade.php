@@ -471,9 +471,6 @@
         // STATISTICS LOGIC (UNCHANGED)
         // ==========================================
         const API_URL = '/api/registrations';
-        const TOKEN = localStorage.getItem('usher_token');
-        if (!TOKEN) window.location.href = '/register';
-
         let ratingChart, levelChart, councilChart, eventTypeChart;
         let allApplicants = @json($applicants);
 
