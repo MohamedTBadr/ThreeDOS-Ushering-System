@@ -11,13 +11,34 @@ class LogWebController extends Controller
     {
         $logDir = storage_path('logs').DIRECTORY_SEPARATOR;
         $files = glob($logDir.'*.log');
+
         $logFiles = [];
         if ($files) {
-            foreach ($files as $f) $logFiles[] = basename($f);
-            rsort($logFiles);
+            foreach ($files as $f) {
+                $logFiles[] = basename($f);
+            }
         }
 
+        // Show the dedicated structured (ushering) logs first, newest first,
+        // then any other log files (e.g. laravel.log).
+        usort($logFiles, function ($a, $b) {
+            $aUshering = str_starts_with($a, 'ushering') ? 0 : 1;
+            $bUshering = str_starts_with($b, 'ushering') ? 0 : 1;
+
+            return $aUshering === $bUshering ? strcmp($b, $a) : $aUshering <=> $bUshering;
+        });
+
+        // Default to the newest structured log so the viewer opens on real data.
         $selectedFile = $request->query('file');
+        if (!$selectedFile) {
+            foreach ($logFiles as $file) {
+                if (str_starts_with($file, 'ushering')) {
+                    $selectedFile = $file;
+                    break;
+                }
+            }
+        }
+
         $logs = [];
         if ($selectedFile) {
             $path = $logDir.basename($selectedFile);
@@ -26,7 +47,11 @@ class LogWebController extends Controller
                 foreach (explode(PHP_EOL, $content) as $line) {
                     if (trim($line)==='') continue;
                     $decoded = json_decode($line, true);
-                    $logs[] = $decoded ?: ['message'=>$line,'level'=>'UNKNOWN','time'=>''];
+                    if (is_array($decoded)) {
+                        $logs[] = $decoded + ['level' => $decoded['level'] ?? 'INFO', 'message' => $decoded['message'] ?? '', 'time' => $decoded['time'] ?? ''];
+                    } else {
+                        $logs[] = ['message'=>$line,'level'=>'UNKNOWN','time'=>''];
+                    }
                 }
                 $logs = array_reverse($logs);
             }

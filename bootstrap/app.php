@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'webauth' => \App\Http\Middleware\AuthenticateWeb::class,
         ]);
 
+        $middleware->web(append: [
+            \App\Http\Middleware\LogUsheringRequests::class,
+        ]);
+
         $middleware->validateCsrfTokens(except: [
             'api/*',
         ]);

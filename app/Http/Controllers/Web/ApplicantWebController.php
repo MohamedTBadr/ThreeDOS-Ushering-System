@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Registration;
 use App\Services\CouncilQuestionsService;
+use App\Support\UsheringLog;
 use Illuminate\Http\Request;
 
 class ApplicantWebController extends Controller
@@ -61,6 +62,15 @@ class ApplicantWebController extends Controller
 
         $applicant->fill($data);
         $applicant->save();
+
+        UsheringLog::info('Applicant record updated', [
+            'context' => [
+                'id' => $applicant->id,
+                'name' => $applicant->name,
+                'rating' => $applicant->rating,
+                'fields' => array_keys($data),
+            ],
+        ]);
 
         if ($request->expectsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Updated successfully', 'data' => $applicant]);

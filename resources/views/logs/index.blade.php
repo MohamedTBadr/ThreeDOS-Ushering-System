@@ -504,6 +504,58 @@
             border-left: 2px solid var(--primary);
             font-family: 'Fira Code', monospace;
         }
+
+        .log-level.CRITICAL,
+        .log-level.ALERT,
+        .log-level.EMERGENCY {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .log-level.NOTICE {
+            background: var(--info-bg);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .log-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 0.2rem 0.6rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .meta-chip i {
+            color: var(--primary-light);
+            font-size: 0.68rem;
+        }
+
+        .log-url {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+            word-break: break-all;
+        }
+
+        .log-url i {
+            color: var(--primary);
+            margin-right: 0.3rem;
+        }
 		
         ::-webkit-scrollbar {
             width: 8px;
@@ -677,11 +729,21 @@
             window.location.href = `${LOGS_BASE}?file=${encodeURIComponent(filename)}`;
         }
 
+        function escapeHtml(value) {
+            if (value === null || value === undefined) return '';
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function renderLogContent(logs) {
             const container = document.getElementById('log-viewer');
             container.innerHTML = '';
 
-            if (logs.length === 0) {
+            if (!logs || logs.length === 0) {
                 container.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);"><i class="fas fa-file-excel fa-2x" style="margin-bottom:1rem;"></i><p>File is empty.</p></div>';
                 return;
             }
@@ -690,98 +752,43 @@
                 const entryDiv = document.createElement('div');
                 entryDiv.className = 'log-entry';
 
-                const time = log.time || 'Unknown Time';
-                const level = log.level || 'INFO';
-                const message = log.message || JSON.stringify(log);
-                const ip= log.ip ;
+                const time = escapeHtml(log.time || 'Unknown Time');
+                const level = String(log.level || 'INFO').toUpperCase();
+                const message = escapeHtml(log.message || JSON.stringify(log));
 
-                let contextHtml = '';
-                if (log.context && (Array.isArray(log.context) || typeof log.context === 'object') && Object.keys(log.context).length > 0) {
-                    contextHtml = `<div class="log-context"><i class="fas fa-code" style="margin-right:0.5rem;"></i>${JSON.stringify(log.context, null, 2)}</div>`;
+                const chips = [];
+                if (log.user) {
+                    chips.push(`<span class="meta-chip"><i class="fas fa-user"></i> ${escapeHtml(log.user)}</span>`);
+                }
+                if (log.ip) {
+                    chips.push(`<span class="meta-chip"><i class="fas fa-network-wired"></i> ${escapeHtml(log.ip)}</span>`);
+                }
+                if (log.method) {
+                    chips.push(`<span class="meta-chip"><i class="fas fa-arrow-right-to-bracket"></i> ${escapeHtml(log.method)}${log.status !== undefined && log.status !== null ? ' ' + escapeHtml(log.status) : ''}</span>`);
+                }
+                if (log.duration_ms !== undefined && log.duration_ms !== null) {
+                    chips.push(`<span class="meta-chip"><i class="fas fa-stopwatch"></i> ${escapeHtml(log.duration_ms)} ms</span>`);
                 }
 
-entryDiv.innerHTML = `
-    <div class="log-time" style="display:flex; align-items:center; font-size:13px; color:#9ca3af; margin-bottom:6px; letter-spacing:0.3px; font-family:'Inter',system-ui,-apple-system,sans-serif;">
-        <i class="far fa-clock" style="margin-right:6px; font-size:12px; color:#6b7280;"></i>
-        ${time}
-    </div>
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <div style="font-size:13px; color:#d1d5db; background:#1f2937; padding:4px 10px; border-radius:20px; font-family:'SF Mono',Monaco,monospace; letter-spacing:0.2px; border:1px solid #374151;">
-            <span style="font-weight:500; color:#9ca3af; margin-right:4px;">??</span> ${ip}
-        </div>
-<div class="log-level" style="
-    font-weight: 700;
-    font-size: 12px;
-    padding: 4px 12px 4px 10px;
-    border-radius: 100px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: ${level.toLowerCase() === 'error' 
-        ? '#7f1d1d'  /* deep red - highest severity */
-        : level.toLowerCase() === 'critical' 
-        ? '#7f2e1d'  /* deep orange-red - second highest */
-        : level.toLowerCase() === 'warn'
-        ? '#431407'  /* warm orange-brown */
-        : '#0a2e1a'};  /* info/other - green */
-    
-    color: ${level.toLowerCase() === 'error' ? '#ffffff'
-           : level.toLowerCase() === 'critical' ? '#ffffff'
-           : level.toLowerCase() === 'warn' ? '#ffedd5'
-           : '#dcfce7'};
-    
-    border: 1px solid ${level.toLowerCase() === 'error'
-        ? '#ef4444'  /* bright red border */
-        : level.toLowerCase() === 'critical'
-        ? '#f97316'  /* bright orange border */
-        : level.toLowerCase() === 'warn'
-        ? '#f97316'  /* orange border */
-        : '#14532d'};
-    
-    box-shadow: ${level.toLowerCase() === 'error'
-        ? '0 0 0 2px rgba(239, 68, 68, 0.4), 0 2px 4px rgba(0, 0, 0, 0.4)'  /* strong red glow */
-        : level.toLowerCase() === 'critical'
-        ? '0 0 0 2px rgba(249, 115, 22, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)'  /* orange glow */
-        : level.toLowerCase() === 'warn'
-        ? '0 2px 4px rgba(0, 0, 0, 0.2)'
-        : '0 2px 4px rgba(0, 0, 0, 0.1)'};
-    
-    text-shadow: ${level.toLowerCase() === 'error' || level.toLowerCase() === 'critical'
-        ? '0 1px 2px rgba(0, 0, 0, 0.5)'
-        : 'none'};
-    
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    position: relative;
-    
-    /* Different outline colors for error and critical */
-    ${level.toLowerCase() === 'error' ? 
-        'outline: 2px solid rgba(239, 68, 68, 0.3);' : 
-      level.toLowerCase() === 'critical' ? 
-        'outline: 2px solid rgba(249, 115, 22, 0.3);' : ''}
-    ">
-    
-    ${level.toLowerCase() === 'error' ? '?? ' : 
-      level.toLowerCase() === 'critical' ? '?? ' : 
-      level.toLowerCase() === 'warn' ? '?? ' : ''}${level.toUpperCase()}
-    
-    ${level.toLowerCase() === 'error' ? 
-        '<span style="margin-left: 4px; font-size: 14px;">??</span>' : 
-      level.toLowerCase() === 'critical' ? 
-        '<span style="margin-left: 4px; font-size: 14px;">?</span>' : ''}
-</div>
+                let contextHtml = '';
+                if (log.context && typeof log.context === 'object' && Object.keys(log.context).length > 0) {
+                    contextHtml = `<div class="log-context"><i class="fas fa-code" style="margin-right:0.4rem;color:var(--primary-light);"></i>${escapeHtml(JSON.stringify(log.context, null, 2))}</div>`;
+                }
 
+                const urlHtml = log.url
+                    ? `<div class="log-url"><i class="fas fa-link"></i>${escapeHtml(log.url)}</div>`
+                    : '';
 
-    </div>
-    <div style="flex:1;">
-        <div class="log-message" style="font-size:14px; color:#e5e7eb; line-height:1.6; margin-bottom:10px; padding:10px 12px; background:#111827; border-radius:8px; border-left:3px solid ${level === 'error' ? '#ef4444' : level === 'warn' ? '#f97316' : '#10b981'}; font-family:'Inter',system-ui,-apple-system,sans-serif; border:1px solid #1f2937; border-left-width:3px;">
-            <span style="font-weight:500; color:#9ca3af; margin-right:6px;">??</span> ${message}
-        </div>
-        ${contextHtml ? `<div style="margin-top:8px; padding:8px 12px; background:#111827; border-radius:6px; font-size:13px; color:#d1d5db; border:1px solid #1f2937;">
-            <span style="font-weight:500; color:#9ca3af; margin-right:6px;">??</span> ${contextHtml}
-        </div>` : ''}
-    </div>
-`;
+                entryDiv.innerHTML = `
+                    <div class="log-time"><i class="far fa-clock"></i> ${time}</div>
+                    <div class="log-level ${escapeHtml(level)}">${escapeHtml(level)}</div>
+                    <div class="log-message">
+                        ${message}
+                        ${chips.length ? `<div class="log-meta">${chips.join('')}</div>` : ''}
+                        ${urlHtml}
+                        ${contextHtml}
+                    </div>
+                `;
 
                 container.appendChild(entryDiv);
             });

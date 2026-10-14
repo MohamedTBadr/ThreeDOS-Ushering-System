@@ -73,6 +73,21 @@ return [
             'replace_placeholders' => true,
         ],
 
+        /*
+         * Dedicated application/activity log for the Ushering System.
+         * Kept separate from laravel.log and written as structured JSON lines
+         * so it can be rendered by the System Logs viewer.
+         */
+        'ushering' => [
+            'driver' => 'daily',
+            'name' => 'ushering',
+            'path' => storage_path('logs/ushering.log'),
+            'level' => env('LOG_USHERING_LEVEL', 'debug'),
+            'days' => env('LOG_USHERING_DAYS', 30),
+            'formatter' => App\Logging\UsheringFormatter::class,
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

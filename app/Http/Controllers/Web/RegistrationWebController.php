@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Registration;
+use App\Support\UsheringLog;
 use Illuminate\Http\Request;
 
 class RegistrationWebController extends Controller
@@ -27,6 +28,15 @@ class RegistrationWebController extends Controller
         ]);
 
         Registration::create($validated);
+
+        UsheringLog::info('New registration submitted', [
+            'context' => [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'council' => $validated['council'] ?? null,
+                'event_type' => $validated['event_type'] ?? null,
+            ],
+        ]);
 
         return redirect()->back()->with('success', 'Registration submitted successfully!');
     }
