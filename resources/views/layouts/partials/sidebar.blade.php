@@ -231,25 +231,20 @@
         <a href="{{ route('registration.form') }}" class="nav-item {{ request()->routeIs('registration.form') ? 'active' : '' }}">
             <i class="fas fa-user-plus icon"></i> <span>New Registration</span>
         </a>
-        {{-- @php
+        @php
             $sbUser = session('user');
-            $sbCouncil = $sbUser ? ($sbUser->council ?? $sbUser['council'] ?? null) : null;
+            $sbCouncil = $sbUser ? ($sbUser->council ?? ($sbUser['council'] ?? null)) : null;
         @endphp
-        <a href="{{ route('logs.index') }}" class="nav-item {{ request()->routeIs('logs.*') ? 'active' : '' }}" id="sidebar-logs-link" style="{{ $sbCouncil === 'Backend Development' ? 'display:flex' : 'display:none' }}">
-            <i class="fas fa-file-alt icon"></i> <span>System Logs</span>
-        </a> --}}
-        <a href="#" onclick="event.preventDefault(); localStorage.clear(); sessionStorage.clear(); window.location='{{ route('login') }}'" class="nav-item nav-item-logout">
-            <i class="fas fa-sign-out-alt icon"></i> <span>Logout</span>
-        </a>
+        @if ($sbCouncil === 'Backend Development')
+            <a href="{{ route('logs.index') }}" class="nav-item {{ request()->routeIs('logs.*') ? 'active' : '' }}" id="sidebar-logs-link">
+                <i class="fas fa-file-alt icon"></i> <span>System Logs</span>
+            </a>
+        @endif
+        <form method="POST" action="{{ route('logout') }}" style="margin-top:auto;">
+            @csrf
+            <button type="submit" class="nav-item nav-item-logout" style="width:100%; border:none; cursor:pointer; font-family:inherit;">
+                <i class="fas fa-sign-out-alt icon"></i> <span>Logout</span>
+            </button>
+        </form>
     </nav>
 </aside>
-<script>
-// Show logs link only for Backend Development council (localStorage or session)
-(function(){
-    const council = localStorage.getItem('user_council');
-    if (council === 'Backend Development') {
-        const el = document.getElementById('sidebar-logs-link');
-        if (el) el.style.display = 'flex';
-    }
-})();
-</script>

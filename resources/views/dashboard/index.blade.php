@@ -1046,18 +1046,6 @@
                 if (nameEl) nameEl.textContent = userName;
                 if (councilEl) councilEl.textContent = userCouncil;
                 if (roleEl) roleEl.textContent = userRole;
-
-                // SPECIAL ACCESS: Logs for Backend Team
-                if (userCouncil === 'Backend Development') {
-                    const nav = document.querySelector('.nav-menu');
-                    if (nav && !nav.querySelector('a[href="/logs"]')) {
-                        const logsLink = document.createElement('a');
-                        logsLink.href = '/logs';
-                        logsLink.className = 'nav-item';
-                        logsLink.innerHTML = '<i class="fas fa-file-alt icon"></i> <span>System Logs</span>';
-                        nav.appendChild(logsLink);
-                    }
-                }
             }
 
             populateWelcomeMessage();
