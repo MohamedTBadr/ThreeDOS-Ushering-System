@@ -835,9 +835,6 @@
     <script>
         // ================= CALENDAR =================
         const API_URL = '/api/registrations';
-        const TOKEN = localStorage.getItem('usher_token');
-        if (!TOKEN) window.location.href = '/register';
-
         let currentView = 'weekly';
         let currentDate = new Date();
         let interviews = @json($interviews);
