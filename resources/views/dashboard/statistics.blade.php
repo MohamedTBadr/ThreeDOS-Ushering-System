@@ -468,12 +468,10 @@
     <script>
 
         // ==========================================
-        // STATISTICS LOGIC (UNCHANGED)
+        // STATISTICS LOGIC (MVC: data supplied by DashboardController)
         // ==========================================
-        const API_URL = '/api/registrations';
         let ratingChart, levelChart, councilChart, eventTypeChart;
         let allApplicants = @json($applicants ?? []);
-        const TOKEN = localStorage.getItem('usher_token');
 
         function renderStats(applicants) {
             const grid = document.getElementById('stats-grid');
@@ -542,40 +540,9 @@
             renderCharts(ratingMap, levelMap, councilMap, eventTypeMap);
         }
 
-        async function loadStatistics() {
-            try {
-                // If controller already passed data via Blade MVC, use it immediately
-                if (allApplicants && allApplicants.length > 0) {
-                    renderStats(allApplicants);
-                    return;
-                }
-
-                // Fallback to API if empty
-                if (TOKEN) {
-                    const res = await fetch(`${API_URL}?limit=500`, { 
-                        headers: { 'X-Token': TOKEN, 'Accept': 'application/json' } 
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.status === 'success' && data.data?.applicants) {
-                            allApplicants = data.data.applicants;
-                            renderStats(allApplicants);
-                            return;
-                        }
-                    }
-                }
-
-                renderStats(allApplicants || []);
-            } catch (err) {
-                console.error(err);
-                if (allApplicants && allApplicants.length > 0) {
-                    renderStats(allApplicants);
-                } else {
-                    alert('Failed to load statistics');
-                }
-            } finally {
-                hideLoader();
-            }
+        function loadStatistics() {
+            renderStats(allApplicants || []);
+            hideLoader();
         }
 
         function renderCharts(ratingMap, levelMap, councilMap, eventTypeMap) {

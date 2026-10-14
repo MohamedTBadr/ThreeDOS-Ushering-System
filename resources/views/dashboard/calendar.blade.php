@@ -795,7 +795,7 @@
                         <button class="view-btn active" onclick="switchView('weekly')"><i class="fas fa-calendar-week"></i> Weekly</button>
                         <button class="view-btn" onclick="switchView('daily')"><i class="fas fa-calendar-day"></i> Daily</button>
                     </div>
-                    <button class="btn-refresh" onclick="fetchInterviews()"><i class="fas fa-sync"></i> Refresh</button>
+                    <button class="btn-refresh" onclick="window.location.reload()"><i class="fas fa-sync"></i> Refresh</button>
                 </div>
             </header>
 
@@ -833,36 +833,42 @@
 
     <script src="{{ asset('js/sidebar.js') }}"></script>
     <script>
-        // ================= CALENDAR =================
-        const API_URL = '/api/registrations';
+        // ================= CALENDAR (MVC: data supplied by DashboardController) =================
+        const APPLICANT_BASE = "{{ url('/applicants') }}";
+        const SERVER_INTERVIEWS = @json($interviews);
         let currentView = 'weekly';
         let currentDate = new Date();
-        let interviews = @json($interviews);
         const CONFIG = { startHour: 8, endHour: 22, slotMinutes: 15, slotHeight: 75 };
+
+        function normalizeInterviews(list) {
+            return (list || []).map(i => {
+                const raw = i.interview_time;
+                if (raw && raw !== '0000-00-00 00:00:00') {
+                    const parsed = new Date(String(raw).replace(' ', 'T'));
+                    i.interview_time = isNaN(parsed.getTime()) ? null : parsed;
+                } else {
+                    i.interview_time = null;
+                }
+                return i;
+            });
+        }
+
+        let interviews = normalizeInterviews(SERVER_INTERVIEWS);
 
         function formatTime(h, m) { const ampm = h >= 12 ? 'PM' : 'AM'; const h12 = h % 12 || 12; return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`; }
         function isSameDate(d1, d2) { return d1.toDateString() === d2.toDateString(); }
 
-        async function fetchInterviews() {
-            try {
-                const res = await fetch(`${API_URL}?interviews=1`, { headers: { 'X-Token': TOKEN } });
-                if (res.status === 401) window.location.href = '/register';
-                const data = await res.json();
-                if (data.status === 'success') {
-                    interviews = data.data.interviews.map(i => {
-                        i.interview_time = i.interview_time && i.interview_time !== '0000-00-00 00:00:00' ? new Date(i.interview_time) : null;
-                        return i;
-                    });
-                    renderCalendar(); updateTodayStats();
-                }
-            } catch (e) { console.error(e); }
-            finally { hideGlobalLoader(); }
+        function fetchInterviews() {
+            interviews = normalizeInterviews(SERVER_INTERVIEWS);
+            renderCalendar();
+            updateTodayStats();
+            hideGlobalLoader();
         }
 
-        function switchView(view) { currentView = view; document.querySelectorAll('.view-btn').forEach(btn => btn.classList.toggle('active', btn.innerText.toLowerCase() === view)); renderCalendar(); }
+        function switchView(view) { currentView = view; document.querySelectorAll('.view-btn').forEach(btn => btn.classList.toggle('active', btn.textContent.toLowerCase().includes(view))); renderCalendar(); }
         function changePeriod(delta) { currentView === 'weekly' ? currentDate.setDate(currentDate.getDate() + delta * 7) : currentDate.setDate(currentDate.getDate() + delta); renderCalendar(); }
         function goToToday() { currentDate = new Date(); renderCalendar(); }
-        function updateTodayStats() { document.getElementById('today-count').innerText = interviews.filter(i => i.interview_time && isSameDate(i.interview_time, new Date())).length; }
+        function updateTodayStats() { const el = document.getElementById('today-count'); if (!el) return; el.innerText = interviews.filter(i => i.interview_time && isSameDate(i.interview_time, new Date())).length; }
 
         function renderCalendar() {
             const container = document.getElementById('calendar-body');
@@ -946,7 +952,7 @@
         <div style="margin-bottom:10px;color:#bbb;">Council: <span style="color:white">${interview.council || 'None'}</span></div>
         <div style="margin-bottom:10px;color:#bbb;">Time: <span style="color:white">${time ? formatTime(time.getHours(), time.getMinutes()) : '-'}</span></div>
         <div style="margin-bottom:10px;color:#bbb;">Status: <span style="color:white">${interview.rating || 'Pending'}</span></div>`;
-            document.getElementById('view-details-btn').onclick = () => { window.location.href = `applicant_details_page.html?id=${interview.id}`; };
+            document.getElementById('view-details-btn').onclick = () => { window.location.href = `${APPLICANT_BASE}/${interview.id}`; };
             document.getElementById('modal-overlay').style.display = 'flex';
         }
 

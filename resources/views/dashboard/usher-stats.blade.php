@@ -153,8 +153,6 @@
     <script>
         const INITIAL_STATS = @json($stats ?? []);
         const INITIAL_TOTAL = {{ $totalApplicants ?? 0 }};
-        const API_URL = '/api/stats/ushers';
-        const TOKEN = localStorage.getItem('usher_token');
         function getInitials(name){ if(!name) return 'U'; return name.trim().split(' ').map(w=>w.charAt(0).toUpperCase()).slice(0,2).join('')||'U'; }
         function formatRankBadge(rank){ if(rank===1) return '🥇'; if(rank===2) return '🥈'; if(rank===3) return '🥉'; return rank; }
         function createUsherRow(usher,index){
@@ -186,18 +184,8 @@
             document.getElementById('averagePerUsher').textContent=avg;
             tbody.innerHTML=statsData.map((u,i)=>createUsherRow(u,i)).join('');
         }
-        async function fetchUsheringData(){
-            if(INITIAL_STATS && INITIAL_STATS.length>0) renderUsherData(INITIAL_STATS, INITIAL_TOTAL);
-            try{
-                const headers={'Accept':'application/json'}; if(TOKEN) headers['X-Token']=TOKEN;
-                const res=await fetch(API_URL,{headers}); if(!res.ok) return;
-                const result=await res.json();
-                if(result?.status==='success'&&result.data){
-                    const statsData=result.data.data||[];
-                    const total=result.data.total_applicants ?? INITIAL_TOTAL;
-                    renderUsherData(statsData,total);
-                }
-            }catch(e){ console.log('[ThreeDOS] fallback:',e); }
+        function fetchUsheringData(){
+            renderUsherData(INITIAL_STATS || [], INITIAL_TOTAL);
         }
         window.addEventListener('DOMContentLoaded',()=>{ fetchUsheringData(); });
         window.fetchUsheringData=fetchUsheringData;

@@ -1204,25 +1204,16 @@
            APPLICANT DETAILS PAGE - FULL SCRIPT
         ===================================================== */
 
-        /* ================== CONFIG ================== */
-        const API_URL = '/api/registrations';
-        const TOKEN = localStorage.getItem('usher_token');
-        // Server-injected data (MVC fix for /applicants/58 path)
+        /* ================== CONFIG (MVC: data supplied by ApplicantWebController) ================== */
+        const APPLICANT_UPDATE_URL = "{{ route('applicants.update', ':id') }}";
+        // Server-injected data (rendered for /applicants/{id})
         const SERVER_APPLICANT = @json($applicant);
         const SERVER_QUESTIONS = @json($questions ?? []);
         const SERVER_NOTES = @json($notes ?? []);
 
-        // Support both /applicants/58 path and ?id=58 query
-        const urlParams = new URLSearchParams(window.location.search);
-        const pathId = window.location.pathname.split('/').filter(Boolean).pop();
-        const applicantId = urlParams.get('id') || (pathId && /^\d+$/.test(pathId) ? pathId : null) || (SERVER_APPLICANT ? SERVER_APPLICANT.id : null);
-
+        const applicantId = SERVER_APPLICANT ? SERVER_APPLICANT.id : null;
         if (!applicantId) {
-            console.error('No applicant ID resolved from path or query');
-        }
-        // Don't force login redirect if server data exists (web MVC can render without token)
-        if (!TOKEN && !SERVER_APPLICANT) {
-            console.warn('No token, but will try to use server data');
+            console.error('No applicant ID supplied by controller');
         }
 
         /* ================== DOM ELEMENTS ================== */
@@ -1454,38 +1445,8 @@
                 globalLoader.classList.remove('hidden');
                 globalLoader.style.display = 'flex';
             }
-
-            // Prefer server-injected data for /applicants/58 direct load
-            if (SERVER_APPLICANT && SERVER_APPLICANT.id == applicantId) {
-                try {
-                    populateFromApplicant(SERVER_APPLICANT);
-                    if (globalLoader) { globalLoader.classList.add('hidden'); setTimeout(() => globalLoader.style.display = 'none', 500); }
-                    return;
-                } catch(e) { console.error('Server populate failed', e); }
-            }
-
             try {
-                const response = await fetch(`${API_URL}?id=${applicantId}`, {
-                    headers: { 'X-Token': TOKEN, 'Accept': 'application/json' }
-                });
-
-                if (response.status === 401) {
-                    // If we have server data, use it as fallback
-                    if (SERVER_APPLICANT) { populateFromApplicant(SERVER_APPLICANT); return; }
-                    window.location.href = '/register';
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (data.status !== 'success' || !data.data.applicants.length) {
-                    if (SERVER_APPLICANT) { populateFromApplicant(SERVER_APPLICANT); return; }
-                    throw new Error('Applicant not found');
-                }
-
-                const applicant = data.data.applicants[0];
-                populateFromApplicant(applicant);
-
+                populateFromApplicant(SERVER_APPLICANT);
             } catch (error) {
                 console.error('Load error:', error);
                 showToast('Failed to load applicant: ' + error.message, true);
@@ -1519,28 +1480,15 @@
                 };
 
                 const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
-                let response = await fetch(`${API_URL}/${applicantId}`, {
+                const response = await fetch(APPLICANT_UPDATE_URL.replace(':id', applicantId), {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Token': TOKEN,
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrf || ''
                     },
                     body: JSON.stringify(payload)
                 });
-                if (!response.ok) {
-                    // fallback to web route
-                    response = await fetch(`/applicants/${applicantId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrf || '',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                }
 
                 const data = await response.json();
 

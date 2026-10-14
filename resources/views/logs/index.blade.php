@@ -644,32 +644,15 @@
     <script src="{{ asset('js/sidebar.js') }}"></script>
     <script>
         // ==========================================
-        // LOGS LOGIC
+        // LOGS LOGIC (MVC: data supplied by LogWebController)
         // ==========================================
-        const API_LOGS = '..//api/logs-data';
+        const LOGS_BASE = "{{ route('logs.index') }}";
+        const SERVER_FILES = @json($logFiles ?? []);
+        const SERVER_LOGS = @json($logs ?? []);
+        const SERVER_SELECTED = @json($selectedFile ?? null);
 
-        let currentFiles = [];
-        let currentLogs = [];
-
-        async function fetchLogFiles() {
-            try {
-                const response = await fetch(`${API_LOGS}?list=1`, {
-                    headers: { 'X-Token': token }
-                });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    currentFiles = result.data;
-                    renderFilesList(result.data);
-                    updateStats(result.data);
-                } else {
-                    document.getElementById('files-list').innerHTML = `<p style="color:var(--danger); padding:1rem;">Error: ${result.message}</p>`;
-                }
-            } catch (error) {
-                console.error('Error fetching files:', error);
-                document.getElementById('files-loading').innerHTML = 'Failed to load files';
-            }
-        }
+        let currentFiles = SERVER_FILES;
+        let currentLogs = SERVER_LOGS;
 
         function renderFilesList(files) {
             const container = document.getElementById('files-list');
@@ -681,46 +664,17 @@
             }
 
             container.innerHTML = files.map(file => `
-                <div class="file-item" onclick="loadLogFile('${file}', this)">
+                <div class="file-item ${file === SERVER_SELECTED ? 'active' : ''}" data-file="${file}" onclick="loadLogFile('${file}', this)">
                     <i class="fas fa-file-code"></i>
                     <span class="file-name">${file}</span>
                     <i class="fas fa-chevron-right" style="font-size:0.8rem; opacity:0.5;"></i>
                 </div>
             `).join('');
-
-            // Auto-load first file
-            if (files.length > 0) {
-                const firstItem = container.querySelector('.file-item');
-                loadLogFile(files[0], firstItem);
-            }
         }
 
-        async function loadLogFile(filename, element) {
-            // Update active state
-            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'));
-            if (element) element.classList.add('active');
-
-            document.getElementById('current-file-name').innerHTML = `<i class="fas fa-file-alt"></i><span>${filename}</span>`;
-
-            const viewer = document.getElementById('log-viewer');
-            viewer.innerHTML = '<div style="text-align:center; padding:3rem;"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top:1rem;">Loading content...</p></div>';
-
-            try {
-                const response = await fetch(`${API_LOGS}?view=1&file=${filename}`, {
-                    headers: { 'X-Token': token }
-                });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    currentLogs = result.data;
-                    renderLogContent(result.data);
-                    updateDetailedStats(result.data);
-                } else {
-                    viewer.innerHTML = `<p style="color:var(--danger); padding:2rem;">Error: ${result.message}</p>`;
-                }
-            } catch (error) {
-                viewer.innerHTML = `<p style="color:var(--danger); padding:2rem;">Error loading file.</p>`;
-            }
+        function loadLogFile(filename, element) {
+            // MVC: navigate to the web route so the controller loads and renders the file
+            window.location.href = `${LOGS_BASE}?file=${encodeURIComponent(filename)}`;
         }
 
         function renderLogContent(logs) {
@@ -841,7 +795,7 @@ entryDiv.innerHTML = `
 
             const container = document.getElementById('files-list');
             container.innerHTML = filtered.map(file => `
-                <div class="file-item" onclick="loadLogFile('${file}', this)">
+                <div class="file-item ${file === SERVER_SELECTED ? 'active' : ''}" data-file="${file}" onclick="loadLogFile('${file}', this)">
                     <i class="fas fa-file-code"></i>
                     <span class="file-name">${file}</span>
                     <i class="fas fa-chevron-right" style="font-size:0.8rem; opacity:0.5;"></i>
@@ -850,16 +804,24 @@ entryDiv.innerHTML = `
         }
 
         function updateStats(files) {
-            document.getElementById('total-logs').textContent = files.length;
+            const el = document.getElementById('total-logs');
+            if (el) el.textContent = files.length;
         }
 
         function updateDetailedStats(logs) {
-            const errorCount = logs.filter(log => log.level === 'ERROR').length;
-            document.getElementById('error-count').textContent = errorCount;
+            const el = document.getElementById('error-count');
+            if (!el) return;
+            el.textContent = logs.filter(log => log.level === 'ERROR').length;
         }
 
-        // Initialize
-        fetchLogFiles();
+        // Initialize (MVC render from controller data)
+        renderFilesList(currentFiles);
+        updateStats(currentFiles);
+        if (SERVER_SELECTED) {
+            document.getElementById('current-file-name').innerHTML = `<i class="fas fa-file-alt"></i><span>${SERVER_SELECTED}</span>`;
+            renderLogContent(currentLogs);
+            updateDetailedStats(currentLogs);
+        }
     </script>
 </body>
 

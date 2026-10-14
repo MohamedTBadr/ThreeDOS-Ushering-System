@@ -20,19 +20,20 @@ Route::get('/signup', [AuthWebController::class, 'registerForm'])->name('signup'
 Route::post('/signup', [AuthWebController::class, 'register'])->name('signup.post');
 Route::post('/logout', [AuthWebController::class, 'logout'])->name('logout');
 
-// Dashboard (MVC - controllers supply data to Blade, no API fetch required for initial render)
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/calendar', [DashboardController::class, 'calendar'])->name('calendar');
-Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
-Route::get('/usher-stats', [DashboardController::class, 'usherStats'])->name('usher.stats');
-Route::get('/interviewer-stats', [DashboardController::class, 'interviewerStats'])->name('interviewer.stats');
+// Authenticated (MVC - controllers supply data to Blade, no API fetch required for initial render)
+Route::middleware('webauth')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/calendar', [DashboardController::class, 'calendar'])->name('calendar');
+    Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
+    Route::get('/usher-stats', [DashboardController::class, 'usherStats'])->name('usher.stats');
+    Route::get('/interviewer-stats', [DashboardController::class, 'interviewerStats'])->name('interviewer.stats');
 
-// Applicants
-Route::get('/applicants/{id}', [ApplicantWebController::class, 'show'])->name('applicants.show');
+    // Applicants
+    Route::get('/applicants/{id}', [ApplicantWebController::class, 'show'])->name('applicants.show');
+    Route::patch('/applicants/{id}', [ApplicantWebController::class, 'update'])->name('applicants.update');
+    Route::post('/applicants/{id}/rating', [ApplicantWebController::class, 'updateRating'])->name('applicants.rating');
 
-// Logs view
-Route::get('/logs', [LogWebController::class, 'index'])->name('logs.index');
-
-// Applicants update (pure web MVC, no API)
-Route::patch('/applicants/{id}', [ApplicantWebController::class, 'update'])->name('applicants.update');
-Route::post('/applicants/{id}/rating', [ApplicantWebController::class, 'updateRating'])->name('applicants.rating');
+    // Logs view
+    Route::get('/logs', [LogWebController::class, 'index'])->name('logs.index');
+});

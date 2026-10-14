@@ -779,23 +779,31 @@
         </p>
 
         <!-- Status Messages Container -->
-        <div id="statusContainer"></div>
+        <div id="statusContainer">
+            @if ($errors->any())
+                <div class="status-message status-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ $errors->first() }}</span>
+                </div>
+            @endif
+        </div>
 
         <!-- Steps Indicator -->
-        <div class="steps-indicator" id="stepsIndicator">
+        <div class="steps-indicator" id="stepsIndicator" style="{{ session('success') ? 'display:none' : '' }}">
             <div class="step-dot active" data-step="1"><i class="fas fa-user"></i></div>
             <div class="step-line" id="line1"></div>
             <div class="step-dot" data-step="2"><i class="fas fa-graduation-cap"></i></div>
             <div class="step-line" id="line2"></div>
             <div class="step-dot" data-step="3"><i class="fas fa-star"></i></div>
         </div>
-        <div class="step-labels">
+        <div class="step-labels" style="{{ session('success') ? 'display:none' : '' }}">
             <span class="step-label active" data-label="1"><i class="fas fa-user"></i> Personal</span>
             <span class="step-label" data-label="2"><i class="fas fa-graduation-cap"></i> Academic</span>
             <span class="step-label" data-label="3"><i class="fas fa-star"></i> Preference</span>
         </div>
 
-        <form id="registrationForm" novalidate>
+        <form id="registrationForm" method="POST" action="{{ route('registration.store') }}" novalidate style="{{ session('success') ? 'display:none' : '' }}">
+            @csrf
             <!-- STEP 1: Personal Info -->
             <div class="form-step active" data-step="1">
                 <div class="form-group" style="animation-delay: 0.1s">
@@ -863,7 +871,7 @@
                     <label for="preferences"><i class="fas fa-star"></i> Position Preference</label>
                     <div class="input-container">
                         <i class="fas fa-star"></i>
-                        <select name="preferences" id="preferences" required>
+                        <select name="council" id="preferences" required>
                             <option value="" selected disabled>Select your preferred position</option>
                             <option value="Backend Development">Backend Development</option>
                             <option value="Frontend Development">Frontend Development</option>
@@ -889,7 +897,7 @@
                     <label for="ushered"><i class="fas fa-hands-helping"></i> Ushered By</label>
                     <div class="input-container">
                         <i class="fas fa-user"></i>
-                        <input type="text" name="usher" id="ushered" required placeholder="Enter who Made Usher">
+                        <input type="text" name="ushered_by" id="ushered" required placeholder="Enter who Made Usher">
                         <div class="validation-message">Please enter Person Name</div>
                     </div>
                 </div>
@@ -900,7 +908,7 @@
             </div>
         </form>
 
-        <div class="thank-you" id="thankYou">
+        <div class="thank-you" id="thankYou" style="{{ session('success') ? 'display:block' : '' }}">
             <div class="success-icon">
                 <i class="fas fa-check"></i>
             </div>
@@ -1089,56 +1097,14 @@
                 return;
             }
 
-            // Disable submit button
+            // Strip non-digits from phone (preserve original behavior)
+            const phoneEl = document.getElementById('phone');
+            if (phoneEl) phoneEl.value = phoneEl.value.replace(/\D/g, '');
+
+            // Native MVC submit: RegistrationWebController validates and redirects back on success
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-
-            // Get form data
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value.replace(/\D/g, ''),
-                college: document.getElementById('college').value,
-                level: document.getElementById('level').value,
-                council: document.getElementById('preferences').value,
-                event_type: document.getElementById('event_type').value,
-                ushered_by: document.getElementById('ushered').value
-            };
-
-            // REAL API CALL - No simulation
-            try {
-                const response = await fetch('../backend/api.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                // Check if response is OK
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    form.style.display = 'none';
-                    document.getElementById('stepsIndicator').style.display = 'none';
-                    document.querySelector('.step-labels').style.display = 'none';
-                    thankYou.style.display = 'block';
-                    thankYou.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                    showStatus('Error: ' + result.message, 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Registration';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showStatus('Failed to submit registration. Please try again.', 'error');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Registration';
-            }
+            form.submit();
         });
 
         function resetForm() {
